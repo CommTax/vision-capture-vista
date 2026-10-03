@@ -25,7 +25,7 @@ function Detail() {
       </div>
       {r.audio_url?.startsWith("blob:") && <audio controls src={r.audio_url} className="w-full" />}
       {parent && <ComparePanel a1={parent.analysis} a2={r.analysis} />}
-      <AICoach r={r} level={level} />
+      {canCoach && <AICoach r={r} level={level} />}
       <AnalysisView a={r.analysis} transcript={r.transcript} />
     </div>
   );
