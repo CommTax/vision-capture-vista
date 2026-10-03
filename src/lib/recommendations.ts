@@ -29,7 +29,7 @@ const EXPECTED: Record<Dimension, { change: string; chain: string[]; why: string
   memorability: { change: "Close with one specific takeaway.", chain: ["Hook", "Story", "Takeaway"], why: "A clear closing line is what the listener carries out of the room." },
 };
 
-const DRILL_FOR: Record<Dimension, string> = {
+export const DRILL_FOR: Record<Dimension, string> = {
   structure: "five-sec", clarity: "one-sentence", conciseness: "cut-30", relevance: "specific",
   impact: "result-first", delivery: "filler", confidence: "three-steps", memorability: "exec-summary",
 };
