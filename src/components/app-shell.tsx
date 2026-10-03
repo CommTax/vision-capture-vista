@@ -1,0 +1,80 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { Flame, Home, Mic, ListChecks, LineChart, User } from "lucide-react";
+import { streak, useStore } from "@/lib/store";
+
+export function useHydrated() {
+  return useSyncExternalStore(() => () => {}, () => true, () => false);
+}
+
+export function Logo() {
+  return <Link to="/" className="font-display text-[19px] font-bold tracking-tight">cadence</Link>;
+}
+
+const NAV = [
+  { to: "/practice", label: "Practice" },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/responses", label: "My Responses" },
+  { to: "/skills", label: "Skills" },
+  { to: "/drills", label: "Drills" },
+  { to: "/progress", label: "Progress" },
+] as const;
+
+const MOBILE = [
+  { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/practice", label: "Practice", icon: Mic },
+  { to: "/responses", label: "Responses", icon: ListChecks },
+  { to: "/progress", label: "Progress", icon: LineChart },
+  { to: "/profile", label: "Profile", icon: User },
+] as const;
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const hydrated = useHydrated();
+  const profile = useStore((s) => s.profile);
+  const days = useStore((s) => s.practiceDays);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!profile) navigate({ to: "/signup" });
+    else if (!profile.onboarded) navigate({ to: "/onboarding" });
+  }, [hydrated, profile, navigate]);
+
+  if (!hydrated || !profile?.onboarded) return <div className="min-h-screen" />;
+
+  return (
+    <div className="min-h-screen pb-24 md:pb-0">
+      <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
+          <Logo />
+          <nav className="hidden items-center gap-7 text-[13px] text-muted-foreground md:flex">
+            {NAV.map((n) => (
+              <Link key={n.to} to={n.to} className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>{n.label}</Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>
+            <Link to="/profile" className="grid size-8 place-items-center rounded-full bg-secondary font-display text-[13px] font-bold">{profile.name.slice(0, 1).toUpperCase()}</Link>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-[1200px] px-5 py-8 md:px-8 md:py-12">{children}</main>
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-popover/90 py-2 backdrop-blur-xl md:hidden">
+        {MOBILE.map(({ to, label, icon: Icon }) => (
+          <Link key={to} to={to} className="flex flex-col items-center gap-1 px-2 text-[11px] text-muted-foreground" activeProps={{ className: "text-primary" }}>
+            <Icon className="size-5" />{label}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+export function PageHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) {
+  return (
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div><div className="eyebrow mb-2">{eyebrow}</div><h1 className="text-[clamp(28px,4vw,40px)] font-bold">{title}</h1></div>
+      {children}
+    </div>
+  );
+}
