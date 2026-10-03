@@ -9,7 +9,7 @@ import { currentPattern, skillStats } from "@/lib/insights";
 import { streak, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Your next practice — Unspoken" }, { name: "description", content: "What to practice now, why, and how your responses are changing." }, { property: "og:title", content: "Your next practice — Unspoken" }, { property: "og:description", content: "Your personal practice cockpit." }] }),
+  head: () => ({ meta: [{ title: "Your next practice — Unspoken" }, { name: "description", content: "What to practice now, why, and how your responses are changing." }, { property: "og:title", content: "Your next practice — Unspoken" }, { property: "og:description", content: "Your personal practice cockpit." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Dashboard /></AppShell>,
 });
 

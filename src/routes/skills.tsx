@@ -98,7 +98,7 @@ function Skills() {
               <div className="font-display text-[40px] font-bold leading-none">{cap(focus.skill)} <span className="text-primary">· {focus.score}</span></div>
               <p className="mt-4 text-[16px] font-medium leading-7">{focus.evidence[0] ?? NO_EVIDENCE}</p>
               {focus.recurring_gap && <p className="mt-2 text-[14px] leading-6 text-muted-foreground">What still gets lost: {focus.recurring_gap}</p>}
-              <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>
+              {free ? <Link to="/plans" className="btn btn-primary mt-6">Unlock next practice</Link> : <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>}
             </section>
             {!free && <section className="glass p-7 lg:col-span-5">
               <div className="eyebrow mb-4">Your communication profile</div>

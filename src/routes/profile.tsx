@@ -4,7 +4,7 @@ import { setState, STORAGE_KEY, useStore } from "@/lib/store";
 import { STATE_LABEL, setMarketingConsent, useEntitlement } from "@/lib/entitlements";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — Unspoken" }, { name: "description", content: "Your goals, experience and plan." }, { property: "og:title", content: "Profile — Unspoken" }, { property: "og:description", content: "Manage your Unspoken profile." }] }),
+  head: () => ({ meta: [{ title: "Profile — Unspoken" }, { name: "description", content: "Your goals, experience and plan." }, { property: "og:title", content: "Profile — Unspoken" }, { property: "og:description", content: "Manage your Unspoken profile." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Profile /></AppShell>,
 });
 
