@@ -38,6 +38,113 @@ const DRILLS: [string, string][] = [
   ["Make It Specific", "Replace vague claims with evidence."],
 ];
 
+const FAQS: [string, string][] = [
+  ["What is Cadence?", "Cadence is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again."],
+  ["What can I practice?", "You can practice interviews, presentations, leadership communication, difficult conversations, persuasion, professional updates, group discussions, and custom situations."],
+  ["How does Cadence give feedback?", "Cadence analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability."],
+  ["Is Cadence writing answers for me?", "No. Cadence is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas."],
+  ["Can I practice with text as well as voice?", "Yes. Cadence supports both text and voice practice where available."],
+  ["How does the retry work?", "After you respond, Cadence identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed."],
+  ["Who is Cadence for?", "Cadence is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations."],
+  ["Is there a free version?", "Yes. You can start practicing for free. Paid plans provide more practice, deeper analysis, history, targeted drills, and progress tracking."],
+];
+
+function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: string; open: boolean; onToggle: () => void }) {
+  return (
+    <div className="border-t border-border">
+      <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={id} className="flex w-full items-center justify-between gap-6 py-5 text-left">
+        <span className="font-display text-[17px] font-bold leading-snug">{q}</span>
+        <span aria-hidden="true" className={`shrink-0 font-mono text-[16px] text-primary transition-transform duration-300 ${open ? "rotate-45" : ""}`}>+</span>
+      </button>
+      <div id={id} role="region" aria-hidden={!open} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className="overflow-hidden"><p className="max-w-[72ch] pb-5 text-[14px] leading-6 text-muted-foreground">{a}</p></div>
+      </div>
+    </div>
+  );
+}
+
+function FaqSection() {
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-16 md:px-8">
+      <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Questions, answered.</h2>
+      <div className="mt-8 border-b border-border">
+        {FAQS.map(([q, a], i) => (
+          <FaqItem key={q} q={q} a={a} id={`faq-${i}`} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const EMPTY_FORM = { name: "", email: "", phone: "", topic: "", time: "" };
+type CallbackForm = typeof EMPTY_FORM;
+
+function ContactSection() {
+  const [open, setOpen] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState<CallbackForm>(EMPTY_FORM);
+  const [errors, setErrors] = useState<Partial<Record<"name" | "email" | "phone", string>>>({});
+
+  const set = (k: keyof CallbackForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm({ ...form, [k]: e.target.value });
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const errs: Partial<Record<"name" | "email" | "phone", string>> = {};
+    if (!form.name.trim()) errs.name = "Please add your name.";
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errs.email = "Please add a valid email.";
+    if (!form.phone.trim()) errs.phone = "Please add your phone number.";
+    setErrors(errs);
+    if (Object.keys(errs).length === 0) setSent(true);
+  };
+
+  const req = (k: "name" | "email" | "phone", label: string, type: string) => (
+    <div>
+      <label className="eyebrow" htmlFor={`cb-${k}`}>{label}</label>
+      <input id={`cb-${k}`} type={type} className="field mt-2 w-full" value={form[k]} onChange={set(k)} aria-invalid={!!errors[k]} aria-describedby={errors[k] ? `cb-${k}-err` : undefined} />
+      {errors[k] && <p id={`cb-${k}-err`} className="mt-1.5 text-[12px] text-destructive">{errors[k]}</p>}
+    </div>
+  );
+
+  return (
+    <section id="contact" className="mx-auto max-w-[1200px] px-5 pb-8 md:px-8">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="contact-panel" className="flex w-full items-center justify-between gap-6 border-t border-border py-6 text-left">
+        <div>
+          <div className="eyebrow">Contact us</div>
+          <div className="mt-1.5 font-display text-[20px] font-bold">Have a question or want a callback?</div>
+        </div>
+        <span aria-hidden="true" className={`shrink-0 font-mono text-[16px] text-primary transition-transform duration-300 ${open ? "rotate-45" : ""}`}>+</span>
+      </button>
+      <div id="contact-panel" role="region" aria-hidden={!open} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className="overflow-hidden">
+          <div className="glass p-6 md:p-8">
+            <p className="max-w-[64ch] text-[15px] leading-6 text-muted-foreground">Have a question, need help, or want to talk about Cadence? Write to us at <a href="mailto:info@theunspoken.co.in" className="text-primary">info@theunspoken.co.in</a> or request a callback.</p>
+            {sent ? (
+              <p className="mt-5 rounded-2xl border border-primary/40 bg-primary/5 p-4 text-[14px] leading-6">Thanks — we've received your request. We'll get in touch with you soon.</p>
+            ) : (
+              <form className="mt-5 grid gap-4 sm:grid-cols-2" onSubmit={submit} noValidate>
+                {req("name", "Name", "text")}
+                {req("email", "Email", "email")}
+                {req("phone", "Phone", "tel")}
+                <div>
+                  <label className="eyebrow" htmlFor="cb-time">Preferred time to call (optional)</label>
+                  <input id="cb-time" type="text" className="field mt-2 w-full" value={form.time} onChange={set("time")} placeholder="e.g. Weekdays after 6pm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="eyebrow" htmlFor="cb-topic">What would you like to discuss? (optional)</label>
+                  <textarea id="cb-topic" rows={3} className="field mt-2 w-full resize-none" value={form.topic} onChange={set("topic")} />
+                </div>
+                <div className="sm:col-span-2"><button type="submit" className="btn btn-primary">Request a callback</button></div>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Landing() {
   const navigate = useNavigate();
   const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
