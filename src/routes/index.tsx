@@ -3,6 +3,7 @@ import { Logo } from "@/components/app-shell";
 import { ScoreBar } from "@/components/analysis-view";
 import { getState } from "@/lib/store";
 import { seedDemo } from "@/lib/demo";
+import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -82,14 +83,33 @@ function Landing() {
         </div>
       </section>
 
-      {/* PROBLEM */}
       <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
-        <h2 className="max-w-3xl text-[clamp(28px,3.6vw,44px)] font-bold leading-tight">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
-        <p className="mt-4 text-[16px] text-muted-foreground">Sometimes the idea is strong. The response isn't.</p>
-        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {[["RAMBLING", "CONCISE"], ["SCATTERED", "STRUCTURED"], ["UNCLEAR", "PRECISE"], ["FORGETTABLE", "MEMORABLE"], ["UNCONVINCING", "PERSUASIVE"]].map(([a, b]) => (
-            <div key={a} className="glass p-5"><div className="font-mono text-[11px] text-muted-foreground line-through">{a}</div><div className="mt-2 font-display text-[18px] font-bold"><span className="text-primary">→ </span>{b}</div></div>
-          ))}
+        <div className="relative min-h-[560px] overflow-hidden rounded-3xl border border-border">
+          <video
+            src={landingVideo.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/15 to-background/90" />
+          <div className="relative flex min-h-[560px] flex-col justify-between p-7 md:p-10">
+            <div>
+              <div className="eyebrow mb-4 !text-primary">The real problem</div>
+              <h2 className="max-w-2xl text-[clamp(28px,3.6vw,44px)] font-bold leading-tight">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
+              <p className="mt-3 max-w-xl text-[16px] text-muted-foreground">Sometimes the idea is strong. The response isn't.</p>
+            </div>
+            <div className="mt-10 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {[["RAMBLING", "CONCISE"], ["SCATTERED", "STRUCTURED"], ["UNCLEAR", "PRECISE"], ["FORGETTABLE", "MEMORABLE"], ["UNCONVINCING", "PERSUASIVE"]].map(([a, b]) => (
+                <div key={a} className="glass rounded-2xl px-4 py-4">
+                  <div className="font-mono text-[11px] text-muted-foreground line-through">{a}</div>
+                  <div className="mt-2 font-display text-[15px] font-bold leading-tight"><span className="text-primary">→ </span>{b}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <p className="mt-8 max-w-xl text-[15px] leading-6">The goal isn't to sound perfect. It's to make the thing you actually mean easier to hear.</p>
       </section>
