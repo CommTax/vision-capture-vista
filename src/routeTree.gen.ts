@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PracticeIndexRouteImport } from './routes/practice.index'
+import { Route as PracticeQuestionIdRouteImport } from './routes/practice.$questionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +30,60 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PracticeIndexRoute = PracticeIndexRouteImport.update({
+  id: '/practice/',
+  path: '/practice/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeQuestionIdRoute = PracticeQuestionIdRouteImport.update({
+  id: '/practice/$questionId',
+  path: '/practice/$questionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/practice/': typeof PracticeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/practice': typeof PracticeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/practice/': typeof PracticeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onboarding' | '/signup'
+  fullPaths:
+    '/' | '/onboarding' | '/signup' | '/practice/$questionId' | '/practice/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboarding' | '/signup'
-  id: '__root__' | '/' | '/onboarding' | '/signup'
+  to: '/' | '/onboarding' | '/signup' | '/practice/$questionId' | '/practice'
+  id:
+    | '__root__'
+    | '/'
+    | '/onboarding'
+    | '/signup'
+    | '/practice/$questionId'
+    | '/practice/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OnboardingRoute: typeof OnboardingRoute
   SignupRoute: typeof SignupRoute
+  PracticeQuestionIdRoute: typeof PracticeQuestionIdRoute
+  PracticeIndexRoute: typeof PracticeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +109,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/practice/': {
+      id: '/practice/'
+      path: '/practice'
+      fullPath: '/practice/'
+      preLoaderRoute: typeof PracticeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice/$questionId': {
+      id: '/practice/$questionId'
+      path: '/practice/$questionId'
+      fullPath: '/practice/$questionId'
+      preLoaderRoute: typeof PracticeQuestionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +130,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OnboardingRoute: OnboardingRoute,
   SignupRoute: SignupRoute,
+  PracticeQuestionIdRoute: PracticeQuestionIdRoute,
+  PracticeIndexRoute: PracticeIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
