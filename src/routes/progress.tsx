@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, PageHead } from "@/components/app-shell";
-import { cap, ScoreBar } from "@/components/analysis-view";
+import { cap, ScoreBar, Spark } from "@/components/analysis-view";
 import { BADGES } from "@/lib/data";
 import { skillStats } from "@/lib/insights";
 import { streak, useStore } from "@/lib/store";
-import { Spark } from "./skills";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({ meta: [{ title: "Progress — Cadence" }, { name: "description", content: "Streaks, milestones and how your communication is improving." }, { property: "og:title", content: "Progress — Cadence" }, { property: "og:description", content: "See your improvement over time." }] }),

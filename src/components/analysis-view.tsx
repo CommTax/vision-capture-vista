@@ -169,3 +169,10 @@ export function ComparePanel({ a1, a2 }: { a1: Analysis; a2: Analysis }) {
     </section>
   );
 }
+
+export function Spark({ series }: { series: number[] }) {
+  if (series.length < 2) return <div className="h-10" />;
+  const pts = series.map((v, i) => `${(i / (series.length - 1)) * 100},${40 - (v / 100) * 40}`).join(" ");
+  return <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-10 w-full"><polyline points={pts} fill="none" stroke="var(--primary)" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg>;
+}
+

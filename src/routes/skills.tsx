@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHead } from "@/components/app-shell";
-import { cap } from "@/components/analysis-view";
+import { cap, Spark } from "@/components/analysis-view";
 import { DRILLS } from "@/lib/data";
 import { skillStats } from "@/lib/insights";
 import { useStore } from "@/lib/store";
@@ -9,12 +9,6 @@ export const Route = createFileRoute("/skills")({
   head: () => ({ meta: [{ title: "Communication Skills — Cadence" }, { name: "description", content: "Your level, trend and evidence across eight communication skills." }, { property: "og:title", content: "Communication Skills — Cadence" }, { property: "og:description", content: "Track structure, clarity, impact and more." }] }),
   component: () => <AppShell><Skills /></AppShell>,
 });
-
-export function Spark({ series }: { series: number[] }) {
-  if (series.length < 2) return <div className="h-10" />;
-  const pts = series.map((v, i) => `${(i / (series.length - 1)) * 100},${40 - (v / 100) * 40}`).join(" ");
-  return <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-10 w-full"><polyline points={pts} fill="none" stroke="var(--primary)" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg>;
-}
 
 function Skills() {
   const rs = useStore((s) => s.responses);

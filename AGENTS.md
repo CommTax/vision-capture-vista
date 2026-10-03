@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture
+- All app state lives in `src/lib/store.ts` (localStorage) with shapes mirroring planned backend tables (profiles, responses, response_analysis, user_progress) — so Lovable Cloud can replace it without UI changes.
+- AI feedback goes through `analyzeResponse()` in `src/lib/analysis.ts`; currently a local heuristic provider — swap the provider for a server function, never call AI from components.
+- App pages wrap content in `AppShell`, which gates on profile/onboarding client-side.
