@@ -45,7 +45,7 @@ export async function analyzeResponse(input: AnalysisInput): Promise<Analysis> {
   return heuristicProvider(input);
 }
 
-function heuristicProvider({ question, transcript, durationSec, responseType }: AnalysisInput): Analysis {
+export function heuristicProvider({ question, transcript, durationSec, responseType }: AnalysisInput): Analysis {
   const text = transcript.trim();
   const words = text.split(/\s+/).filter(Boolean);
   const wc = words.length;
