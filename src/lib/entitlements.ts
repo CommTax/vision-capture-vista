@@ -141,24 +141,27 @@ export function registerInterest(product: Interest["product"], plan: string) {
   setState((s) => ({ ...s, interests: [...(s.interests ?? []), { product, plan, at: new Date().toISOString() }] }));
 }
 
-export function saveLead(lead: Omit<Lead, "captured_at">, marketingConsent: boolean) {
+/** Saves contact details onto the user's profile (single source of truth) and records the lead. */
+export function saveContact(c: { name: string; email: string; phone_country_code: string; phone: string }, marketingConsent?: boolean) {
   const at = new Date().toISOString();
   setState((s) => ({
     ...s,
-    lead: { ...lead, captured_at: at },
-    marketing: { consent: marketingConsent, consent_at: marketingConsent ? at : null, unsubscribed: false },
+    lead: { name: c.name, email: c.email, phone: `${c.phone_country_code} ${c.phone}`, captured_at: s.lead?.captured_at ?? at },
+    marketing: marketingConsent === undefined ? s.marketing : { consent: marketingConsent, consent_at: marketingConsent ? at : null, unsubscribed: false },
     profile: s.profile
-      ? { ...s.profile, name: s.profile.name === "Friend" ? lead.name : s.profile.name, email: s.profile.email || lead.email }
-      : { name: lead.name, email: lead.email, goal: "", struggle: "", experience: "", level: "Mid career", onboarded: true, plan: "free" },
+      ? { ...s.profile, name: c.name, email: c.email, phone: c.phone, phone_country_code: c.phone_country_code, id: s.profile.id ?? uidOf(c.email), created_at: s.profile.created_at ?? at, updated_at: at }
+      : { id: uidOf(c.email), name: c.name, email: c.email, phone: c.phone, phone_country_code: c.phone_country_code, created_at: at, updated_at: at, goal: "", struggle: "", experience: "", level: "Mid career", onboarded: true, plan: "free" },
   }));
 }
+const uidOf = (email: string) => `u_${email.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 24)}`;
 
 export function setMarketingConsent(consent: boolean) {
   const at = new Date().toISOString();
   setState((s) => ({ ...s, marketing: { consent, consent_at: consent ? at : s.marketing?.consent_at ?? null, unsubscribed: !consent } }));
 }
 
-export const hasLead = () => { const s = getState(); return !!s.lead || !!s.profile?.email; };
+/** True when the profile already holds name, email and phone. */
+export const hasLead = () => { const p = getState().profile; return !!(p?.name && p.email && p.phone && p.phone_country_code); };
 
 export const STATE_LABEL: Record<EntitlementState, string> = {
   FREE: "Free", PRACTICE_TRIAL: "Practice · trial", PRACTICE_PAID: "Practice", SPRINT_TRIAL: "Sprint · trial", SPRINT_PAID: "Sprint",
