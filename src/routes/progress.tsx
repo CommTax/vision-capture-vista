@@ -27,6 +27,8 @@ const PERIODS: [Period, string][] = [["7", "7 days"], ["30", "30 days"], ["all",
 const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : 0);
 const chronOf = (rs: ResponseRecord[]) => [...rs].sort((a, b) => a.created_at.localeCompare(b.created_at));
 
+const CRITICAL = /\b(but|after|slow|fast|too|more words|without|vague|filler|hedg|late|repeat|no |not|missing|buried|lacks?)/i;
+
 type Change = { d: Dimension; prev: number; cur: number; delta: number; note: string | null };
 
 function periodChanges(list: ResponseRecord[]): Change[] | null {
@@ -42,8 +44,10 @@ function periodChanges(list: ResponseRecord[]): Change[] | null {
     const src = delta < 0 ? sorted[0] : sorted[sorted.length - 1];
     // Only use a note when it agrees with the direction: a low score explaining a decline, a high one a gain.
     const sc = src?.analysis.scores[d] ?? 0;
-    const ok = delta < 0 ? sc < 65 : sc >= 70;
-    const note = ok ? src?.analysis.dimensions[d]?.happened ?? null : delta < 0 ? "The recent score is lower. There is not enough evidence yet to say why." : null;
+    const raw = src?.analysis.dimensions[d]?.happened ?? null;
+    const critical = !!raw && CRITICAL.test(raw);
+    const ok = delta < 0 ? sc < 65 && critical : sc >= 70 && !critical;
+    const note = ok ? raw : delta < 0 ? "The recent score is lower. There is not enough evidence yet to say why." : null;
     return { d, prev, cur, delta, note };
   });
 }
