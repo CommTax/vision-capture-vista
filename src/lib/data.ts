@@ -65,6 +65,7 @@ export const DRILLS: Drill[] = [
   { id: "result-first", name: "Give the Result First", objective: "Lead with the outcome, then the story.", example: "“We cut churn by 18%. Here's how…”", prompt: "Describe a project you're proud of — start with the result.", skill: "impact", minutes: 3 },
   { id: "one-sentence", name: "One-Sentence Summary", objective: "Compress the whole message into one line.", example: "“The launch slipped two weeks because of a vendor delay; we're back on track.”", prompt: "Summarise your last week of work in one sentence.", skill: "clarity", minutes: 2 },
   { id: "specific", name: "Make It Specific", objective: "Replace broad claims with numbers, names and outcomes.", example: "“I improved things” → “I cut review time from 5 days to 2.”", prompt: "What is your biggest professional strength? Prove it with one specific.", skill: "relevance", minutes: 3 },
+  { id: "filler", name: "Remove Filler Words", objective: "Say the same message without unnecessary filler.", example: "“So, basically, I um think…” → “I think…”", prompt: "Describe what you worked on last week — without “um”, “like”, “basically” or “you know”.", skill: "delivery", minutes: 2 },
   { id: "exec-summary", name: "Executive Summary Challenge", objective: "Brief a busy executive in 30 seconds.", example: "Situation · Recommendation · Ask.", prompt: "Brief your CEO on a risk to your biggest project in 30 seconds.", skill: "memorability", minutes: 3 },
 ];
 
