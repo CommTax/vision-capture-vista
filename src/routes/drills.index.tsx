@@ -30,7 +30,7 @@ function Drills() {
   const { free } = useEntitlement();
   const rs = useStore((s) => s.responses);
   const done = useStore((s) => s.drillsDone);
-  const results = useStore((s) => s.drillResults ?? {});
+  const results = useStore((s) => s.drillResults) ?? {};
   const { next, more } = buildRecommendations(rs);
   const completed = DRILLS.filter((d) => done.includes(d.id));
 
