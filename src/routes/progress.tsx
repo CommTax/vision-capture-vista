@@ -247,7 +247,7 @@ function Progress() {
             <>
               <div className="font-display text-[20px] font-bold">{next.drill.name}</div>
               <div className="font-mono text-[12px] text-muted-foreground">{cap(next.skill)} · {next.drill.minutes} min</div>
-              <p className="mt-3 text-[14px] text-muted-foreground">{next.evidence ?? next.reason}</p>
+              <p className="mt-3 text-[14px] text-muted-foreground">{next.expected_behavior_change} {next.reason}</p>
               <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-4 inline-flex">Start drill →</Link>
             </>
           )}
