@@ -7,20 +7,22 @@ import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
 import { AICoach } from "@/components/ai-coach";
 import { analyzeResponse, type Analysis } from "@/lib/analysis";
-import { QUESTIONS, modeName, type Question } from "@/lib/data";
+import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
+import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
+import { cap } from "@/components/analysis-view";
 import { addResponse, getState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/$questionId")({
-  validateSearch: z.object({ s: z.string().optional(), retry: z.string().optional() }),
+  validateSearch: z.object({ s: z.string().optional(), retry: z.string().optional(), f: z.enum(DIMENSIONS).optional(), ctx: z.string().optional() }),
   head: () => ({ meta: [{ title: "Practice session — Cadence" }, { name: "description", content: "Respond out loud or in writing, then see what got lost." }, { property: "og:title", content: "Practice session — Cadence" }, { property: "og:description", content: "A distraction-free response practice session." }] }),
   component: SessionRoute,
 });
 
 function SessionRoute() {
   const { questionId } = Route.useParams();
-  const { s, retry } = Route.useSearch();
+  const { s, retry, f, ctx } = Route.useSearch();
   // Remount on question / retry change so session state never leaks between questions.
-  return <AppShell><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} /></AppShell>;
+  return <AppShell><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} focus={f} ctx={ctx} /></AppShell>;
 }
 
 function loadChain(id?: string): ResponseRecord[] {
@@ -32,13 +34,15 @@ function loadChain(id?: string): ResponseRecord[] {
   return all.filter((x) => x.id === root || x.parent_id === root).sort((a, b) => a.attempt - b.attempt);
 }
 
-function Session({ questionId, situation, retry }: { questionId: string; situation?: string; retry?: string }) {
+function Session({ questionId, situation, retry, focus, ctx }: { questionId: string; situation?: string; retry?: string; focus?: Dimension; ctx?: string }) {
   const navigate = useNavigate();
   const level = useStore((st) => st.profile?.level ?? "Mid career");
   const q: Question = useMemo(() => {
-    if (questionId === "custom") return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: "Custom scenario", difficulty: "Medium", seconds: 90 };
-    return QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
-  }, [questionId, situation]);
+    if (questionId === "custom") return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
+    const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
+    const sc = toScenario(base, level); // level-aware context, difficulty and time
+    return { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
+  }, [questionId, situation, ctx, level]);
 
   const [attempts, setAttempts] = useState<ResponseRecord[]>(() => loadChain(retry));
   const [phase, setPhase] = useState<"respond" | "analyzing" | "result">("respond");
@@ -115,6 +119,7 @@ function Session({ questionId, situation, retry }: { questionId: string; situati
         <div className="glass glass-float rise p-6 md:p-10">
           <div className="eyebrow mb-3">Question</div>
           <h1 className="text-balance text-[clamp(26px,4vw,40px)] font-bold leading-tight">{q.text}</h1>
+          {focus && <div className="mt-4 rounded-2xl border border-primary/30 p-4 text-[13px]"><span className="eyebrow !text-primary">Focus: {focus}</span><div className="mt-1 text-muted-foreground">We will look closely at: {EVAL_FOCUS[focus].join(" · ")}</div></div>}
           {last && phase === "respond" && (
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-[14px]">
               <span><span className="eyebrow mr-2 !text-primary">Focus for attempt {attempts.length + 1}</span>{last.analysis.retry_instruction}</span>
@@ -185,6 +190,9 @@ function Session({ questionId, situation, retry }: { questionId: string; situati
           )}
 
           <AICoach r={viewed} level={level} />
+          {focus && viewed.analysis.dimensions[focus] && (
+            <div className="glass mb-6 p-6"><div className="eyebrow mb-2 !text-primary">Focus check · {cap(focus)} {viewed.analysis.scores[focus]}</div><p className="text-[15px]">{viewed.analysis.dimensions[focus].happened}</p>{viewed.analysis.dimensions[focus].evidence && <p className="mt-1 text-[13px] italic text-muted-foreground">{viewed.analysis.dimensions[focus].evidence}</p>}<p className="mt-2 text-[13px]"><span className="text-muted-foreground">Try this: </span>{viewed.analysis.dimensions[focus].tryThis}</p></div>
+          )}
           <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />
           {viewed.audio_url && <audio controls src={viewed.audio_url} className="w-full" />}
           <div className="flex flex-wrap justify-center gap-3 pt-4">

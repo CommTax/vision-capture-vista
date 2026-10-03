@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { buildSkillInsights } from "@/lib/skills";
+import { scenariosFor } from "@/lib/scenarios";
 import { analyzeResponse, type Analysis } from "@/lib/analysis";
 import { DRILLS } from "@/lib/data";
 import { setState, useStore } from "@/lib/store";
@@ -23,6 +24,7 @@ function DrillPage() {
   const saved = useStore((s) => s.drillResults?.[d.id]);
   const rs = useStore((s) => s.responses);
   const baseline = buildSkillInsights(rs).find((x) => x.skill === d.skill)?.score ?? null;
+  const real = scenariosFor(d.skill, level)[0];
   const others = DRILLS.filter((x) => x.id !== d.id && x.skill !== d.skill).slice(0, 1);
 
   async function submit() {
@@ -86,6 +88,14 @@ function DrillPage() {
               <button className="btn btn-primary btn-sm" onClick={() => document.querySelector("textarea")?.focus()}>Try again →</button>
               {others[0] && <Link to="/drills/$drillId" params={{ drillId: others[0].id }} className="btn btn-ghost btn-sm" onClick={() => { setResults([]); setText(""); }}>Practice another drill →</Link>}
             </div>
+            {real && (
+              <div className="mt-7 rounded-2xl border border-primary/30 p-5">
+                <div className="eyebrow mb-2 !text-primary">Now use it in a real situation</div>
+                <div className="font-display text-[17px] font-bold">{real.title}</div>
+                <div className="mt-1 font-mono text-[11px] text-muted-foreground">FOCUS: {d.skill.toUpperCase()} · {real.time_limit}s</div>
+                <Link to="/practice/$questionId" params={{ questionId: real.scenario_id }} search={{ f: d.skill }} className="mt-3 inline-block text-[13px] text-primary">Practice this →</Link>
+              </div>
+            )}
           </div>
         );
       })()}
