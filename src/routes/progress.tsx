@@ -145,7 +145,7 @@ function Progress() {
             </div>
             <div>
               <div className="text-[12px] text-muted-foreground">What to practice next</div>
-              {next ? <><div className="mt-1 font-display text-[18px] font-bold">{cap(next.skill)}</div><div className="mt-1 font-mono text-[13px] text-primary">{next.success_chain.join(" → ")}</div><Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn-primary mt-3 inline-flex">Practice now →</Link></> : <p className="mt-1 text-[14px]">Not enough data yet.</p>}
+              {next ? <><div className="mt-1 font-display text-[18px] font-bold">{cap(next.skill)}</div><div className="mt-1 font-mono text-[13px] text-primary">{next.success_chain.join(" → ")}</div><Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-3 inline-flex">Practice now →</Link></> : <p className="mt-1 text-[14px]">Not enough data yet.</p>}
             </div>
           </div>
         )}
@@ -214,7 +214,7 @@ function Progress() {
               </div>
               <div className="mt-4 text-[13px]"><span className="text-muted-foreground">Time to main point </span><span className="font-mono">{chain.first.analysis.main_point_delay}s → {chain.last.analysis.main_point_delay}s</span></div>
               <div className="mt-1 text-[13px]"><span className="text-muted-foreground">Overall </span><span className="font-mono">{chain.first.analysis.overall} → {chain.last.analysis.overall}</span> <Arrow v={chain.gain} /></div>
-              <Link to="/responses/$responseId" params={{ responseId: chain.last.id }} className="btn-ghost mt-4 inline-flex">View comparison →</Link>
+              <Link to="/responses/$responseId" params={{ responseId: chain.last.id }} className="btn btn-ghost mt-4 inline-flex">View comparison →</Link>
             </>
           )}
         </section>
@@ -240,7 +240,7 @@ function Progress() {
               <div className="font-display text-[20px] font-bold">{next.drill.name}</div>
               <div className="font-mono text-[12px] text-muted-foreground">{cap(next.skill)} · {next.drill.minutes} min</div>
               <p className="mt-3 text-[14px] text-muted-foreground">{next.evidence ?? next.reason}</p>
-              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn-primary mt-4 inline-flex">Start drill →</Link>
+              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-4 inline-flex">Start drill →</Link>
             </>
           )}
         </section>
