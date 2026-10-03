@@ -313,6 +313,12 @@ function Landing() {
         <p className="mt-4 text-[12px] text-muted-foreground">Payments coming soon. Start practicing free today.</p>
       </section>
 
+      {/* FAQ */}
+      <FaqSection />
+
+      {/* CONTACT */}
+      <ContactSection />
+
       {/* FINAL CTA */}
       <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
         <div className="glass glass-float p-10 text-center md:p-16">
