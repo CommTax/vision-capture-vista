@@ -47,7 +47,8 @@ function toRec(x: SkillInsight): Recommendation {
   };
 }
 
-export function buildRecommendations(rs: ResponseRecord[]) {
-  const ranked = buildSkillInsights(rs).filter((x) => x.score !== null).sort((a, b) => leverage(b) - leverage(a)).map(toRec);
+/** Single recommendation engine. `focus` narrows it to a Sprint's target skills. */
+export function buildRecommendations(rs: ResponseRecord[], focus?: Dimension[]) {
+  const ranked = buildSkillInsights(rs).filter((x) => x.score !== null && (!focus || focus.includes(x.skill))).sort((a, b) => leverage(b) - leverage(a)).map(toRec);
   return { next: ranked[0] ?? null, more: ranked.slice(1, 4) };
 }

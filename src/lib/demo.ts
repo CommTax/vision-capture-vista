@@ -1,6 +1,7 @@
 import { heuristicProvider } from "./analysis";
 import type { Dimension } from "./data";
 import { QUESTIONS } from "./data";
+import { startPracticeTrial } from "./entitlements";
 import { setState, type ResponseRecord, type State } from "./store";
 
 const A1 = "So, at my last company we had a big migration project and there were a lot of teams involved. The project had started before I joined and there were already some issues with timelines. There was one stakeholder, the head of finance operations, who was quite unhappy because their reports kept breaking. We had many meetings and I basically tried to understand everything that was going on, like the systems and the dependencies. There were also some vendor issues and the budget was kind of tight. Eventually I set up a weekly review with her and we started tracking the issues together. After some time things got better and she was happier with the project.";
@@ -32,5 +33,8 @@ export function seedDemo(name = "Arun", email = "arun@example.com") {
     profile: { name, email, goal: "Job Interview", struggle: "I lose my structure", experience: "5–15 years", level: "Mid career", onboarded: true, plan: "free" },
     responses, drillsDone: ["five-sec"], practiceDays: days,
   };
+  setState(() => s);
+  startPracticeTrial("monthly"); // demo account runs on a real Practice trial entitlement
+  return;
   setState(() => s);
 }
