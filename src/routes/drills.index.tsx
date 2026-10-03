@@ -47,7 +47,7 @@ function Drills() {
               <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">{next.drill.name}</h2>
               <div className="mt-1 font-mono text-[12px] uppercase text-muted-foreground">{next.skill} · {next.drill.minutes} min</div>
               <p className="mt-5 text-[17px] font-medium leading-7">{next.evidence ?? NO_DATA}</p>
-              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">{free && <LockIcon aria-hidden="true" className="size-3.5" />}Start drill →</Link>
+              {free ? <Link to="/plans" className="btn btn-primary mt-7 px-6 py-3 text-[15px]"><LockIcon aria-hidden="true" className="size-3.5" />Unlock drill</Link> : <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">Start drill →</Link>}
             </div>
             <div className="space-y-5 md:col-span-5">
               <div><div className="eyebrow mb-1">Your goal</div><p className="text-[15px]">{next.expected_behavior_change}</p></div>
@@ -56,12 +56,12 @@ function Drills() {
           </div>
 
           {/* 2. Why this drill */}
-          <div className="mt-8 border-t border-border pt-6">
+          {!free && <div className="mt-8 border-t border-border pt-6">
             <div className="eyebrow mb-2">Why this drill?</div>
             <div className="font-display text-[18px] font-bold">{cap(next.skill)} · {next.current_score}{next.change !== null && next.change !== 0 && <span className={`ml-2 font-mono text-[13px] ${next.change > 0 ? "text-success" : "text-destructive"}`}>{next.change > 0 ? "▲" : "▼"}{Math.abs(next.change)}</span>}</div>
             {next.recurring_gap && <p className="mt-2 text-[14px] text-muted-foreground">What keeps getting lost: {next.recurring_gap}</p>}
             <p className="mt-2 text-[14px]"><span className="text-muted-foreground">Recommended because: </span>{next.reason}</p>
-          </div>
+          </div>}
         </section>
       ) : (
         <section className="glass p-8"><div className="eyebrow mb-2 !text-primary">Your next drill</div><p className="text-[15px]">{NO_DATA}</p><Link to="/practice" className="btn btn-primary mt-5">Answer a question →</Link></section>
@@ -70,7 +70,7 @@ function Drills() {
       {free && next && <Locked feature="drills" title={`Your responses point to ${cap(next.skill)}.`} body="A targeted drill can help you practice that behavior — with a before-and-after on every try." cta="Unlock targeted practice" />}
 
       {/* 3. Recommended */}
-      {more.length > 0 && (
+      {!free && more.length > 0 && (
         <section>
           <h2 className="text-[22px] font-bold">Recommended for you</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-3">{more.map((r) => <RecCard key={r.drill_id + r.skill} r={r} />)}</div>
@@ -78,7 +78,7 @@ function Drills() {
       )}
 
       {/* 4. Library */}
-      <section>
+      {!free && <section>
         <h2 className="text-[22px] font-bold">Explore drills</h2>
         <p className="mt-1 text-[13px] text-muted-foreground">Every exercise, grouped by the skill it trains.</p>
         <div className="mt-5 space-y-6">
@@ -94,10 +94,10 @@ function Drills() {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* 5. Completed */}
-      {completed.length > 0 && (
+      {!free && completed.length > 0 && (
         <section>
           <h2 className="text-[22px] font-bold">Completed</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-3">{completed.map((d) => {

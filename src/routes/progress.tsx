@@ -161,6 +161,8 @@ function Progress() {
         {few && <p className="mt-5 font-mono text-[11px] text-muted-foreground">Based on only two responses in this period — treat as early signal.</p>}
       </section>
 
+      <Locked feature="progress" title="Your detailed progress" body="Unlock skill-by-skill changes, time-to-point history, attempt comparisons, recurring patterns, and milestones." cta="Unlock progress insights"><div className="mt-6">
+
       {/* 2. What's changing */}
       <section className="mt-6 glass p-7">
         <div className="eyebrow mb-1">What's changing</div>
@@ -202,7 +204,6 @@ function Progress() {
         )}
       </section>
 
-      <Locked feature="progress" title="What's driving the change?" body="See which response behaviors are improving, where you're regressing, what changed between attempts, which patterns recur and what to practice next." cta="Unlock your progress insights"><div className="mt-6">
       {/* 4. What changed + one response improved */}
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="glass p-7">
@@ -256,7 +257,6 @@ function Progress() {
         </section>
       </div>
 
-      </div></Locked>
       {/* 7. Activity */}
       <section className="mt-10">
         <div className="eyebrow mb-3">Practice activity</div>
@@ -279,6 +279,7 @@ function Progress() {
           ))}
         </div>
       </section>
+      </div></Locked>
     </>
   );
 }

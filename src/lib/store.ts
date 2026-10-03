@@ -19,7 +19,8 @@ export type State = {
   entitlement?: Entitlement; freeAttemptsUsed?: number; lead?: Lead; marketing?: Marketing; interests?: Interest[];
 };
 
-const KEY = "cadence-state-v1";
+export const STORAGE_KEY = "unspoken-state-v1";
+const LEGACY_KEY = "cadence-state-v1";
 const listeners = new Set<() => void>();
 let state: State = { profile: null, responses: [], drillsDone: [], practiceDays: [] };
 let loaded = false;
@@ -27,9 +28,12 @@ let loaded = false;
 function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
-  try { const raw = localStorage.getItem(KEY); if (raw) state = JSON.parse(raw); } catch { /* ignore */ }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch { /* ignore */ }
 }
-function emit() { localStorage.setItem(KEY, JSON.stringify(state)); listeners.forEach((l) => l()); }
+function emit() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); localStorage.removeItem(LEGACY_KEY); listeners.forEach((l) => l()); }
 
 export function setState(fn: (s: State) => State) { load(); state = fn(state); emit(); }
 export function getState() { load(); return state; }
