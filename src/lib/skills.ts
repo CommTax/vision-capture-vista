@@ -35,7 +35,7 @@ export const OUTCOMES: Dimension[] = ["memorability"];
 
 const DRILL_FOR: Record<Dimension, string> = {
   structure: "five-sec", clarity: "one-sentence", conciseness: "cut-30", relevance: "specific",
-  impact: "result-first", delivery: "three-steps", confidence: "five-sec", memorability: "exec-summary",
+  impact: "result-first", delivery: "filler", confidence: "five-sec", memorability: "exec-summary",
 };
 
 const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
@@ -57,7 +57,8 @@ export function buildSkillInsights(rs: ResponseRecord[]): SkillInsight[] {
     const score = avg(recent.map((r) => r.analysis.scores[d]));
     const previous_score = earlier.length ? avg(earlier.map((r) => r.analysis.scores[d])) : null;
     const change = score !== null && previous_score !== null ? score - previous_score : null;
-    const evidence = [...recent].reverse().map((r) => r.analysis.dimensions[d]?.happened).filter((x): x is string => !!x)
+    // Lowest-scoring recent responses first, so evidence explains the score rather than contradicting it.
+    const evidence = [...recent].reverse().sort((a, b) => a.analysis.scores[d] - b.analysis.scores[d]).map((r) => r.analysis.dimensions[d]?.happened).filter((x): x is string => !!x)
       .filter((x, i, a) => a.indexOf(x) === i).slice(0, 3);
     const best = chron.reduce<ResponseRecord | null>((b, r) => (!b || r.analysis.scores[d] > b.analysis.scores[d] ? r : b), null);
     const strongest_example = best ? { response_id: best.id, question: best.question, score: best.analysis.scores[d], note: best.analysis.dimensions[d]?.happened ?? "", excerpt: best.analysis.dimensions[d]?.evidence ?? "" } : null;

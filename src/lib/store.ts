@@ -11,7 +11,8 @@ export type ResponseRecord = {
   transcript: string; audio_url?: string; duration: number; created_at: string;
   attempt: number; parent_id?: string; analysis: Analysis; coaching?: Coaching;
 };
-export type State = { profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[] };
+export type DrillResult = { skill: string; first_score: number; last_score: number; first_delay: number; last_delay: number; attempts: number; at: string };
+export type State = { profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult> };
 
 const KEY = "cadence-state-v1";
 const listeners = new Set<() => void>();
