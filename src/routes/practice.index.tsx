@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
+import { FreeCounter } from "@/components/plan-gate";
+import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
 import { LEVELS, MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, GOALS, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
@@ -8,7 +10,7 @@ import { setState, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/")({
   head: () => ({ meta: [{ title: "Practice — Cadence" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — Cadence" }, { property: "og:description", content: "Practice what you need to say next." }] }),
-  component: () => <AppShell><Practice /></AppShell>,
+  component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
 function ScenarioCard({ s, level, focus, recommended }: { s: Scenario; level: string; focus?: Dimension; recommended?: boolean }) {
@@ -38,11 +40,13 @@ function Practice() {
   const activeFocus = goal ?? rec?.current_focus ?? null;
   const adaptive = activeFocus ? scenariosFor(activeFocus, level).filter((s) => s.scenario_id !== recScenario?.scenario_id).slice(0, 4) : [];
   const library = mode && mode !== "custom" ? all.filter((s) => s.category === mode) : [];
+  const ent = useEntitlement();
   const preview = custom.trim().length > 8 ? buildCustomScenario(custom, level) : null;
 
   return (
     <div className="space-y-10">
-      <div><PageHead eyebrow="Practice" title="What do you need to say next?" /><p className="-mt-6 text-[15px] text-muted-foreground">Choose a real situation. Practice your response. See what gets lost.</p></div>
+      <div><PageHead eyebrow="Practice" title="What do you need to say next?" /><p className="-mt-6 text-[15px] text-muted-foreground">Choose a real situation. Practice your response. See what gets lost.</p><div className="mt-2"><FreeCounter /></div></div>
+      {!rec && !ent.free && rs.length > 0 && <p className="glass p-5 text-[14px] text-muted-foreground">Keep practicing to build enough evidence for a personalized recommendation.</p>}
 
       {/* 1. Next practice */}
       {rec && recScenario && (
@@ -97,7 +101,10 @@ function Practice() {
         </div>
 
         {/* 4. Library for the chosen category */}
-        {mode === "custom" && (
+        {mode === "custom" && ent.free && (
+          <div className="glass mt-5 p-6 text-[14px]"><div className="eyebrow mb-1">Custom practice</div>Build your own scenario with Practice or Sprint. <Link to="/plans" className="text-primary">See plans →</Link></div>
+        )}
+        {mode === "custom" && !ent.free && (
           <form className="glass mt-5 space-y-4 p-6" onSubmit={(e) => { e.preventDefault(); if (!preview) return; navigate({ to: "/practice/$questionId", params: { questionId: "custom" }, search: { s: custom.trim(), ctx: preview.context, f: preview.evaluation_focus[0] } }); }}>
             <div><div className="eyebrow mb-1">Custom practice</div><label className="font-display text-[20px] font-bold">What situation do you need to practice?</label></div>
             <textarea className="field min-h-28" value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="I'm asking my manager for a promotion after taking on additional responsibilities." />

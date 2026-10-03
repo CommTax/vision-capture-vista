@@ -29,7 +29,7 @@ const EXPECTED: Record<Dimension, { change: string; chain: string[]; why: string
   memorability: { change: "Close with one specific takeaway.", chain: ["Hook", "Story", "Takeaway"], why: "A clear closing line is what the listener carries out of the room." },
 };
 
-const DRILL_FOR: Record<Dimension, string> = {
+export const DRILL_FOR: Record<Dimension, string> = {
   structure: "five-sec", clarity: "one-sentence", conciseness: "cut-30", relevance: "specific",
   impact: "result-first", delivery: "filler", confidence: "three-steps", memorability: "exec-summary",
 };
@@ -47,7 +47,8 @@ function toRec(x: SkillInsight): Recommendation {
   };
 }
 
-export function buildRecommendations(rs: ResponseRecord[]) {
-  const ranked = buildSkillInsights(rs).filter((x) => x.score !== null).sort((a, b) => leverage(b) - leverage(a)).map(toRec);
+/** Single recommendation engine. `focus` narrows it to a Sprint's target skills. */
+export function buildRecommendations(rs: ResponseRecord[], focus?: Dimension[]) {
+  const ranked = buildSkillInsights(rs).filter((x) => x.score !== null && (!focus || focus.includes(x.skill))).sort((a, b) => leverage(b) - leverage(a)).map(toRec);
   return { next: ranked[0] ?? null, more: ranked.slice(1, 4) };
 }
