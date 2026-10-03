@@ -40,6 +40,13 @@ export const QUESTIONS: Question[] = [
   q("sal-3", "sales", "Convince a stakeholder to fund your idea.", "Hallway conversation", "Medium", 60),
   q("evd-1", "everyday", "Tell your manager the project is two weeks late.", "Without sounding defensive", "Medium", 45),
   q("evd-2", "everyday", "Give leadership a 30-second status update.", "Weekly sync", "Easy", 30),
+  q("imp-1", "interview", "Tell me about a decision that changed an outcome.", "Behavioral round — impact", "Hard", 90),
+  q("imp-2", "everyday", "Explain a difficult decision to your executive sponsor.", "Leadership 1:1", "Hard", 90),
+  q("imp-3", "presentation", "Recommend a change and explain its business impact.", "Planning review", "Hard", 90),
+  q("imp-4", "conversation", "Ask for something and make the value clear.", "Budget or headcount request", "Medium", 60),
+  q("ldr-1", "presentation", "Present a strategic recommendation with a hard trade-off.", "Exec staff meeting — two options, limited budget", "Hard", 120),
+  q("ldr-2", "conversation", "Lead your team through a reorg announcement.", "All-hands — people are anxious", "Hard", 120),
+  q("ldr-3", "sales", "Influence a peer org without authority.", "Cross-functional dependency is blocking your launch", "Hard", 90),
   q("evd-3", "everyday", "Explain a mistake you made to your team.", "Team standup", "Medium", 60),
 ];
 
