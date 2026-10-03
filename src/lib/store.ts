@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { Analysis } from "./analysis";
 import type { ModeId } from "./data";
 import type { Coaching } from "./coach.server";
+import type { Entitlement, Interest, Lead, Marketing } from "./entitlements";
 
 export type Profile = { name: string; email: string; goal: string; struggle: string; experience: string; level: string; onboarded: boolean; plan: "free" | "practice" | "sprint" };
 export type ResponseRecord = {
@@ -12,7 +13,11 @@ export type ResponseRecord = {
   attempt: number; parent_id?: string; analysis: Analysis; coaching?: Coaching;
 };
 export type DrillResult = { skill: string; first_score: number; last_score: number; first_delay: number; last_delay: number; attempts: number; at: string };
-export type State = { profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult> };
+export type State = {
+  profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult>;
+  // Kept separate from identity: entitlement (access), lead (contact capture), marketing (consent).
+  entitlement?: Entitlement; freeAttemptsUsed?: number; lead?: Lead; marketing?: Marketing; interests?: Interest[];
+};
 
 const KEY = "cadence-state-v1";
 const listeners = new Set<() => void>();
