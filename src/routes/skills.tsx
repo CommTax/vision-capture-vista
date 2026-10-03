@@ -75,7 +75,7 @@ function Skills() {
   const selected = xs.find((x) => x.skill === sel);
   const scored = xs.filter((x) => x.score !== null);
   const strongest = [...scored].sort((a, b) => b.score! - a.score!)[0];
-  const improving = [...scored].filter((x) => (x.change ?? 0) > 0).sort((a, b) => b.change! - a.change!)[0];
+  const improving = [...scored].filter((x) => (x.change ?? 0) > 0 && x !== strongest && x !== focus).sort((a, b) => b.change! - a.change!)[0];
   const slipping = [...scored].filter((x) => (x.change ?? 0) < 0 && x !== focus).sort((a, b) => a.change! - b.change!)[0];
   const toggle = (d: string) => setSel((c) => (c === d ? null : d));
 
