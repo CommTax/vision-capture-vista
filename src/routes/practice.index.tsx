@@ -8,7 +8,7 @@ import { setState, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/")({
   head: () => ({ meta: [{ title: "Practice — Cadence" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — Cadence" }, { property: "og:description", content: "Practice what you need to say next." }] }),
-  component: () => <AppShell><Practice /></AppShell>,
+  component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
 function ScenarioCard({ s, level, focus, recommended }: { s: Scenario; level: string; focus?: Dimension; recommended?: boolean }) {

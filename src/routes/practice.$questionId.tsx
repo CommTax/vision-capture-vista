@@ -10,6 +10,8 @@ import { analyzeResponse, type Analysis } from "@/lib/analysis";
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
+import { FreeCounter, FreeResult, Conversion, LeadCapture } from "@/components/plan-gate";
+import { canSubmit, hasLead, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/$questionId")({
@@ -22,7 +24,7 @@ function SessionRoute() {
   const { questionId } = Route.useParams();
   const { s, retry, f, ctx } = Route.useSearch();
   // Remount on question / retry change so session state never leaks between questions.
-  return <AppShell><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} focus={f} ctx={ctx} /></AppShell>;
+  return <AppShell allowGuest><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} focus={f} ctx={ctx} /></AppShell>;
 }
 
 function loadChain(id?: string): ResponseRecord[] {
@@ -45,7 +47,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   }, [questionId, situation, ctx, level]);
 
   const [attempts, setAttempts] = useState<ResponseRecord[]>(() => loadChain(retry));
-  const [phase, setPhase] = useState<"respond" | "analyzing" | "result">("respond");
+  const [phase, setPhase] = useState<"respond" | "analyzing" | "lead" | "result">("respond");
   const [view, setView] = useState(0); // index of attempt being viewed
   const [compareWith, setCompareWith] = useState(0);
   const [kind, setKind] = useState<"voice" | "text">("text");
@@ -54,6 +56,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
+  const ent = useEntitlement();
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   const last = attempts[attempts.length - 1];
@@ -72,18 +75,20 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   useEffect(() => { if (phase === "respond" && kind === "text") textRef.current?.focus(); }, [phase, kind]);
 
   async function analyze(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string) {
+    if (!canSubmit(getState())) return;
     setError("");
     setPhase("analyzing");
     try {
       const a: Analysis = await analyzeResponse({ question: q.text, transcript, mode: q.mode, level, durationSec: duration || undefined, responseType: type });
       const rec: ResponseRecord = { id: uid(), question_id: q.id, question: q.text, mode: q.mode, response_type: type, transcript, audio_url: audioUrl, duration: a.duration, created_at: new Date().toISOString(), attempt: attempts.length + 1, parent_id: attempts[0]?.id, analysis: a };
       addResponse(rec);
+      recordSubmission();
       const next = [...attempts, rec];
       setAttempts(next);
       setView(next.length - 1);
       setCompareWith(Math.max(0, next.length - 2));
       setText(""); setStartedAt(null); setElapsed(0);
-      setPhase("result");
+      setPhase(isFree(getState()) && !hasLead() ? "lead" : "result");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError("We couldn't analyze that response. Please try again.");
@@ -112,10 +117,15 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[12px] text-muted-foreground">
         <Link to="/practice" className="hover:text-foreground">← Practice</Link>
         <span className="text-primary">{modeName(q.mode).toUpperCase()}</span><span>{q.context}</span><span>{q.difficulty}</span><span>~{q.seconds}s recommended</span>
-        <span>Attempt {attempts.length + (phase === "result" ? 0 : 1)}</span>
+        <span>Attempt {attempts.length + (phase === "result" || phase === "lead" ? 0 : 1)}</span>
+        <span className="ml-auto"><FreeCounter /></span>
       </div>
 
-      {phase !== "result" && (
+      {phase === "lead" && <LeadCapture onDone={() => setPhase("result")} />}
+
+      {phase === "respond" && !ent.canSubmit && <Conversion />}
+
+      {(phase === "analyzing" || (phase === "respond" && ent.canSubmit)) && (
         <div className="glass glass-float rise p-6 md:p-10">
           <div className="eyebrow mb-3">Question</div>
           <h1 className="text-balance text-[clamp(26px,4vw,40px)] font-bold leading-tight">{q.text}</h1>
@@ -167,7 +177,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div><div className="eyebrow mb-1">Attempt {view + 1} · analysis</div><h1 className="text-[24px] font-bold">{q.text}</h1></div>
-            <div className="flex flex-wrap gap-3"><button className="btn btn-primary" onClick={() => retryNow(false)}>Try Again</button><button className="btn btn-ghost" onClick={another}>Another question</button></div>
+            {ent.canSubmit && <div className="flex flex-wrap gap-3"><button className="btn btn-primary" onClick={() => retryNow(false)}>Try Again</button><button className="btn btn-ghost" onClick={another}>Another question</button></div>}
           </div>
 
           {attempts.length > 1 && (
@@ -177,7 +187,10 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
             </div>
           )}
 
-          {attempts.length > 1 && view > 0 && (
+          {ent.free && attempts.length > 1 && view > 0 && (
+            <div className="glass p-5 text-[14px]"><span className="eyebrow mr-2">Attempt {view} → {view + 1}</span>Overall {attempts[view - 1].analysis.overall} → {viewed.analysis.overall} · Main point {attempts[view - 1].analysis.main_point_delay}s → {viewed.analysis.main_point_delay}s</div>
+          )}
+          {!ent.free && attempts.length > 1 && view > 0 && (
             <>
               {view > 1 && (
                 <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
@@ -189,15 +202,16 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
             </>
           )}
 
-          <AICoach r={viewed} level={level} />
+          {!ent.free && <AICoach r={viewed} level={level} />}
           {focus && viewed.analysis.dimensions[focus] && (
             <div className="glass mb-6 p-6"><div className="eyebrow mb-2 !text-primary">Focus check · {cap(focus)} {viewed.analysis.scores[focus]}</div><p className="text-[15px]">{viewed.analysis.dimensions[focus].happened}</p>{viewed.analysis.dimensions[focus].evidence && <p className="mt-1 text-[13px] italic text-muted-foreground">{viewed.analysis.dimensions[focus].evidence}</p>}<p className="mt-2 text-[13px]"><span className="text-muted-foreground">Try this: </span>{viewed.analysis.dimensions[focus].tryThis}</p></div>
           )}
-          <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />
+          {ent.free ? <FreeResult a={viewed.analysis} transcript={viewed.transcript} /> : <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />}
           {viewed.audio_url && <audio controls src={viewed.audio_url} className="w-full" />}
+          {!ent.canSubmit && <Conversion />}
           <div className="flex flex-wrap justify-center gap-3 pt-4">
-            <button className="btn btn-primary" onClick={() => retryNow(false)}>Try Again</button>
-            <button className="btn btn-ghost" onClick={() => retryNow(true)}>Edit my answer</button>
+            {ent.canSubmit && <><button className="btn btn-primary" onClick={() => retryNow(false)}>Try Again</button>
+            <button className="btn btn-ghost" onClick={() => retryNow(true)}>Edit my answer</button></>}
             <Link to="/responses/$responseId" params={{ responseId: viewed.id }} className="btn btn-ghost">Saved to My Responses</Link>
           </div>
         </div>
