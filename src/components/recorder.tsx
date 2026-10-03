@@ -20,10 +20,13 @@ export function Recorder({ max, onDone }: { max: number; onDone: (r: { transcrip
 
   useEffect(() => {
     if (state !== "rec") return;
-    const t = setInterval(() => setSec((s) => { if (s + 1 >= max) stop(); return s + 1; }), 1000);
+    const t = setInterval(() => setSec((s) => s + 1), 1000);
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, max]);
+
+  useEffect(() => { if (state === "rec" && sec >= max) stop(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sec, max, state]);
 
   useEffect(() => () => { cancelAnimationFrame(raf.current); stream.current?.getTracks().forEach((t) => t.stop()); }, []);
 

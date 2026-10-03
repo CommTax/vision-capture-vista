@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { modeName } from "@/lib/data";
+import { AICoach } from "@/components/ai-coach";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/responses/$responseId")({
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/responses/$responseId")({
 function Detail() {
   const { responseId } = Route.useParams();
   const rs = useStore((s) => s.responses);
+  const level = useStore((s) => s.profile?.level ?? "Mid career");
   const r = rs.find((x) => x.id === responseId);
   if (!r) return <div className="glass p-10 text-center">Response not found. <Link to="/responses" className="text-primary">Back to responses</Link></div>;
   const parent = r.parent_id ? rs.find((x) => x.id === r.parent_id) : undefined;
@@ -23,6 +25,7 @@ function Detail() {
       </div>
       {r.audio_url?.startsWith("blob:") && <audio controls src={r.audio_url} className="w-full" />}
       {parent && <ComparePanel a1={parent.analysis} a2={r.analysis} />}
+      <AICoach r={r} level={level} />
       <AnalysisView a={r.analysis} transcript={r.transcript} />
     </div>
   );
