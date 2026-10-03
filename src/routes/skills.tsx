@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Gate } from "@/components/plan-gate";
+import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap, Spark } from "@/components/analysis-view";
 import { useStore } from "@/lib/store";
@@ -8,7 +8,7 @@ import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type Skil
 
 export const Route = createFileRoute("/skills")({
   head: () => ({ meta: [{ title: "Communication Skills — Cadence" }, { name: "description", content: "See what is improving, what is slipping, and what to practice next." }, { property: "og:title", content: "Communication Skills — Cadence" }, { property: "og:description", content: "What you're good at, what's holding you back, and what to practice next." }] }),
-  component: () => <AppShell><Gate feature="skills" title="Your full skill breakdown." body="A detailed view of every skill, what changes, and what to practice for each."><Skills /></Gate></AppShell>,
+  component: () => <AppShell><Skills /></AppShell>,
 });
 
 const NO_EVIDENCE = "Not enough recent evidence yet.";

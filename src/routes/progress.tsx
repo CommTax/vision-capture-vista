@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Gate } from "@/components/plan-gate";
+import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { BADGES, DIMENSIONS, PATTERNS, type Dimension } from "@/lib/data";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/progress")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <AppShell><Gate feature="progress" title="See whether you're actually getting better." body="Progress tracking compares your skills, main-point timing and patterns over time."><Progress /></Gate></AppShell>,
+  component: () => <AppShell><Progress /></AppShell>,
 });
 
 type Period = "7" | "30" | "all";

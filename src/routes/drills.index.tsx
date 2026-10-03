@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Gate } from "@/components/plan-gate";
+import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { DIMENSIONS, DRILLS } from "@/lib/data";
@@ -8,7 +8,7 @@ import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/")({
   head: () => ({ meta: [{ title: "Drills — Cadence" }, { name: "description", content: "Practice what your responses need most." }, { property: "og:title", content: "Drills — Cadence" }, { property: "og:description", content: "See what gets lost. Practice one thing. Try again." }] }),
-  component: () => <AppShell><Gate feature="drills" title="Practice the specific thing holding you back." body="The full drill library and personalized drill sequences."><Drills /></Gate></AppShell>,
+  component: () => <AppShell><Drills /></AppShell>,
 });
 
 const NO_DATA = "We need a little more practice data before we can personalize this recommendation.";
