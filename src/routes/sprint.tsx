@@ -97,7 +97,7 @@ function Sprint() {
             <div><dt className="text-muted-foreground">Practices completed</dt><dd className="mt-1">{rs.length} responses · {drillsDone.length} drills</dd></div>
             <div><dt className="text-muted-foreground">Main point</dt><dd className="mt-1">{rs[0].analysis.main_point_delay}s → {rs[rs.length - 1].analysis.main_point_delay}s</dd></div>
           </dl>
-          <div className="mt-5 space-y-2">{changes.map((c) => <div key={c.k} className="flex justify-between border-t border-border pt-2 text-[14px]"><span>{cap(c.k)}</span><span className="font-mono">{c.a ?? "—"} → {c.b ?? "—"}{c.a !== null && c.b !== null && <span className={c.b >= c.a ? "text-primary" : "text-destructive"}> {c.b >= c.a ? "▲" : "▼"}{Math.abs(c.b - c.a)}</span>}</span></div>)}</div>
+          <div className="mt-5 space-y-2">{changes.map((c) => <div key={c.k} className="flex justify-between border-t border-border pt-2 text-[14px]"><span>{cap(c.k)}</span><span className="font-mono">{c.a ?? "—"} → {c.b ?? "—"}{c.a !== null && c.b !== null && c.a !== c.b && <span className={c.b >= c.a ? "text-primary" : "text-destructive"}> {c.b >= c.a ? "▲" : "▼"}{Math.abs(c.b - c.a)}</span>}</span></div>)}</div>
           {best[0] && best[0].b! > best[0].a! && <p className="mt-4 text-[14px]"><span className="text-muted-foreground">Strongest improvement: </span>{cap(best[0].k)}</p>}
           {rec && <p className="mt-1 text-[14px]"><span className="text-muted-foreground">Remaining opportunity: </span>{cap(rec.skill)} — {rec.expected_behavior_change}</p>}
           {rs.length < 4 && <p className="mt-3 text-[12px] text-muted-foreground">Early signal — based on only {rs.length} responses.</p>}
