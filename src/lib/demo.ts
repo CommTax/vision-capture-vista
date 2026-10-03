@@ -35,6 +35,4 @@ export function seedDemo(name = "Arun", email = "arun@example.com") {
   };
   setState(() => s);
   startPracticeTrial("monthly"); // demo account runs on a real Practice trial entitlement
-  return;
-  setState(() => s);
 }
