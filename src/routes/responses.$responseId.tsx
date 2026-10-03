@@ -8,7 +8,7 @@ import { useEntitlement } from "@/lib/entitlements";
 import { FreeResult } from "@/components/plan-gate";
 
 export const Route = createFileRoute("/responses/$responseId")({
-  head: () => ({ meta: [{ title: "Response analysis — Cadence" }, { name: "description", content: "Detailed analysis of a practiced response." }, { property: "og:title", content: "Response analysis — Cadence" }, { property: "og:description", content: "Pattern, what got lost, and how to improve." }] }),
+  head: () => ({ meta: [{ title: "Response analysis — Unspoken" }, { name: "description", content: "Detailed analysis of a practiced response." }, { property: "og:title", content: "Response analysis — Unspoken" }, { property: "og:description", content: "Pattern, what got lost, and how to improve." }] }),
   component: () => <AppShell><Detail /></AppShell>,
 });
 
@@ -20,6 +20,8 @@ function Detail() {
   const canCoach = !free;
   const r = rs.find((x) => x.id === responseId);
   if (!r) return <div className="glass p-10 text-center">Response not found. <Link to="/responses" className="text-primary">Back to responses</Link></div>;
+  const newest = [...rs].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  if (free && newest?.id !== r.id) return <LockedResponse />;
   const parent = r.parent_id ? rs.find((x) => x.id === r.parent_id) : undefined;
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -33,4 +35,12 @@ function Detail() {
       {free ? <FreeResult a={r.analysis} transcript={r.transcript} /> : <AnalysisView a={r.analysis} transcript={r.transcript} />}
     </div>
   );
+}
+
+function LockedResponse() {
+  return <div className="mx-auto max-w-2xl"><Link to="/responses" className="font-mono text-[12px] text-muted-foreground">← My Responses</Link><div className="mt-6"><FreeHistoryLock /></div></div>;
+}
+
+function FreeHistoryLock() {
+  return <div className="glass p-8 text-center"><h1 className="text-[26px] font-bold">This response is in your full history</h1><p className="mx-auto mt-3 max-w-md text-[14px] text-muted-foreground">Unlock saved responses, detailed evidence, and attempt comparisons.</p><Link to="/plans" className="btn btn-primary mt-5">Unlock response history</Link></div>;
 }

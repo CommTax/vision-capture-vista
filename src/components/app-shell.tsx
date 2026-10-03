@@ -9,7 +9,7 @@ export function useHydrated() {
 }
 
 export function Logo() {
-  return <Link to="/" className="font-display text-[19px] font-bold tracking-tight">cadence</Link>;
+  return <Link to="/" className="font-display text-[19px] font-bold tracking-tight">unspoken</Link>;
 }
 
 const NAV = [

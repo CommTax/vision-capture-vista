@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: "Privacy Policy — Cadence" }, { name: "description", content: "How Cadence handles your information." }, { property: "og:title", content: "Privacy Policy — Cadence" }, { property: "og:description", content: "How Cadence handles your information." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Privacy Policy — Unspoken" }, { name: "description", content: "How Unspoken handles your information." }, { property: "og:title", content: "Privacy Policy — Unspoken" }, { property: "og:description", content: "How Unspoken handles your information." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <div className="mx-auto max-w-2xl px-5 py-16">
       <div className="eyebrow mb-2">Legal</div>

@@ -16,7 +16,7 @@ import { addResponse, getState, uid, useStore, type ResponseRecord } from "@/lib
 
 export const Route = createFileRoute("/practice/$questionId")({
   validateSearch: z.object({ s: z.string().optional(), retry: z.string().optional(), f: z.enum(DIMENSIONS).optional(), ctx: z.string().optional() }),
-  head: () => ({ meta: [{ title: "Practice session — Cadence" }, { name: "description", content: "Respond out loud or in writing, then see what got lost." }, { property: "og:title", content: "Practice session — Cadence" }, { property: "og:description", content: "A distraction-free response practice session." }] }),
+  head: () => ({ meta: [{ title: "Practice session — Unspoken" }, { name: "description", content: "Respond out loud or in writing, then see what got lost." }, { property: "og:title", content: "Practice session — Unspoken" }, { property: "og:description", content: "A distraction-free response practice session." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: SessionRoute,
 });
 

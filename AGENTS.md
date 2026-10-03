@@ -20,3 +20,4 @@
 - Free users can open every app page; deeper sections are wrapped in `Locked` (faded peek + one contextual unlock linking to /plans) instead of full-page gates, and plan names appear only on /plans — so Free feels like the real product.
 - Contact details (name, email, phone + country code) live on the profile and are captured by `ContactDetails`, pre-filled before every paid plan/trial — one source of truth, never per-subscription copies.
 - QA demo accounts (`src/lib/demo-accounts.ts`, `/demo`) seed real profile/entitlement/response records and are shown only when `demoModeEnabled()` (dev/preview hosts) — so they exercise real entitlement checks without exposing a production feature.
+- Browser state uses the `unspoken-state-v1` key and reads the legacy product key as a fallback — so the product rename preserves existing users' data.

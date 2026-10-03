@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({ meta: [{ title: "Terms — Cadence" }, { name: "description", content: "Cadence terms of use." }, { property: "og:title", content: "Terms — Cadence" }, { property: "og:description", content: "Cadence terms of use." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Terms — Unspoken" }, { name: "description", content: "Unspoken terms of use." }, { property: "og:title", content: "Terms — Unspoken" }, { property: "og:description", content: "Unspoken terms of use." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => (
     <div className="mx-auto max-w-2xl px-5 py-16">
       <div className="eyebrow mb-2">Legal</div>

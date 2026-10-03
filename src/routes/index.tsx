@@ -9,9 +9,9 @@ import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cadence — Say what you mean. Make it land." },
+      { title: "Unspoken — Say what you mean. Make it land." },
       { name: "description", content: "Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost when you speak." },
-      { property: "og:title", content: "Cadence — Say what you mean. Make it land." },
+      { property: "og:title", content: "Unspoken — Say what you mean. Make it land." },
       { property: "og:description", content: "Practice what you need to say, see what isn't landing, fix it, and try again." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -39,13 +39,13 @@ const DRILLS: [string, string][] = [
 ];
 
 const FAQS: [string, string][] = [
-  ["What is Cadence?", "Cadence is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again."],
+  ["What is Unspoken?", "Unspoken is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again."],
   ["What can I practice?", "You can practice interviews, presentations, leadership communication, difficult conversations, persuasion, professional updates, group discussions, and custom situations."],
-  ["How does Cadence give feedback?", "Cadence analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability."],
-  ["Is Cadence writing answers for me?", "No. Cadence is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas."],
-  ["Can I practice with text as well as voice?", "Yes. Cadence supports both text and voice practice where available."],
-  ["How does the retry work?", "After you respond, Cadence identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed."],
-  ["Who is Cadence for?", "Cadence is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations."],
+  ["How does Unspoken give feedback?", "Unspoken analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability."],
+  ["Is Unspoken writing answers for me?", "No. Unspoken is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas."],
+  ["Can I practice with text as well as voice?", "Yes. Unspoken supports both text and voice practice where available."],
+  ["How does the retry work?", "After you respond, Unspoken identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed."],
+  ["Who is Unspoken for?", "Unspoken is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations."],
   ["Is there a free version?", "Yes. You can start practicing for free. Paid plans provide more practice, deeper analysis, history, targeted drills, and progress tracking."],
 ];
 
@@ -119,7 +119,7 @@ function ContactSection() {
       <div id="contact-panel" role="region" aria-hidden={!open} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
         <div className="overflow-hidden">
           <div className="glass p-6 md:p-8">
-            <p className="max-w-[64ch] text-[15px] leading-6 text-muted-foreground">Have a question, need help, or want to talk about Cadence? Write to us at <a href="mailto:info@theunspoken.co.in" className="text-primary">info@theunspoken.co.in</a> or request a callback.</p>
+            <p className="max-w-[64ch] text-[15px] leading-6 text-muted-foreground">Have a question, need help, or want to talk about Unspoken? Write to us at <a href="mailto:info@theunspoken.co.in" className="text-primary">info@theunspoken.co.in</a> or request a callback.</p>
             {sent ? (
               <p className="mt-5 rounded-2xl border border-primary/40 bg-primary/5 p-4 text-[14px] leading-6">Thanks — we've received your request. We'll get in touch with you soon.</p>
             ) : (

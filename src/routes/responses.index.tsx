@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
+import { Locked } from "@/components/plan-gate";
 import { DIMENSIONS, MODES, PATTERNS, modeName } from "@/lib/data";
+import { useEntitlement } from "@/lib/entitlements";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/responses/")({
-  head: () => ({ meta: [{ title: "My Responses — Cadence" }, { name: "description", content: "Every response you've practiced, with patterns and scores." }, { property: "og:title", content: "My Responses — Cadence" }, { property: "og:description", content: "Your response history." }] }),
+  head: () => ({ meta: [{ title: "My Responses — Unspoken" }, { name: "description", content: "Every response you've practiced, with patterns and scores." }, { property: "og:title", content: "My Responses — Unspoken" }, { property: "og:description", content: "Your response history." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Responses /></AppShell>,
 });
 
@@ -15,18 +17,20 @@ function Responses() {
   const [pattern, setPattern] = useState("all");
   const [skill, setSkill] = useState("structure");
   const [range, setRange] = useState("all");
+  const { free } = useEntitlement();
   const cutoff = range === "7" ? Date.now() - 7 * 864e5 : range === "30" ? Date.now() - 30 * 864e5 : 0;
-  const list = rs.filter((r) => (mode === "all" || r.mode === mode) && (pattern === "all" || r.analysis.primary_pattern === pattern) && new Date(r.created_at).getTime() >= cutoff);
+  const filtered = rs.filter((r) => (mode === "all" || r.mode === mode) && (pattern === "all" || r.analysis.primary_pattern === pattern) && new Date(r.created_at).getTime() >= cutoff);
+  const list = free ? filtered.slice(0, 1) : filtered;
   const sel = "field !w-auto !py-2 text-[13px]";
   return (
     <>
       <PageHead eyebrow="History" title="My Responses" />
-      <div className="mb-6 flex flex-wrap gap-3">
+      {!free && <div className="mb-6 flex flex-wrap gap-3">
         <select className={sel} value={mode} onChange={(e) => setMode(e.target.value)}><option value="all">All modes</option>{MODES.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select>
         <select className={sel} value={range} onChange={(e) => setRange(e.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
         <select className={sel} value={skill} onChange={(e) => setSkill(e.target.value)}>{DIMENSIONS.map((d) => <option key={d} value={d}>Highlight: {d}</option>)}</select>
         <select className={sel} value={pattern} onChange={(e) => setPattern(e.target.value)}><option value="all">All patterns</option>{Object.entries(PATTERNS).map(([k, p]) => <option key={k} value={k}>{p.name}</option>)}</select>
-      </div>
+      </div>}
       {list.length === 0 ? <div className="glass p-10 text-center text-muted-foreground">No responses match. <Link to="/practice" className="text-primary">Practice one now.</Link></div> : (
         <div className="grid gap-4 md:grid-cols-2">
           {list.map((r) => {
@@ -47,6 +51,7 @@ function Responses() {
           })}
         </div>
       )}
+      {free && rs.length > 0 && <div className="mt-5"><Locked feature="history" title="Your full response history" body="Unlock every saved response, filters, detailed evidence, and attempt comparisons." cta="Unlock response history" /></div>}
     </>
   );
 }

@@ -9,7 +9,7 @@ import { currentPattern, skillStats } from "@/lib/insights";
 import { streak, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Your next practice — Cadence" }, { name: "description", content: "What to practice now, why, and how your responses are changing." }, { property: "og:title", content: "Your next practice — Cadence" }, { property: "og:description", content: "Your personal practice cockpit." }] }),
+  head: () => ({ meta: [{ title: "Your next practice — Unspoken" }, { name: "description", content: "What to practice now, why, and how your responses are changing." }, { property: "og:title", content: "Your next practice — Unspoken" }, { property: "og:description", content: "Your personal practice cockpit." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Dashboard /></AppShell>,
 });
 
@@ -75,6 +75,26 @@ function Dashboard() {
         </div>
       </header>
 
+      {free ? (
+        <>
+          <section className="glass flex flex-col p-7">
+            <div className="eyebrow mb-4">Your current pattern</div>
+            <div className="font-display text-[26px] font-bold leading-tight">{primary.name.replace(/^The /, "").toUpperCase()}</div>
+            <p className="mt-2 text-[14px] leading-6 text-muted-foreground">{primary.desc}</p>
+            <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-[12px]">
+              <div><div className="text-muted-foreground">Secondary</div><div className="mt-1 font-mono">{(PATTERNS[cp.secondary] ?? primary).short}</div></div>
+              <div><div className="text-muted-foreground">Strength</div><div className="mt-1 font-mono text-success">{cp.strength.toUpperCase()}</div></div>
+              <div><div className="text-muted-foreground">Focus</div><div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div></div>
+            </div>
+            <div className="mt-5 rounded-2xl bg-primary/10 p-4">
+              <div className="eyebrow !text-primary">Your next move</div>
+              <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
+            </div>
+          </section>
+          <Locked feature="history" title="Continue your personal practice path" body="Unlock targeted challenges, response history, recommendations, and change tracking based on your answers." cta="Unlock your dashboard" />
+        </>
+      ) : <>
+
       {/* 2. Why */}
       <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
         <div className="md:col-span-7">
@@ -124,23 +144,13 @@ function Dashboard() {
         </section>
       </div>
 
-      {free && (
-        <section className="glass glass-float border-primary/40 p-6 md:p-8">
-          <div className="eyebrow mb-2 !text-primary">You've found your pattern. Now work on it.</div>
-          <p className="font-display text-[19px] font-bold leading-snug">Your responses are showing a tendency toward {primary.short.toLowerCase()} thinking.</p>
-          <p className="mt-2 text-[14px] text-muted-foreground">Unlock a personalized practice path built around your response patterns.</p>
-          <Link to="/plans" className="btn btn-primary mt-5">Unlock your practice path</Link>
-        </section>
-      )}
-
       {/* 6. Drills */}
       <section>
         <h2 className="text-[24px] font-bold">Practice your weak spots</h2>
         <p className="mt-1 text-[14px] text-muted-foreground">Short exercises built around your current pattern.</p>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">{(free ? drills.slice(0, 1) : drills).map((d) => (
+        <div className="mt-5 grid gap-4 md:grid-cols-3">{drills.map((d) => (
           <div key={d.id} className="glass flex flex-col p-6"><div className="font-display text-[17px] font-bold">{d.name}</div><p className="mt-2 flex-1 text-[13px] text-muted-foreground">“{d.objective}”</p><Link to="/drills/$drillId" params={{ drillId: d.id }} className="btn btn-ghost btn-sm mt-5 self-start">Practice →</Link></div>
         ))}
-          {free && <div className="md:col-span-2"><Locked title="More targeted recommendations" body="Personalized drills and practice recommendations based on your responses." /></div>}
         </div>
       </section>
 
@@ -181,6 +191,7 @@ function Dashboard() {
           })}</div>
         )}
       </section>
+      </>}
     </div>
   );
 }
