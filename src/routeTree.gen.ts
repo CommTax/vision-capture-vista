@@ -10,33 +10,193 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as DrillsIndexRouteImport } from './routes/drills.index'
+import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
+import { Route as PracticeIndexRouteImport } from './routes/practice.index'
+import { Route as PracticeQuestionIdRouteImport } from './routes/practice.$questionId'
+import { Route as ResponsesIndexRouteImport } from './routes/responses.index'
+import { Route as ResponsesResponseIdRouteImport } from './routes/responses.$responseId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DrillsIndexRoute = DrillsIndexRouteImport.update({
+  id: '/drills/',
+  path: '/drills/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DrillsDrillIdRoute = DrillsDrillIdRouteImport.update({
+  id: '/drills/$drillId',
+  path: '/drills/$drillId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeIndexRoute = PracticeIndexRouteImport.update({
+  id: '/practice/',
+  path: '/practice/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeQuestionIdRoute = PracticeQuestionIdRouteImport.update({
+  id: '/practice/$questionId',
+  path: '/practice/$questionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResponsesIndexRoute = ResponsesIndexRouteImport.update({
+  id: '/responses/',
+  path: '/responses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResponsesResponseIdRoute = ResponsesResponseIdRouteImport.update({
+  id: '/responses/$responseId',
+  path: '/responses/$responseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/signup': typeof SignupRoute
+  '/skills': typeof SkillsRoute
+  '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/responses/$responseId': typeof ResponsesResponseIdRoute
+  '/drills/': typeof DrillsIndexRoute
+  '/practice/': typeof PracticeIndexRoute
+  '/responses/': typeof ResponsesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/signup': typeof SignupRoute
+  '/skills': typeof SkillsRoute
+  '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/responses/$responseId': typeof ResponsesResponseIdRoute
+  '/drills': typeof DrillsIndexRoute
+  '/practice': typeof PracticeIndexRoute
+  '/responses': typeof ResponsesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/signup': typeof SignupRoute
+  '/skills': typeof SkillsRoute
+  '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/practice/$questionId': typeof PracticeQuestionIdRoute
+  '/responses/$responseId': typeof ResponsesResponseIdRoute
+  '/drills/': typeof DrillsIndexRoute
+  '/practice/': typeof PracticeIndexRoute
+  '/responses/': typeof ResponsesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/progress'
+    | '/signup'
+    | '/skills'
+    | '/drills/$drillId'
+    | '/practice/$questionId'
+    | '/responses/$responseId'
+    | '/drills/'
+    | '/practice/'
+    | '/responses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/progress'
+    | '/signup'
+    | '/skills'
+    | '/drills/$drillId'
+    | '/practice/$questionId'
+    | '/responses/$responseId'
+    | '/drills'
+    | '/practice'
+    | '/responses'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/progress'
+    | '/signup'
+    | '/skills'
+    | '/drills/$drillId'
+    | '/practice/$questionId'
+    | '/responses/$responseId'
+    | '/drills/'
+    | '/practice/'
+    | '/responses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ProfileRoute: typeof ProfileRoute
+  ProgressRoute: typeof ProgressRoute
+  SignupRoute: typeof SignupRoute
+  SkillsRoute: typeof SkillsRoute
+  DrillsDrillIdRoute: typeof DrillsDrillIdRoute
+  PracticeQuestionIdRoute: typeof PracticeQuestionIdRoute
+  ResponsesResponseIdRoute: typeof ResponsesResponseIdRoute
+  DrillsIndexRoute: typeof DrillsIndexRoute
+  PracticeIndexRoute: typeof PracticeIndexRoute
+  ResponsesIndexRoute: typeof ResponsesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +208,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/drills/': {
+      id: '/drills/'
+      path: '/drills'
+      fullPath: '/drills/'
+      preLoaderRoute: typeof DrillsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/drills/$drillId': {
+      id: '/drills/$drillId'
+      path: '/drills/$drillId'
+      fullPath: '/drills/$drillId'
+      preLoaderRoute: typeof DrillsDrillIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice/': {
+      id: '/practice/'
+      path: '/practice'
+      fullPath: '/practice/'
+      preLoaderRoute: typeof PracticeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice/$questionId': {
+      id: '/practice/$questionId'
+      path: '/practice/$questionId'
+      fullPath: '/practice/$questionId'
+      preLoaderRoute: typeof PracticeQuestionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/responses/': {
+      id: '/responses/'
+      path: '/responses'
+      fullPath: '/responses/'
+      preLoaderRoute: typeof ResponsesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/responses/$responseId': {
+      id: '/responses/$responseId'
+      path: '/responses/$responseId'
+      fullPath: '/responses/$responseId'
+      preLoaderRoute: typeof ResponsesResponseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  OnboardingRoute: OnboardingRoute,
+  ProfileRoute: ProfileRoute,
+  ProgressRoute: ProgressRoute,
+  SignupRoute: SignupRoute,
+  SkillsRoute: SkillsRoute,
+  DrillsDrillIdRoute: DrillsDrillIdRoute,
+  PracticeQuestionIdRoute: PracticeQuestionIdRoute,
+  ResponsesResponseIdRoute: ResponsesResponseIdRoute,
+  DrillsIndexRoute: DrillsIndexRoute,
+  PracticeIndexRoute: PracticeIndexRoute,
+  ResponsesIndexRoute: ResponsesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
