@@ -12,10 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PlansRouteImport } from './routes/plans'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as SprintRouteImport } from './routes/sprint'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
 import { Route as PracticeIndexRouteImport } from './routes/practice.index'
@@ -38,6 +42,16 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -56,6 +70,16 @@ const SignupRoute = SignupRouteImport.update({
 const SkillsRoute = SkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SprintRoute = SprintRouteImport.update({
+  id: '/sprint',
+  path: '/sprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DrillsIndexRoute = DrillsIndexRouteImport.update({
@@ -93,10 +117,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/signup': typeof SignupRoute
   '/skills': typeof SkillsRoute
+  '/sprint': typeof SprintRoute
+  '/terms': typeof TermsRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/practice/$questionId': typeof PracticeQuestionIdRoute
   '/responses/$responseId': typeof ResponsesResponseIdRoute
@@ -108,10 +136,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/signup': typeof SignupRoute
   '/skills': typeof SkillsRoute
+  '/sprint': typeof SprintRoute
+  '/terms': typeof TermsRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/practice/$questionId': typeof PracticeQuestionIdRoute
   '/responses/$responseId': typeof ResponsesResponseIdRoute
@@ -124,10 +156,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboarding': typeof OnboardingRoute
+  '/plans': typeof PlansRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/signup': typeof SignupRoute
   '/skills': typeof SkillsRoute
+  '/sprint': typeof SprintRoute
+  '/terms': typeof TermsRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/practice/$questionId': typeof PracticeQuestionIdRoute
   '/responses/$responseId': typeof ResponsesResponseIdRoute
@@ -141,10 +177,14 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
+    | '/privacy'
     | '/profile'
     | '/progress'
     | '/signup'
     | '/skills'
+    | '/sprint'
+    | '/terms'
     | '/drills/$drillId'
     | '/practice/$questionId'
     | '/responses/$responseId'
@@ -156,10 +196,14 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
+    | '/privacy'
     | '/profile'
     | '/progress'
     | '/signup'
     | '/skills'
+    | '/sprint'
+    | '/terms'
     | '/drills/$drillId'
     | '/practice/$questionId'
     | '/responses/$responseId'
@@ -171,10 +215,14 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/onboarding'
+    | '/plans'
+    | '/privacy'
     | '/profile'
     | '/progress'
     | '/signup'
     | '/skills'
+    | '/sprint'
+    | '/terms'
     | '/drills/$drillId'
     | '/practice/$questionId'
     | '/responses/$responseId'
@@ -187,10 +235,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlansRoute: typeof PlansRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
   SignupRoute: typeof SignupRoute
   SkillsRoute: typeof SkillsRoute
+  SprintRoute: typeof SprintRoute
+  TermsRoute: typeof TermsRoute
   DrillsDrillIdRoute: typeof DrillsDrillIdRoute
   PracticeQuestionIdRoute: typeof PracticeQuestionIdRoute
   ResponsesResponseIdRoute: typeof ResponsesResponseIdRoute
@@ -222,6 +274,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -248,6 +314,20 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/skills'
       preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sprint': {
+      id: '/sprint'
+      path: '/sprint'
+      fullPath: '/sprint'
+      preLoaderRoute: typeof SprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drills/': {
@@ -299,10 +379,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   OnboardingRoute: OnboardingRoute,
+  PlansRoute: PlansRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
   SignupRoute: SignupRoute,
   SkillsRoute: SkillsRoute,
+  SprintRoute: SprintRoute,
+  TermsRoute: TermsRoute,
   DrillsDrillIdRoute: DrillsDrillIdRoute,
   PracticeQuestionIdRoute: PracticeQuestionIdRoute,
   ResponsesResponseIdRoute: ResponsesResponseIdRoute,
