@@ -67,7 +67,7 @@ function Dashboard() {
           <div className="flex gap-5 font-mono text-[12px] text-muted-foreground">
             <span className="flex items-center gap-1"><Flame className="size-3.5 text-primary" /><b className="text-foreground">{streak(days)}</b> day streak</span>
             <span><b className="text-foreground">{rs.length}</b> responses</span>
-            <span><b className="text-foreground">{new Set(rs.flatMap((r) => [r.analysis.primary_pattern])).size + stats.filter((s) => s.trend > 0).length}</b> skills practiced</span>
+            <span><b className="text-foreground">{stats.filter((s) => s.trend !== 0).length}</b> skills practiced</span>
           </div>
         </div>
       </header>
