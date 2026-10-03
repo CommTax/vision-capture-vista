@@ -13,7 +13,7 @@ function Profile() {
   const navigate = useNavigate();
   const { state } = useEntitlement();
   const mk = useStore((s) => s.marketing);
-  const phone = useStore((s) => s.lead?.phone);
+  const phone = p.phone ? `${p.phone_country_code ?? ""} ${p.phone}`.trim() : undefined;
   return (
     <div className="mx-auto max-w-2xl">
       <PageHead eyebrow="Account" title={p.name} />

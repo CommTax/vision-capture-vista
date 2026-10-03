@@ -6,7 +6,7 @@ import type { ModeId } from "./data";
 import type { Coaching } from "./coach.server";
 import type { Entitlement, Interest, Lead, Marketing } from "./entitlements";
 
-export type Profile = { name: string; email: string; goal: string; struggle: string; experience: string; level: string; onboarded: boolean; plan: "free" | "practice" | "sprint" };
+export type Profile = { id?: string; name: string; email: string; phone?: string; phone_country_code?: string; created_at?: string; updated_at?: string; goal: string; struggle: string; experience: string; level: string; onboarded: boolean; plan: "free" | "practice" | "sprint" };
 export type ResponseRecord = {
   id: string; question_id: string; question: string; mode: ModeId; response_type: "voice" | "text";
   transcript: string; audio_url?: string; duration: number; created_at: string;

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { PLAN_CONFIG, SPRINT_GOALS, STATE_LABEL, cancelEntitlement, registerInterest, sprintDuration, startPracticeTrial, startSprintTrial, useEntitlement, type SprintDurationId } from "@/lib/entitlements";
 import { useStore } from "@/lib/store";
+import { ContactDetails } from "@/components/contact-details";
 
 export const Route = createFileRoute("/plans")({
   validateSearch: z.object({ p: z.enum(["practice", "sprint"]).optional() }),
@@ -23,7 +24,13 @@ function Plans() {
   const [note, setNote] = useState("");
   const d = sprintDuration(dur);
   const disc = PLAN_CONFIG.practice.annualDiscountPct;
+  const [pending, setPending] = useState<null | { label: string; run: () => void }>(null);
   const needAccount = () => { if (!profile) { navigate({ to: "/signup" }); return true; } return false; };
+  // Every paid plan or trial confirms name, email and phone first (pre-filled from the profile).
+  const begin = (label: string, run: () => void) => { if (needAccount()) return; setPending({ label, run }); };
+  if (pending) return (
+    <ContactDetails eyebrow={pending.label} title="Confirm your details" body="We'll use these for your plan. Change anything that's out of date." submit="Continue" onCancel={() => setPending(null)} onDone={() => { const r = pending.run; setPending(null); r(); }} />
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -41,7 +48,7 @@ function Plans() {
           <div className="mt-5 flex gap-2">{PLAN_CONFIG.practice.billing.map((b) => <button key={b} className="chip" data-active={billing === b} onClick={() => setBilling(b)}>{b === "monthly" ? "Monthly" : `Annual${disc ? ` · save ${disc}%` : ""}`}</button>)}</div>
           <div className="mt-4 font-display text-[28px] font-bold">{billing === "monthly" ? PLAN_CONFIG.practice.monthlyPrice : "Annual pricing soon"}</div>
           <ul className="mt-4 space-y-1.5 text-[14px] text-muted-foreground">{["Unlimited practice, voice and text", "Detailed analysis and AI coaching", "Response history and comparisons", "Skills, patterns and progress", "Targeted drills and custom practice", "Personalized next practice"].map((x) => <li key={x}>· {x}</li>)}</ul>
-          <button className="btn btn-primary mt-6 w-full" disabled={state.startsWith("PRACTICE")} onClick={() => { if (needAccount()) return; startPracticeTrial(billing); navigate({ to: "/dashboard" }); }}>{state.startsWith("PRACTICE") ? "You're on Practice" : `Start ${PLAN_CONFIG.practice.trialDays}-day trial`}</button>
+          <button className="btn btn-primary mt-6 w-full" disabled={state.startsWith("PRACTICE")} onClick={() => begin(`Practice · ${billing} · ${PLAN_CONFIG.practice.trialDays}-day trial`, () => { startPracticeTrial(billing); navigate({ to: "/dashboard" }); })}>{state.startsWith("PRACTICE") ? "You're on Practice" : `Start ${PLAN_CONFIG.practice.trialDays}-day trial`}</button>
         </section>
 
         <section className={`glass p-6 md:p-8 ${p === "sprint" ? "border-primary/40" : ""}`}>
@@ -55,8 +62,8 @@ function Plans() {
           <div className="mt-1 flex flex-wrap gap-2">{PLAN_CONFIG.sprint.durations.map((x) => <button key={x.id} className="chip" data-active={dur === x.id} onClick={() => setDur(x.id)}>{x.label}</button>)}</div>
           <p className="mt-3 text-[13px] text-muted-foreground">{PLAN_CONFIG.sprint.price} · {d.trial ? `${PLAN_CONFIG.sprint.trialDays}-day trial available` : "No trial for 7-day Sprints"}</p>
           {d.trial
-            ? <button className="btn btn-primary mt-6 w-full" disabled={state.startsWith("SPRINT")} onClick={() => { if (needAccount()) return; startSprintTrial(goal, dur, goalText || undefined); navigate({ to: "/sprint" }); }}>{state.startsWith("SPRINT") ? "You're on a Sprint" : `Start ${PLAN_CONFIG.sprint.trialDays}-day trial`}</button>
-            : <button className="btn btn-ghost mt-6 w-full" onClick={() => { registerInterest("sprint", `sprint-${dur}`); setNote("Thanks — we'll let you know when 7-day Sprints can be purchased."); }}>Notify me when available</button>}
+            ? <button className="btn btn-primary mt-6 w-full" disabled={state.startsWith("SPRINT")} onClick={() => begin(`Sprint · ${d.label} · ${PLAN_CONFIG.sprint.trialDays}-day trial`, () => { startSprintTrial(goal, dur, goalText || undefined); navigate({ to: "/sprint" }); })}>{state.startsWith("SPRINT") ? "You're on a Sprint" : `Start ${PLAN_CONFIG.sprint.trialDays}-day trial`}</button>
+            : <button className="btn btn-ghost mt-6 w-full" onClick={() => begin(`Sprint · ${d.label}`, () => { registerInterest("sprint", `sprint-${dur}`); setNote("Thanks — we'll let you know when 7-day Sprints can be purchased."); })}>Notify me when available</button>}
           {note && <p className="mt-2 text-[13px] text-primary">{note}</p>}
         </section>
       </div>

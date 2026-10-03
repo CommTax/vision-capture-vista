@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { ContactDetails } from "@/components/contact-details";
 import type { Analysis } from "@/lib/analysis";
 import { PATTERNS } from "@/lib/data";
-import { saveLead, useEntitlement, type Feature } from "@/lib/entitlements";
+import { useEntitlement, type Feature } from "@/lib/entitlements";
 import { ScoreBar, cap } from "@/components/analysis-view";
 
 /** Renders children when the feature is in the user's plan; otherwise a calm locked panel. */
@@ -62,46 +63,8 @@ export function Conversion() {
   );
 }
 
-const PHONE = /^[+\d][\d\s-]{6,}$/;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export function LeadCapture({ onDone }: { onDone: () => void }) {
-  const [f, setF] = useState({ name: "", email: "", phone: "" });
-  const [consent, setConsent] = useState(false);
-  const [err, setErr] = useState<Record<string, string>>({});
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    const er: Record<string, string> = {};
-    if (!f.name.trim()) er.name = "Please enter your name.";
-    if (!EMAIL.test(f.email.trim())) er.email = "Please enter a valid email.";
-    if (!PHONE.test(f.phone.trim())) er.phone = "Please enter a valid phone number.";
-    setErr(er);
-    if (Object.keys(er).length) return;
-    saveLead({ name: f.name.trim(), email: f.email.trim(), phone: f.phone.trim() }, consent);
-    onDone();
-  };
-  const field = (k: keyof typeof f, label: string, type = "text") => (
-    <div>
-      <input className="field" type={type} placeholder={label} aria-label={label} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
-      {err[k] && <p className="mt-1 text-[12px] text-destructive">{err[k]}</p>}
-    </div>
-  );
-  return (
-    <form onSubmit={submit} className="glass glass-float rise mx-auto max-w-lg space-y-4 p-6 md:p-8">
-      <div className="eyebrow">Your analysis is ready</div>
-      <h2 className="text-[26px] font-bold">Where should we save your results?</h2>
-      <p className="text-[14px] text-muted-foreground">So your practice and pattern stay with you.</p>
-      {field("name", "Name")}
-      {field("email", "Email", "email")}
-      {field("phone", "Phone", "tel")}
-      <label className="flex cursor-pointer items-start gap-2 text-[13px] text-muted-foreground">
-        <input type="checkbox" className="mt-0.5" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        Send me Cadence tips, product updates, and offers by email.
-      </label>
-      <button className="btn btn-primary w-full">Show my result</button>
-      <p className="text-center text-[12px] text-muted-foreground">By continuing you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.</p>
-    </form>
-  );
+  return <ContactDetails eyebrow="Your analysis is ready" title="Where should we save your results?" body="So your practice and pattern stay with you." submit="Show my result" consent onDone={onDone} />;
 }
 
 const BASIC = ["structure", "clarity", "conciseness", "relevance", "impact"] as const;
