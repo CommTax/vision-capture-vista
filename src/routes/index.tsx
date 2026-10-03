@@ -94,7 +94,7 @@ function Landing() {
             preload="metadata"
             className="absolute inset-0 h-full w-full object-cover opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/15 to-background/90" />
           <div className="relative flex min-h-[560px] flex-col justify-between p-7 md:p-10">
             <div>
               <div className="eyebrow mb-4 !text-primary">The real problem</div>
