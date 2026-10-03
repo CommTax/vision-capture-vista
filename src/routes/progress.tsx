@@ -40,7 +40,11 @@ function periodChanges(list: ResponseRecord[]): Change[] | null {
     // Evidence: for a decline use the weakest recent response; for a gain the strongest. Never invented.
     const sorted = [...recent].sort((a, b) => a.analysis.scores[d] - b.analysis.scores[d]);
     const src = delta < 0 ? sorted[0] : sorted[sorted.length - 1];
-    return { d, prev, cur, delta, note: src?.analysis.dimensions[d]?.happened ?? null };
+    // Only use a note when it agrees with the direction: a low score explaining a decline, a high one a gain.
+    const sc = src?.analysis.scores[d] ?? 0;
+    const ok = delta < 0 ? sc < 65 : sc >= 70;
+    const note = ok ? src?.analysis.dimensions[d]?.happened ?? null : delta < 0 ? "The recent score is lower. There is not enough evidence yet to say why." : null;
+    return { d, prev, cur, delta, note };
   });
 }
 
