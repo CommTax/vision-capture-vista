@@ -117,7 +117,7 @@ function Skills() {
             <p className="mt-1 text-[13px] text-muted-foreground">Select a skill to see the evidence behind it.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{xs.filter((x) => CORE.includes(x.skill)).map((x) => <SkillCard key={x.skill} x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />)}</div>
           </section>
-          {selected && CORE.includes(selected.skill) && <Detail x={selected} />}
+          {selected && CORE.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
 
           {/* Outcomes */}
           <section>
@@ -127,9 +127,10 @@ function Skills() {
               <div className="glass flex flex-col p-5"><div className="font-display text-[16px] font-bold">Influence</div><p className="mt-2 text-[13px] leading-5 text-muted-foreground">Built from impact, relevance and confidence. Not scored on its own.</p></div>
             </div>
           </section>
-          {selected && OUTCOMES.includes(selected.skill) && <Detail x={selected} />}
+          {selected && OUTCOMES.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
 
           {/* Trend */}
+          <Locked feature="skills" title="See how every skill is changing" body="Full skill history across your responses, response by response." cta="Unlock full breakdown">
           <section className="glass p-7">
             <h2 className="text-[20px] font-bold">How your skills are changing</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">Each line is one skill across your last {rs.length} responses, oldest to newest.</p>
@@ -141,6 +142,7 @@ function Skills() {
               ))}</div>
             )}
           </section>
+          </Locked>
         </>
       )}
     </div>

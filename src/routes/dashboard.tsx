@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { Locked } from "@/components/plan-gate";
+import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
 import { DRILLS, PATTERNS, modeName, type Dimension } from "@/lib/data";
 import { currentPattern, skillStats } from "@/lib/insights";
@@ -54,6 +56,7 @@ function Dashboard() {
   const drills = f.drills.map((id) => DRILLS.find((d) => d.id === id)).filter(Boolean) as typeof DRILLS;
   const primary = PATTERNS[cp.primary] ?? PATTERNS.scatterer;
   const byId = new Map(rs.map((r) => [r.id, r]));
+  const { free } = useEntitlement();
 
   return (
     <div className="space-y-6">
@@ -121,13 +124,24 @@ function Dashboard() {
         </section>
       </div>
 
+      {free && (
+        <section className="glass glass-float border-primary/40 p-6 md:p-8">
+          <div className="eyebrow mb-2 !text-primary">You've found your pattern. Now work on it.</div>
+          <p className="font-display text-[19px] font-bold leading-snug">Your responses are showing a tendency toward {primary.short.toLowerCase()} thinking.</p>
+          <p className="mt-2 text-[14px] text-muted-foreground">Unlock a personalized practice path built around your response patterns.</p>
+          <Link to="/plans" className="btn btn-primary mt-5">Unlock your practice path</Link>
+        </section>
+      )}
+
       {/* 6. Drills */}
       <section>
         <h2 className="text-[24px] font-bold">Practice your weak spots</h2>
         <p className="mt-1 text-[14px] text-muted-foreground">Short exercises built around your current pattern.</p>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">{drills.map((d) => (
+        <div className="mt-5 grid gap-4 md:grid-cols-3">{(free ? drills.slice(0, 1) : drills).map((d) => (
           <div key={d.id} className="glass flex flex-col p-6"><div className="font-display text-[17px] font-bold">{d.name}</div><p className="mt-2 flex-1 text-[13px] text-muted-foreground">“{d.objective}”</p><Link to="/drills/$drillId" params={{ drillId: d.id }} className="btn btn-ghost btn-sm mt-5 self-start">Practice →</Link></div>
-        ))}</div>
+        ))}
+          {free && <div className="md:col-span-2"><Locked title="More targeted recommendations" body="Personalized drills and practice recommendations based on your responses." /></div>}
+        </div>
       </section>
 
       {/* 7. Recent responses */}

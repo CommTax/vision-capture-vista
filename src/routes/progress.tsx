@@ -202,6 +202,7 @@ function Progress() {
         )}
       </section>
 
+      <Locked feature="progress" title="What's driving the change?" body="See which response behaviors are improving, where you're regressing, what changed between attempts, which patterns recur and what to practice next." cta="Unlock your progress insights"><div className="mt-6">
       {/* 4. What changed + one response improved */}
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="glass p-7">
@@ -255,6 +256,7 @@ function Progress() {
         </section>
       </div>
 
+      </div></Locked>
       {/* 7. Activity */}
       <section className="mt-10">
         <div className="eyebrow mb-3">Practice activity</div>
