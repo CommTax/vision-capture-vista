@@ -179,13 +179,13 @@ function Landing() {
             <div className="mb-4 md:mb-6"><span className="eyebrow">Same moment. Better response.</span></div>
             <div className="rounded-2xl border border-border p-4">
               <div className="eyebrow">Attempt 01</div>
-              <div className="mt-1 font-display text-[20px] font-bold text-muted-foreground line-through decoration-1">SCATTERED · RAMBLING</div>
+              <div className="mt-1 font-display text-[17px] font-bold text-muted-foreground line-through sm:text-[20px] decoration-1">SCATTERED · RAMBLING</div>
               <div className="text-[13px] text-muted-foreground">Main point at 23s</div>
             </div>
             <div className="py-2 text-center text-primary">↓</div>
             <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
               <div className="eyebrow !text-primary">Attempt 02</div>
-              <div className="clip-in mt-1 font-display text-[24px] font-bold">STRUCTURED · CONCISE</div>
+              <div className="clip-in mt-1 font-display text-[19px] font-bold sm:text-[24px]">STRUCTURED · CONCISE</div>
               <div className="text-[13px]">Main point at <span className="text-primary">5s</span></div>
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3 text-center">
