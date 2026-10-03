@@ -27,7 +27,7 @@ function Plans() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      <PageHead eyebrow="Plans" title="Choose how you want to practice." />
+      <div><PageHead eyebrow="Plans" title="Keep practicing." /><p className="-mt-6 text-[15px] text-muted-foreground">Choose the way you want to improve.</p></div>
       <div className="glass flex flex-wrap items-center justify-between gap-3 p-5 text-[14px]">
         <span><span className="text-muted-foreground">Your plan: </span>{STATE_LABEL[state]}{free && ` · ${remaining} free attempt${remaining === 1 ? "" : "s"} remaining`}{ent?.trial_ends_at && ent.status === "trialing" && ` · trial ends ${new Date(ent.trial_ends_at).toLocaleDateString()}`}{ent?.status === "expired" && " · your trial has ended"}</span>
         {!free && <button className="text-[13px] text-muted-foreground underline" onClick={cancelEntitlement}>Cancel {ent?.status === "trialing" ? "trial" : "plan"}</button>}
@@ -37,7 +37,7 @@ function Plans() {
         <section className={`glass p-6 md:p-8 ${p !== "sprint" ? "border-primary/40" : ""}`}>
           <div className="eyebrow mb-1 !text-primary">Practice</div>
           <h2 className="text-[26px] font-bold">Ongoing practice</h2>
-          <p className="mt-2 text-[14px] text-muted-foreground">For building the habit. No end date.</p>
+          <p className="mt-2 text-[14px] text-muted-foreground">Ongoing communication practice. No end date.</p>
           <div className="mt-5 flex gap-2">{PLAN_CONFIG.practice.billing.map((b) => <button key={b} className="chip" data-active={billing === b} onClick={() => setBilling(b)}>{b === "monthly" ? "Monthly" : `Annual${disc ? ` · save ${disc}%` : ""}`}</button>)}</div>
           <div className="mt-4 font-display text-[28px] font-bold">{billing === "monthly" ? PLAN_CONFIG.practice.monthlyPrice : "Annual pricing soon"}</div>
           <ul className="mt-4 space-y-1.5 text-[14px] text-muted-foreground">{["Unlimited practice, voice and text", "Detailed analysis and AI coaching", "Response history and comparisons", "Skills, patterns and progress", "Targeted drills and custom practice", "Personalized next practice"].map((x) => <li key={x}>· {x}</li>)}</ul>
@@ -47,7 +47,7 @@ function Plans() {
         <section className={`glass p-6 md:p-8 ${p === "sprint" ? "border-primary/40" : ""}`}>
           <div className="eyebrow mb-1 !text-primary">Sprint</div>
           <h2 className="text-[26px] font-bold">A focused program</h2>
-          <p className="mt-2 text-[14px] text-muted-foreground">One goal, a set length, a progress report at the end.</p>
+          <p className="mt-2 text-[14px] text-muted-foreground">Focused, goal-specific improvement — one goal, a set length, a progress report at the end.</p>
           <label className="eyebrow mt-5 block">Goal</label>
           <select className="field mt-1" value={goal} onChange={(e) => setGoal(e.target.value)}>{SPRINT_GOALS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}</select>
           {goal === "custom" && <input className="field mt-2" placeholder="Describe your goal" value={goalText} onChange={(e) => setGoalText(e.target.value)} />}

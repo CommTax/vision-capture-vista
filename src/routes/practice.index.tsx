@@ -102,7 +102,7 @@ function Practice() {
 
         {/* 4. Library for the chosen category */}
         {mode === "custom" && ent.free && (
-          <div className="glass mt-5 p-6 text-[14px]"><div className="eyebrow mb-1">Custom practice</div>Build your own scenario with Practice or Sprint. <Link to="/plans" className="text-primary">See plans →</Link></div>
+          <div className="glass mt-5 p-6 text-[14px]"><div className="eyebrow mb-1">Custom practice</div>Build a practice around your own upcoming situation. <Link to="/plans" className="text-primary">Unlock custom practice →</Link></div>
         )}
         {mode === "custom" && !ent.free && (
           <form className="glass mt-5 space-y-4 p-6" onSubmit={(e) => { e.preventDefault(); if (!preview) return; navigate({ to: "/practice/$questionId", params: { questionId: "custom" }, search: { s: custom.trim(), ctx: preview.context, f: preview.evaluation_focus[0] } }); }}>
