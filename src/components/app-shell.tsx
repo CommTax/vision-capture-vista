@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Flame, Home, Mic, ListChecks, LineChart, User } from "lucide-react";
 import { streak, useStore } from "@/lib/store";
+import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
 
 export function useHydrated() {
   return useSyncExternalStore(() => () => {}, () => true, () => false);
@@ -28,7 +29,8 @@ const MOBILE = [
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, allowGuest = false }: { children: ReactNode; allowGuest?: boolean }) {
+  const { state, has } = useEntitlement();
   const hydrated = useHydrated();
   const profile = useStore((s) => s.profile);
   const days = useStore((s) => s.practiceDays);
@@ -36,11 +38,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!profile) navigate({ to: "/signup" });
-    else if (!profile.onboarded) navigate({ to: "/onboarding" });
-  }, [hydrated, profile, navigate]);
+    if (!profile) { if (!allowGuest) navigate({ to: "/signup" }); }
+    else if (!profile.onboarded && !allowGuest) navigate({ to: "/onboarding" });
+  }, [hydrated, profile, navigate, allowGuest]);
 
-  if (!hydrated || !profile?.onboarded) return <div className="min-h-screen" />;
+  if (!hydrated || (!allowGuest && !profile?.onboarded)) return <div className="min-h-screen" />;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
@@ -48,13 +50,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
           <nav className="hidden items-center gap-7 text-[13px] text-muted-foreground md:flex">
-            {NAV.map((n) => (
+            {[...NAV, ...(has("sprint") ? [{ to: "/sprint", label: "Sprint" } as const] : [])].map((n) => (
               <Link key={n.to} to={n.to} className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>{n.label}</Link>
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>
-            <Link to="/profile" className="grid size-8 place-items-center rounded-full bg-secondary font-display text-[13px] font-bold">{profile.name.slice(0, 1).toUpperCase()}</Link>
+            <Link to="/plans" className="hidden rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground sm:inline">{STATE_LABEL[state]}</Link>
+            {profile ? <>
+              <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>
+              <Link to="/profile" className="grid size-8 place-items-center rounded-full bg-secondary font-display text-[13px] font-bold">{profile.name.slice(0, 1).toUpperCase()}</Link>
+            </> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}
           </div>
         </div>
       </header>
