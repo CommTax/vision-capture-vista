@@ -8,7 +8,7 @@ import { demoModeEnabled, matchDemoLogin, seedDemoAccount } from "@/lib/demo-acc
 
 export const Route = createFileRoute("/signup")({
   validateSearch: z.object({ mode: z.enum(["signup", "signin"]).optional() }),
-  head: () => ({ meta: [{ title: "Create your account — Cadence" }, { name: "description", content: "Start practicing real responses with Cadence." }, { property: "og:title", content: "Create your account — Cadence" }, { property: "og:description", content: "Start practicing real responses with Cadence." }] }),
+  head: () => ({ meta: [{ title: "Create your account — Unspoken" }, { name: "description", content: "Start practicing real responses with Unspoken." }, { property: "og:title", content: "Create your account — Unspoken" }, { property: "og:description", content: "Start practicing real responses with Unspoken." }] }),
   component: Signup,
 });
 

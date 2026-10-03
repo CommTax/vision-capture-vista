@@ -3,7 +3,7 @@ import { Logo, useHydrated } from "@/components/app-shell";
 import { DEMO_ACCOUNTS, DEMO_PASSWORD, demoModeEnabled, seedDemoAccount } from "@/lib/demo-accounts";
 
 export const Route = createFileRoute("/demo")({
-  head: () => ({ meta: [{ title: "Demo Mode — Cadence" }, { name: "description", content: "Internal QA accounts for inspecting Cadence plans." }, { name: "robots", content: "noindex" }, { property: "og:title", content: "Demo Mode — Cadence" }, { property: "og:description", content: "Internal QA accounts." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Demo Mode — Unspoken" }, { name: "description", content: "Internal QA accounts for inspecting Unspoken plans." }, { name: "robots", content: "noindex" }, { property: "og:title", content: "Demo Mode — Unspoken" }, { property: "og:description", content: "Internal QA accounts." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Demo,
 });
 
@@ -16,7 +16,7 @@ function Demo() {
     <div className="mx-auto max-w-3xl px-5 py-12">
       <div className="mb-8"><Logo /></div>
       <div className="eyebrow mb-2 !text-primary">Demo Mode · preview only</div>
-      <h1 className="text-[30px] font-bold">Inspect Cadence by plan</h1>
+      <h1 className="text-[30px] font-bold">Inspect Unspoken by plan</h1>
       <p className="mt-2 text-[14px] text-muted-foreground">Each account loads seeded test data and runs through the normal plan checks. Loading one replaces what's saved in this browser. Password for all: <span className="font-mono">{DEMO_PASSWORD}</span></p>
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {DEMO_ACCOUNTS.map((a) => (

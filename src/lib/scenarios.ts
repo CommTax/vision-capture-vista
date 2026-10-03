@@ -73,7 +73,7 @@ export const CATEGORY_BLURB: Partial<Record<ModeId, string>> = {
   group: "Take a position, support it, respond under time pressure.",
   sales: "Pitches, objections, influencing stakeholders.",
   everyday: "Status updates, delays, escalations.",
-  custom: "Describe any situation and cadence creates the scenario.",
+  custom: "Describe any situation and unspoken creates the scenario.",
 };
 
 export function toScenario(q: Question, level: string): Scenario {

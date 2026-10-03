@@ -8,7 +8,7 @@ import { useEntitlement } from "@/lib/entitlements";
 import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type SkillInsight, type SkillStatus } from "@/lib/skills";
 
 export const Route = createFileRoute("/skills")({
-  head: () => ({ meta: [{ title: "Communication Skills — Cadence" }, { name: "description", content: "See what is improving, what is slipping, and what to practice next." }, { property: "og:title", content: "Communication Skills — Cadence" }, { property: "og:description", content: "What you're good at, what's holding you back, and what to practice next." }] }),
+  head: () => ({ meta: [{ title: "Communication Skills — Unspoken" }, { name: "description", content: "See what is improving, what is slipping, and what to practice next." }, { property: "og:title", content: "Communication Skills — Unspoken" }, { property: "og:description", content: "What you're good at, what's holding you back, and what to practice next." }] }),
   component: () => <AppShell><Skills /></AppShell>,
 });
 

@@ -6,11 +6,11 @@ import type { Entitlement } from "./entitlements";
 import { setState, type State } from "./store";
 
 export type DemoId = "free" | "practice" | "sprint";
-export const DEMO_PASSWORD = "CadenceDemo123!";
+export const DEMO_PASSWORD = "UnspokenDemo123!";
 export const DEMO_ACCOUNTS: { id: DemoId; label: string; email: string; phone: string; entitlement: string; blurb: string }[] = [
-  { id: "free", label: "Free Demo", email: "demo.free@cadence.test", phone: "9000000001", entitlement: "FREE", blurb: "Free limits, locked previews, unlock CTAs." },
-  { id: "practice", label: "Practice Demo", email: "demo.practice@cadence.test", phone: "9000000002", entitlement: "PRACTICE_PAID · monthly", blurb: "Full practice, history, skills, drills, progress." },
-  { id: "sprint", label: "Sprint Demo", email: "demo.sprint@cadence.test", phone: "9000000003", entitlement: "SPRINT_PAID · 28 days", blurb: "Senior Interview Preparation Sprint, day 11." },
+  { id: "free", label: "Free Demo", email: "demo.free@unspoken.test", phone: "9000000001", entitlement: "FREE", blurb: "Free limits, locked previews, unlock CTAs." },
+  { id: "practice", label: "Practice Demo", email: "demo.practice@unspoken.test", phone: "9000000002", entitlement: "PRACTICE_PAID · monthly", blurb: "Full practice, history, skills, drills, progress." },
+  { id: "sprint", label: "Sprint Demo", email: "demo.sprint@unspoken.test", phone: "9000000003", entitlement: "SPRINT_PAID · 28 days", blurb: "Senior Interview Preparation Sprint, day 11." },
 ];
 
 export function demoModeEnabled() {

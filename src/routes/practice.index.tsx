@@ -9,7 +9,7 @@ import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, GOALS,
 import { setState, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/")({
-  head: () => ({ meta: [{ title: "Practice — Cadence" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — Cadence" }, { property: "og:description", content: "Practice what you need to say next." }] }),
+  head: () => ({ meta: [{ title: "Practice — Unspoken" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — Unspoken" }, { property: "og:description", content: "Practice what you need to say next." }] }),
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 

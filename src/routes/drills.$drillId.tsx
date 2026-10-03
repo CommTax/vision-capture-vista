@@ -10,7 +10,7 @@ import { DRILLS } from "@/lib/data";
 import { setState, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/$drillId")({
-  head: () => ({ meta: [{ title: "Drill — Cadence" }, { name: "description", content: "A focused communication drill with instant feedback." }, { property: "og:title", content: "Drill — Cadence" }, { property: "og:description", content: "Practice one skill, get feedback, retry." }] }),
+  head: () => ({ meta: [{ title: "Drill — Unspoken" }, { name: "description", content: "A focused communication drill with instant feedback." }, { property: "og:title", content: "Drill — Unspoken" }, { property: "og:description", content: "Practice one skill, get feedback, retry." }] }),
   component: () => <AppShell><Gate feature="drills" title="Unlock targeted practice." body="This drill is built to practice one behavior your responses need. Unlock targeted drills with before-and-after results." cta="Unlock targeted practice"><DrillPage /></Gate></AppShell>,
 });
 
