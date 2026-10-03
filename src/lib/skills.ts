@@ -35,7 +35,7 @@ export const OUTCOMES: Dimension[] = ["memorability"];
 
 const DRILL_FOR: Record<Dimension, string> = {
   structure: "five-sec", clarity: "one-sentence", conciseness: "cut-30", relevance: "specific",
-  impact: "result-first", delivery: "three-steps", confidence: "five-sec", memorability: "exec-summary",
+  impact: "result-first", delivery: "filler", confidence: "five-sec", memorability: "exec-summary",
 };
 
 const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
