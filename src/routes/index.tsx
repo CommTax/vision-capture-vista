@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
 import { Logo } from "@/components/app-shell";
 import { ScoreBar } from "@/components/analysis-view";
 import { getState } from "@/lib/store";
@@ -44,7 +45,7 @@ function Landing() {
     <div className="overflow-x-hidden">
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
-          <Logo />
+          <Link to="/" className="font-display text-[19px] font-bold tracking-tight">Home</Link>
           <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
             <a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
           </nav>
@@ -57,25 +58,25 @@ function Landing() {
         <div className="rise lg:col-span-6">
           <div className="eyebrow mb-5 !text-primary">Practice for moments that matter.</div>
           <h1 className="text-balance text-[clamp(42px,5.8vw,72px)] font-bold leading-[1.0]">Say what you mean. <span className="text-primary">Make it land.</span></h1>
-          <p className="mt-6 max-w-[46ch] text-[17px] leading-7 text-muted-foreground">Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost when you speak.</p>
+          <p className="mt-6 max-w-[46ch] text-[17px] leading-7 text-muted-foreground">Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost in your response.</p>
           <div className="mt-8 flex flex-wrap gap-3"><Link to="/signup" className="btn btn-primary">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost">Try a Free Practice</button></div>
         </div>
         <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
           <div className="glass glass-float p-6 md:p-7">
-            <div className="mb-6 flex items-center justify-between"><span className="eyebrow">Same question. Better response.</span><span className="rounded-full bg-primary/15 px-2.5 py-1 font-mono text-[11px] text-primary">Structure 42 → 68</span></div>
+            <div className="mb-6"><span className="eyebrow">Same moment. Better response.</span></div>
             <div className="rounded-2xl border border-border p-4">
               <div className="eyebrow">Attempt 01</div>
-              <div className="mt-1 font-display text-[22px] font-bold text-muted-foreground line-through decoration-1">SCATTERED</div>
-              <div className="text-[13px] text-muted-foreground">Main point at 23 seconds</div>
+              <div className="mt-1 font-display text-[20px] font-bold text-muted-foreground line-through decoration-1">SCATTERED · RAMBLING</div>
+              <div className="text-[13px] text-muted-foreground">Main point at 23s</div>
             </div>
             <div className="py-2 text-center text-primary">↓</div>
             <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
               <div className="eyebrow !text-primary">Attempt 02</div>
-              <div className="clip-in mt-1 font-display text-[26px] font-bold">STRUCTURED</div>
-              <div className="text-[13px]">Main point at <span className="text-primary">5 seconds</span></div>
+              <div className="clip-in mt-1 font-display text-[24px] font-bold">STRUCTURED · CONCISE</div>
+              <div className="text-[13px]">Main point at <span className="text-primary">5s</span></div>
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-              {[["Clarity", 61, 76], ["Impact", 53, 69], ["Conciseness", 55, 73]].map(([l, a, b]) => (
+            <div className="mt-6 grid grid-cols-2 gap-3 text-center">
+              {[["Structure", 42, 68], ["Conciseness", 55, 73]].map(([l, a, b]) => (
                 <div key={l as string}><div className="text-[11px] text-muted-foreground">{l}</div><div className="mt-1 font-mono text-[13px]"><span className="text-muted-foreground">{a}</span> → <span className="text-primary">{b}</span></div></div>
               ))}
             </div>
@@ -160,7 +161,7 @@ function Landing() {
           <div className="text-center text-[24px] text-primary"><span className="hidden md:inline">→</span><span className="md:hidden">↓</span></div>
           <div className="glass border-primary/50 p-7"><div className="eyebrow !text-primary">Attempt 02</div><div className="mt-4 flex gap-10"><div><div className="font-display text-[40px] font-bold text-primary">68</div><div className="text-[12px] text-muted-foreground">Structure</div></div><div><div className="font-display text-[40px] font-bold text-primary">5s</div><div className="text-[12px] text-muted-foreground">Main point</div></div></div><div className="mt-5"><ScoreBar label="Structure" value={68} prev={42} /></div></div>
         </div>
-        <p className="mt-6 text-[15px] text-muted-foreground">Same person. Same question. Different response.</p>
+        <p className="mt-6 text-[15px] text-muted-foreground">Same person. Same moment. Different response.</p>
       </section>
 
       {/* PATTERN */}
@@ -172,11 +173,13 @@ function Landing() {
           <div className="glass border-primary/50 p-6"><div className="eyebrow !text-primary">Current focus</div><div className="mt-3 font-display text-[24px] font-bold text-primary">STRUCTURE</div></div>
         </div>
         <p className="mt-6 text-[15px] text-muted-foreground">Your feedback gets more useful as you practice.</p>
+        <p className="mt-2 text-[14px] text-muted-foreground">Your next move: Make the point → put the ideas in order → stop.</p>
       </section>
 
       {/* DRILLS */}
       <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
-        <h2 className="max-w-2xl text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Don't learn communication. <span className="text-primary">Practice the specific thing holding you back.</span></h2>
+        <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Practice the specific thing <span className="text-primary">holding you back.</span></h2>
+        <p className="mt-3 text-[16px] text-muted-foreground">Targeted drills turn feedback into something you can actually practice.</p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {DRILLS.map(([n, d]) => (
             <div key={n} className="glass flex flex-col p-6"><div className="font-mono text-[12px] uppercase tracking-[0.12em] text-primary">{n}</div><p className="mt-3 flex-1 text-[14px] leading-6 text-muted-foreground">{d}</p><Link to="/drills" className="btn btn-ghost btn-sm mt-6 self-start">Practice</Link></div>
