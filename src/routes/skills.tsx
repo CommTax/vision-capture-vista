@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Gate } from "@/components/plan-gate";
+import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap, Spark } from "@/components/analysis-view";
 import { useStore } from "@/lib/store";
@@ -8,7 +8,7 @@ import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type Skil
 
 export const Route = createFileRoute("/skills")({
   head: () => ({ meta: [{ title: "Communication Skills — Cadence" }, { name: "description", content: "See what is improving, what is slipping, and what to practice next." }, { property: "og:title", content: "Communication Skills — Cadence" }, { property: "og:description", content: "What you're good at, what's holding you back, and what to practice next." }] }),
-  component: () => <AppShell><Gate feature="skills" title="Your full skill breakdown." body="A detailed view of every skill, what changes, and what to practice for each."><Skills /></Gate></AppShell>,
+  component: () => <AppShell><Skills /></AppShell>,
 });
 
 const NO_EVIDENCE = "Not enough recent evidence yet.";
@@ -117,7 +117,7 @@ function Skills() {
             <p className="mt-1 text-[13px] text-muted-foreground">Select a skill to see the evidence behind it.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{xs.filter((x) => CORE.includes(x.skill)).map((x) => <SkillCard key={x.skill} x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />)}</div>
           </section>
-          {selected && CORE.includes(selected.skill) && <Detail x={selected} />}
+          {selected && CORE.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
 
           {/* Outcomes */}
           <section>
@@ -127,9 +127,10 @@ function Skills() {
               <div className="glass flex flex-col p-5"><div className="font-display text-[16px] font-bold">Influence</div><p className="mt-2 text-[13px] leading-5 text-muted-foreground">Built from impact, relevance and confidence. Not scored on its own.</p></div>
             </div>
           </section>
-          {selected && OUTCOMES.includes(selected.skill) && <Detail x={selected} />}
+          {selected && OUTCOMES.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
 
           {/* Trend */}
+          <Locked feature="skills" title="See how every skill is changing" body="Full skill history across your responses, response by response." cta="Unlock full breakdown">
           <section className="glass p-7">
             <h2 className="text-[20px] font-bold">How your skills are changing</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">Each line is one skill across your last {rs.length} responses, oldest to newest.</p>
@@ -141,6 +142,7 @@ function Skills() {
               ))}</div>
             )}
           </section>
+          </Locked>
         </>
       )}
     </div>

@@ -66,7 +66,7 @@ function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: strin
 function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-16 md:px-8">
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-16">
       <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Questions, answered.</h2>
       <div className="mt-8 border-b border-border">
         {FAQS.map(([q, a], i) => (
@@ -161,25 +161,31 @@ function Landing() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-20 pb-16 md:px-8 lg:grid-cols-12">
-        <div className="rise lg:col-span-6">
+      <section className="mx-auto grid max-w-[1200px] items-center gap-6 px-5 pt-8 pb-10 md:gap-12 md:px-8 md:pt-20 md:pb-16 lg:grid-cols-12">
+        <div className="rise md:hidden">
+          <h1 className="text-balance text-[36px] font-bold leading-[1.05]">Practice for moments that matter.</h1>
+          <p className="mt-3 font-display text-[20px] font-bold text-primary">Say what you mean. Make it land.</p>
+          <p className="mt-3 text-[15px] leading-6 text-muted-foreground">Practice a real response. See what got lost. Fix one thing. Try again.</p>
+          <div className="mt-5 grid grid-cols-2 gap-2"><Link to="/signup" className="btn btn-primary justify-center">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost justify-center">Try Free Practice</button></div>
+        </div>
+        <div className="rise hidden md:block lg:col-span-6">
           <div className="eyebrow mb-5 !text-primary">Practice for moments that matter.</div>
           <h1 className="text-balance text-[clamp(42px,5.8vw,72px)] font-bold leading-[1.0]">Say what you mean. <span className="text-primary">Make it land.</span></h1>
           <p className="mt-6 max-w-[46ch] text-[17px] leading-7 text-muted-foreground">Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost in your response.</p>
           <div className="mt-8 flex flex-wrap gap-3"><Link to="/signup" className="btn btn-primary">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost">Try a Free Practice</button></div>
         </div>
         <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
-          <div className="glass glass-float p-6 md:p-7">
-            <div className="mb-6"><span className="eyebrow">Same moment. Better response.</span></div>
+          <div className="glass glass-float p-5 md:p-7">
+            <div className="mb-4 md:mb-6"><span className="eyebrow">Same moment. Better response.</span></div>
             <div className="rounded-2xl border border-border p-4">
               <div className="eyebrow">Attempt 01</div>
-              <div className="mt-1 font-display text-[20px] font-bold text-muted-foreground line-through decoration-1">SCATTERED · RAMBLING</div>
+              <div className="mt-1 font-display text-[17px] font-bold text-muted-foreground line-through sm:text-[20px] decoration-1">SCATTERED · RAMBLING</div>
               <div className="text-[13px] text-muted-foreground">Main point at 23s</div>
             </div>
             <div className="py-2 text-center text-primary">↓</div>
             <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
               <div className="eyebrow !text-primary">Attempt 02</div>
-              <div className="clip-in mt-1 font-display text-[24px] font-bold">STRUCTURED · CONCISE</div>
+              <div className="clip-in mt-1 font-display text-[19px] font-bold sm:text-[24px]">STRUCTURED · CONCISE</div>
               <div className="text-[13px]">Main point at <span className="text-primary">5s</span></div>
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3 text-center">
@@ -191,7 +197,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section className="mx-auto hidden max-w-[1200px] px-5 py-20 md:block md:px-8">
         <div className="relative min-h-[560px] overflow-hidden rounded-3xl border border-border">
           <video
             src={landingVideo.url}
@@ -223,21 +229,28 @@ function Landing() {
       </section>
 
       {/* HOW */}
-      <section id="how" className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
-        <div className="eyebrow mb-6">How it works</div>
-        <div className="grid gap-4 md:grid-cols-5">
-          {["Choose a real situation", "Give your response", "See what got lost", "Fix one thing", "Try again"].map((s, i) => (
-            <div key={s} className="border-t border-border pt-4"><div className="font-mono text-[12px] text-primary">0{i + 1}</div><div className="mt-2 font-display text-[19px] font-bold leading-tight">{s}</div></div>
+      <section id="how" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-20">
+        <div className="eyebrow mb-6 hidden md:block">How it works</div>
+        <h2 className="mb-4 text-[26px] font-bold leading-tight md:hidden">Practice. See. Fix. Retry.</h2>
+        <div className="grid gap-0 md:grid-cols-5 md:gap-4">
+          {[["Choose a real situation", "Choose a moment"], ["Give your response", "Give your response"], ["See what got lost", "See what got lost"], ["Fix one thing", "Fix one thing"], ["Try again", "Try again"]].map(([s, m], i) => (
+            <div key={s} className="flex items-baseline gap-4 border-t border-border py-2.5 md:block md:py-0 md:pt-4"><div className="font-mono text-[12px] text-primary">0{i + 1}</div><div className="font-display text-[16px] font-bold leading-tight md:mt-2 md:text-[19px]"><span className="md:hidden">{m}</span><span className="hidden md:inline">{s}</span></div></div>
           ))}
         </div>
-        <p className="mt-10 font-display text-[22px] font-bold">Don't rewrite yourself. <span className="text-primary">Learn what to change.</span></p>
+        <p className="mt-5 font-display text-[18px] font-bold md:mt-10 md:text-[22px]">Don't rewrite yourself. <span className="text-primary">Learn what to change.</span></p>
       </section>
 
       {/* MODES */}
-      <section id="modes" className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section id="modes" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-20">
         <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Practice the moments that matter.</h2>
-        <p className="mt-3 text-[16px] text-muted-foreground">Choose a situation. We'll give you something real to respond to.</p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="mt-3 hidden text-[16px] text-muted-foreground md:block">Choose a situation. We'll give you something real to respond to.</p>
+        <div className="-mx-5 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 md:hidden">
+          {[["Interview", "Tell me about a difficult project."], ["Leadership", "Give an executive update."], ["Presentation", "Explain your recommendation in 60 seconds."], ["Difficult conversation", "Tell your manager you disagree."], ["Persuasion", "Win over a skeptical stakeholder."], ["Custom", "Any situation you have coming up."]].map(([t, q]) => (
+            <div key={t} className={`glass w-[200px] shrink-0 snap-start p-4 ${t === "Custom" ? "border-dashed" : ""}`}><div className="eyebrow !text-primary">{t}</div><p className="mt-2 text-[14px] font-medium leading-snug">“{q}”</p></div>
+          ))}
+        </div>
+        <Link to="/signup" className="btn btn-primary mt-4 md:hidden">Start Practicing</Link>
+        <div className="mt-10 hidden gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MODE_CARDS.map(([tag, q]) => (
             <div key={tag} className={`glass p-6 ${tag === "Custom" ? "border-dashed" : ""}`}><div className="eyebrow !text-primary">{tag}</div><p className="mt-4 font-display text-[18px] font-bold leading-snug">“{q}”</p></div>
           ))}
@@ -245,23 +258,24 @@ function Landing() {
       </section>
 
       {/* FEEDBACK */}
-      <section id="analysis" className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
-        <div className="eyebrow mb-3 !text-primary">Feedback that listens to the response.</div>
-        <h2 className="max-w-2xl text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Not generic communication advice. Feedback based on what <span className="text-primary">you</span> actually said.</h2>
-        <div className="glass glass-float mt-10 grid divide-y divide-border md:grid-cols-4 md:divide-x md:divide-y-0">
+      <section id="analysis" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-20">
+        <div className="eyebrow mb-3 hidden !text-primary md:block">Feedback that listens to the response.</div>
+        <h2 className="max-w-2xl text-[26px] font-bold leading-tight md:hidden">Feedback that listens to the response.</h2>
+        <h2 className="hidden max-w-2xl text-[clamp(28px,3.4vw,40px)] font-bold leading-tight md:block">Not generic communication advice. Feedback based on what <span className="text-primary">you</span> actually said.</h2>
+        <div className="glass glass-float mt-5 grid divide-y md:mt-10 divide-border md:grid-cols-4 md:divide-x md:divide-y-0">
           {[
             ["What you said", "“I started by explaining the background...”", false],
             ["What got lost", "The decision you actually made.", true],
             ["Why", "Your main point appeared after 23 seconds of context.", false],
             ["Try this", "Lead with the decision. Then explain why.", true],
           ].map(([l, t, hi]) => (
-            <div key={l as string} className="p-6 md:p-7"><div className={`eyebrow ${hi ? "!text-primary" : ""}`}>{l}</div><p className="mt-3 font-display text-[19px] font-bold leading-snug">{t}</p></div>
+            <div key={l as string} className="p-4 md:p-7"><div className={`eyebrow ${hi ? "!text-primary" : ""}`}>{l}</div><p className="mt-1.5 font-display text-[16px] font-bold leading-snug md:mt-3 md:text-[19px]">{t}</p></div>
           ))}
         </div>
       </section>
 
       {/* COMPARISON */}
-      <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section className="mx-auto hidden md:block max-w-[1200px] px-5 py-20 md:px-8">
         <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Don't just get feedback. <span className="text-primary">Try again.</span></h2>
         <div className="mt-10 grid items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
           <div className="glass p-7"><div className="eyebrow">Attempt 01</div><div className="mt-4 flex gap-10"><div><div className="font-display text-[40px] font-bold text-muted-foreground">42</div><div className="text-[12px] text-muted-foreground">Structure</div></div><div><div className="font-display text-[40px] font-bold text-muted-foreground">23s</div><div className="text-[12px] text-muted-foreground">Main point</div></div></div></div>
@@ -272,7 +286,7 @@ function Landing() {
       </section>
 
       {/* PATTERN */}
-      <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section className="mx-auto hidden md:block max-w-[1200px] px-5 py-20 md:px-8">
         <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Over time, you'll start seeing your pattern.</h2>
         <div className="mt-10 grid gap-4 md:grid-cols-4">
           <div className="glass p-6 md:col-span-2"><div className="eyebrow">Your primary pattern</div><div className="mt-3 font-display text-[32px] font-bold">SCATTERED</div><p className="mt-2 text-[14px] text-muted-foreground">Several useful ideas, but they compete for attention.</p></div>
@@ -284,7 +298,7 @@ function Landing() {
       </section>
 
       {/* DRILLS */}
-      <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section className="mx-auto hidden md:block max-w-[1200px] px-5 py-20 md:px-8">
         <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">Practice the specific thing <span className="text-primary">holding you back.</span></h2>
         <p className="mt-3 text-[16px] text-muted-foreground">Targeted drills turn feedback into something you can actually practice.</p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -295,7 +309,7 @@ function Landing() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
+      <section id="pricing" className="mx-auto hidden md:block max-w-[1200px] px-5 py-20 md:px-8">
         <div className="eyebrow mb-6">Pricing</div>
         <div className="grid gap-6 md:grid-cols-3">
           {[
@@ -320,10 +334,10 @@ function Landing() {
       <ContactSection />
 
       {/* FINAL CTA */}
-      <section className="mx-auto max-w-[1200px] px-5 py-20 md:px-8">
-        <div className="glass glass-float p-10 text-center md:p-16">
+      <section className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-20">
+        <div className="glass glass-float p-7 text-center md:p-16">
           <h2 className="mx-auto max-w-2xl text-balance text-[clamp(30px,4vw,48px)] font-bold leading-tight">Practice until the important thing doesn't get lost.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-[16px] text-muted-foreground">Your next interview. Your next presentation. Your next difficult conversation. Practice it before it matters.</p>
+          <p className="mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground md:text-[16px]">Your next interview. Your next presentation. Your next difficult conversation.<span className="hidden md:inline"> Practice it before it matters.</span></p>
           <Link to="/signup" className="btn btn-primary mt-8">Start Practicing</Link>
         </div>
       </section>

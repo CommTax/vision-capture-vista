@@ -17,3 +17,4 @@
 - Access is driven by `src/lib/entitlements.ts` (FREE / PRACTICE_TRIAL / PRACTICE_PAID / SPRINT_TRIAL / SPRINT_PAID), stored apart from profile, lead and marketing consent; pages use `Gate`/`useEntitlement`, never a paid boolean — so one practice engine serves all plans.
 - PAID status is only written by a future payment integration; the client may start configured trials or record interest only — avoids fake subscriptions.
 - `buildRecommendations(rs, focus?)` is the single recommendation engine; Sprint narrows it by its focus skills.
+- Free users can open every app page; deeper sections are wrapped in `Locked` (faded peek + one contextual unlock linking to /plans) instead of full-page gates, and plan names appear only on /plans — so Free feels like the real product.

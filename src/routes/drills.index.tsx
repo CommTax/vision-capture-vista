@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Gate } from "@/components/plan-gate";
+import { Locked } from "@/components/plan-gate";
+import { Lock as LockIcon } from "lucide-react";
+import { useEntitlement } from "@/lib/entitlements";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { DIMENSIONS, DRILLS } from "@/lib/data";
@@ -8,7 +10,7 @@ import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/")({
   head: () => ({ meta: [{ title: "Drills — Cadence" }, { name: "description", content: "Practice what your responses need most." }, { property: "og:title", content: "Drills — Cadence" }, { property: "og:description", content: "See what gets lost. Practice one thing. Try again." }] }),
-  component: () => <AppShell><Gate feature="drills" title="Practice the specific thing holding you back." body="The full drill library and personalized drill sequences."><Drills /></Gate></AppShell>,
+  component: () => <AppShell><Drills /></AppShell>,
 });
 
 const NO_DATA = "We need a little more practice data before we can personalize this recommendation.";
@@ -25,9 +27,10 @@ function RecCard({ r }: { r: Recommendation }) {
 }
 
 function Drills() {
+  const { free } = useEntitlement();
   const rs = useStore((s) => s.responses);
   const done = useStore((s) => s.drillsDone);
-  const results = useStore((s) => s.drillResults ?? {});
+  const results = useStore((s) => s.drillResults) ?? {};
   const { next, more } = buildRecommendations(rs);
   const completed = DRILLS.filter((d) => done.includes(d.id));
 
@@ -44,7 +47,7 @@ function Drills() {
               <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">{next.drill.name}</h2>
               <div className="mt-1 font-mono text-[12px] uppercase text-muted-foreground">{next.skill} · {next.drill.minutes} min</div>
               <p className="mt-5 text-[17px] font-medium leading-7">{next.evidence ?? NO_DATA}</p>
-              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">Start drill →</Link>
+              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">{free && <LockIcon aria-hidden="true" className="size-3.5" />}Start drill →</Link>
             </div>
             <div className="space-y-5 md:col-span-5">
               <div><div className="eyebrow mb-1">Your goal</div><p className="text-[15px]">{next.expected_behavior_change}</p></div>
@@ -63,6 +66,8 @@ function Drills() {
       ) : (
         <section className="glass p-8"><div className="eyebrow mb-2 !text-primary">Your next drill</div><p className="text-[15px]">{NO_DATA}</p><Link to="/practice" className="btn btn-primary mt-5">Answer a question →</Link></section>
       )}
+
+      {free && next && <Locked feature="drills" title={`Your responses point to ${cap(next.skill)}.`} body="A targeted drill can help you practice that behavior — with a before-and-after on every try." cta="Unlock targeted practice" />}
 
       {/* 3. Recommended */}
       {more.length > 0 && (

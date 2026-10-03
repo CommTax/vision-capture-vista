@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Lock } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import type { Analysis } from "@/lib/analysis";
 import { PATTERNS } from "@/lib/data";
@@ -6,17 +7,39 @@ import { saveLead, useEntitlement, type Feature } from "@/lib/entitlements";
 import { ScoreBar, cap } from "@/components/analysis-view";
 
 /** Renders children when the feature is in the user's plan; otherwise a calm locked panel. */
-export function Gate({ feature, title, body, children }: { feature: Feature; title: string; body: string; children: ReactNode }) {
+export function Gate({ feature, title, body, cta = "Unlock", children }: { feature: Feature; title: string; body: string; cta?: string; children: ReactNode }) {
   const { has } = useEntitlement();
   if (has(feature)) return <>{children}</>;
   return (
     <div className="glass glass-float mx-auto max-w-2xl p-8 text-center">
-      <div className="eyebrow mb-3">Included with Practice and Sprint</div>
+      <Lock aria-hidden="true" className="mx-auto mb-3 size-4 text-primary" />
       <h1 className="text-[clamp(24px,3.5vw,32px)] font-bold">{title}</h1>
       <p className="mx-auto mt-3 max-w-md text-[15px] text-muted-foreground">{body}</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Link to="/plans" className="btn btn-primary">See plans</Link>
+        <Link to="/plans" className="btn btn-primary">{cta}</Link>
         <Link to="/practice" className="btn btn-ghost">Keep practicing</Link>
+      </div>
+    </div>
+  );
+}
+
+/** Free users see a faded peek of the deeper content plus one compact, contextual unlock card. */
+export function Locked({ feature = "history", title, body, cta = "Unlock", items, children }: { feature?: Feature; title: string; body: string; cta?: string; items?: string[]; children?: ReactNode }) {
+  const { has } = useEntitlement();
+  if (has(feature)) return <>{children}</>;
+  return (
+    <div>
+      {children && (
+        <div aria-hidden="true" inert className="pointer-events-none max-h-[120px] select-none overflow-hidden opacity-60 [mask-image:linear-gradient(to_bottom,black_10%,transparent)]">{children}</div>
+      )}
+      <div className={`glass flex items-start gap-3 p-5 ${children ? "-mt-6 relative" : ""}`}>
+        <Lock aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" />
+        <div className="min-w-0">
+          <div className="font-display text-[16px] font-bold">{title}</div>
+          <p className="mt-1 text-[13px] leading-5 text-muted-foreground">{body}</p>
+          {items && <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted-foreground">{items.map((x) => <li key={x}><span className="text-primary">· </span>{x}</li>)}</ul>}
+          <Link to="/plans" className="btn btn-primary btn-sm mt-3">{cta}</Link>
+        </div>
       </div>
     </div>
   );
@@ -33,21 +56,8 @@ export function Conversion() {
     <div className="glass glass-float rise p-6 md:p-10">
       <div className="eyebrow mb-3">Your free practices are complete</div>
       <h2 className="text-balance text-[clamp(24px,3.5vw,34px)] font-bold">You've found your pattern. Now work on it.</h2>
-      <p className="mt-3 max-w-2xl text-[15px] text-muted-foreground">Your free practices helped identify where your communication gets lost. Keep practicing with a structured program built around your goals.</p>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border p-5">
-          <div className="eyebrow mb-1 !text-primary">Practice</div>
-          <div className="font-display text-[20px] font-bold">Keep building the habit.</div>
-          <p className="mt-2 text-[14px] text-muted-foreground">Ongoing, unlimited practice with history, drills and progress — so you can see whether your responses actually change.</p>
-          <Link to="/plans" search={{ p: "practice" }} className="btn btn-primary mt-4">Explore Practice</Link>
-        </div>
-        <div className="rounded-2xl border border-border p-5">
-          <div className="eyebrow mb-1 !text-primary">Sprint</div>
-          <div className="font-display text-[20px] font-bold">Focus on one goal.</div>
-          <p className="mt-2 text-[14px] text-muted-foreground">A program with a set length, built around a goal like an interview or presentation, ending in a progress report.</p>
-          <Link to="/plans" search={{ p: "sprint" }} className="btn btn-ghost mt-4">Explore Sprint</Link>
-        </div>
-      </div>
+      <p className="mt-3 max-w-2xl text-[15px] text-muted-foreground">Your free practices showed where your communication gets lost. Keep going with a practice path built around your response patterns — targeted drills, deeper analysis and progress you can see.</p>
+      <div className="mt-6 flex flex-wrap gap-3"><Link to="/plans" className="btn btn-primary">Unlock your practice path</Link><Link to="/dashboard" className="btn btn-ghost">See my dashboard</Link></div>
     </div>
   );
 }
@@ -125,8 +135,8 @@ export function FreeResult({ a, transcript }: { a: Analysis; transcript: string 
       <div className="glass p-6">
         <div className="eyebrow mb-4">Basic skill indicators</div>
         <div className="space-y-3">{BASIC.filter((d) => typeof a.scores[d] === "number").map((d) => <ScoreBar key={d} label={cap(d)} value={a.scores[d]} />)}</div>
-        <p className="mt-4 text-[12px] text-muted-foreground">Delivery, confidence, memorability, history and progress are part of Practice and Sprint.</p>
       </div>
+      <Locked title="Detailed response breakdown" body="See how every part of this response landed — and the evidence behind each score." items={["Delivery", "Confidence", "Relevance", "Detailed structure analysis", "Response-level evidence", "Deeper patterns"]} cta="Unlock detailed analysis" />
       <details className="glass p-6"><summary className="cursor-pointer text-[14px] text-muted-foreground">Your response</summary><p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed">{transcript}</p></details>
     </div>
   );
