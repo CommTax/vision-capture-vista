@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Locked } from "@/components/plan-gate";
+import { Lock as LockIcon } from "lucide-react";
+import { useEntitlement } from "@/lib/entitlements";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { DIMENSIONS, DRILLS } from "@/lib/data";
@@ -25,6 +27,7 @@ function RecCard({ r }: { r: Recommendation }) {
 }
 
 function Drills() {
+  const { free } = useEntitlement();
   const rs = useStore((s) => s.responses);
   const done = useStore((s) => s.drillsDone);
   const results = useStore((s) => s.drillResults ?? {});
@@ -44,7 +47,7 @@ function Drills() {
               <h2 className="text-[clamp(28px,3.4vw,40px)] font-bold leading-tight">{next.drill.name}</h2>
               <div className="mt-1 font-mono text-[12px] uppercase text-muted-foreground">{next.skill} · {next.drill.minutes} min</div>
               <p className="mt-5 text-[17px] font-medium leading-7">{next.evidence ?? NO_DATA}</p>
-              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">Start drill →</Link>
+              <Link to="/drills/$drillId" params={{ drillId: next.drill_id }} className="btn btn-primary mt-7 px-6 py-3 text-[15px]">{free && <LockIcon aria-hidden="true" className="size-3.5" />}Start drill →</Link>
             </div>
             <div className="space-y-5 md:col-span-5">
               <div><div className="eyebrow mb-1">Your goal</div><p className="text-[15px]">{next.expected_behavior_change}</p></div>
@@ -63,6 +66,8 @@ function Drills() {
       ) : (
         <section className="glass p-8"><div className="eyebrow mb-2 !text-primary">Your next drill</div><p className="text-[15px]">{NO_DATA}</p><Link to="/practice" className="btn btn-primary mt-5">Answer a question →</Link></section>
       )}
+
+      {free && next && <Locked feature="drills" title={`Your responses point to ${cap(next.skill)}.`} body="A targeted drill can help you practice that behavior — with a before-and-after on every try." cta="Unlock targeted practice" />}
 
       {/* 3. Recommended */}
       {more.length > 0 && (
