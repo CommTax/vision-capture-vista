@@ -3,12 +3,13 @@
 import { useSyncExternalStore } from "react";
 import type { Analysis } from "./analysis";
 import type { ModeId } from "./data";
+import type { Coaching } from "./coach.server";
 
 export type Profile = { name: string; email: string; goal: string; struggle: string; experience: string; level: string; onboarded: boolean; plan: "free" | "practice" | "sprint" };
 export type ResponseRecord = {
   id: string; question_id: string; question: string; mode: ModeId; response_type: "voice" | "text";
   transcript: string; audio_url?: string; duration: number; created_at: string;
-  attempt: number; parent_id?: string; analysis: Analysis;
+  attempt: number; parent_id?: string; analysis: Analysis; coaching?: Coaching;
 };
 export type State = { profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[] };
 

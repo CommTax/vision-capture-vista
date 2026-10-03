@@ -36,7 +36,7 @@ export type Analysis = {
 
 const FILLERS = ["um", "uh", "like", "basically", "actually", "you know", "kind of", "sort of", "i mean", "literally", "just", "so yeah"];
 const STOP = new Set("the a an and or but to of in on for with at by from is was were be been are i we it that this my our as so they he she you me us them have had has do did not then there their".split(" "));
-const RESULT_WORDS = /(result|outcome|so that|which led|increased|reduced|saved|delivered|improved|cut|grew|launched|achieved|recommend|i'd pick|my answer|the point|in short|i believe|i think we should|%|\d)/i;
+const RESULT_WORDS = /(turned|resolved|built|led |won|helped|successfully|managed to|result|outcome|so that|which led|increased|reduced|saved|delivered|improved|cut|grew|launched|achieved|recommend|i'd pick|my answer|the point|in short|i believe|i think we should|%|\d)/i;
 
 const clamp = (n: number) => Math.max(18, Math.min(96, Math.round(n)));
 

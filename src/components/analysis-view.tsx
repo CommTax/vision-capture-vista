@@ -28,7 +28,7 @@ export function PatternShift({ pattern, size = "lg" }: { pattern: string; size?:
   );
 }
 
-export function AnalysisView({ a, transcript }: { a: Analysis; transcript: string }) {
+export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcript: string; onRetry?: () => void }) {
   const [open, setOpen] = useState<string | null>("structure");
   const P = PATTERNS[a.primary_pattern];
   const drill = DRILLS.find((d) => d.id === a.recommended_drill);
@@ -68,7 +68,7 @@ export function AnalysisView({ a, transcript }: { a: Analysis; transcript: strin
         <div className="glass p-7 lg:col-span-5">
           <div className="eyebrow mb-4 text-primary">Make it land</div>
           <ol className="space-y-3">{a.what_got_lost.makeItLand.map((m, i) => <li key={m} className="flex gap-3 text-[14px]"><span className="font-mono text-primary">0{i + 1}</span>{m}</li>)}</ol>
-          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-[14px]"><div className="eyebrow mb-1 text-primary">One thing to fix</div>{a.retry_instruction}</div>
+          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-[14px]"><div className="eyebrow mb-1 text-primary">One thing to fix</div>{a.retry_instruction}{onRetry && <button className="btn btn-primary btn-sm mt-3 w-full" onClick={onRetry}>Retry with this focus</button>}</div>
         </div>
       </section>
 
@@ -149,22 +149,25 @@ export function AnalysisView({ a, transcript }: { a: Analysis; transcript: strin
   );
 }
 
-export function ComparePanel({ a1, a2 }: { a1: Analysis; a2: Analysis }) {
+export function ComparePanel({ a1, a2, n1 = 1, n2 = 2 }: { a1: Analysis; a2: Analysis; n1?: number; n2?: number }) {
   const ds = a2.scores.structure - a1.scores.structure;
   return (
     <section className="glass glass-float rise p-6 md:p-7">
       <div className="mb-6 flex items-center justify-between"><div className="eyebrow">Attempt comparison</div><span className="text-[11px] text-muted-foreground">retry · same prompt</span></div>
       <div className="grid grid-cols-3 items-center gap-4 text-center text-[13px]">
-        <div><div className="mb-2 text-muted-foreground">Attempt 01</div><div className="font-display text-[28px] font-bold">{a1.scores.structure}</div><div className="text-[11px] text-muted-foreground">structure</div></div>
+        <div><div className="mb-2 text-muted-foreground">Attempt {String(n1).padStart(2, "0")}</div><div className="font-display text-[28px] font-bold">{a1.scores.structure}</div><div className="text-[11px] text-muted-foreground">structure</div></div>
         <div><div className="mb-2 text-muted-foreground">Δ</div><div className={`font-display text-[28px] font-bold ${ds >= 0 ? "text-primary" : "text-destructive"}`}>{ds >= 0 ? "+" : ""}{ds}</div><div className="text-[11px] text-muted-foreground">{a1.main_point_delay}s → {a2.main_point_delay}s to point</div></div>
-        <div><div className="mb-2 text-muted-foreground">Attempt 02</div><div className="font-display text-[28px] font-bold text-primary">{a2.scores.structure}</div><div className="text-[11px] text-muted-foreground">structure</div></div>
+        <div><div className="mb-2 text-muted-foreground">Attempt {String(n2).padStart(2, "0")}</div><div className="font-display text-[28px] font-bold text-primary">{a2.scores.structure}</div><div className="text-[11px] text-muted-foreground">structure</div></div>
       </div>
       <div className="mt-6 grid gap-3 md:grid-cols-2">
-        {(["structure", "clarity", "conciseness", "impact"] as const).map((d) => <ScoreBar key={d} label={cap(d)} value={a2.scores[d]} prev={a1.scores[d]} />)}
+        {DIMENSIONS.map((d) => <ScoreBar key={d} label={cap(d)} value={a2.scores[d]} prev={a1.scores[d]} />)}
       </div>
-      <div className="mt-5 flex flex-wrap gap-6 text-[13px] text-muted-foreground">
+      <p className="mt-5 text-[14px]">{verdict(a1, a2)}</p>
+      <div className="mt-3 flex flex-wrap gap-6 text-[13px] text-muted-foreground">
         <span>Word count <b className="font-mono text-foreground">{a1.word_count} → {a2.word_count}</b></span>
         <span>Time to point <b className="font-mono text-foreground">{a1.main_point_delay}s → {a2.main_point_delay}s</b></span>
+        <span>Overall <b className="font-mono text-foreground">{a1.overall} → {a2.overall}</b></span>
+        <span>Pattern <b className="text-foreground">{PATTERNS[a1.primary_pattern]?.short} → {PATTERNS[a2.primary_pattern]?.short}</b></span>
       </div>
     </section>
   );
@@ -176,3 +179,11 @@ export function Spark({ series }: { series: number[] }) {
   return <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-10 w-full"><polyline points={pts} fill="none" stroke="var(--primary)" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg>;
 }
 
+
+function verdict(a1: Analysis, a2: Analysis) {
+  const diffs = DIMENSIONS.map((d) => [d, a2.scores[d] - a1.scores[d]] as const).sort((x, y) => y[1] - x[1]);
+  const [best, gain] = diffs[0];
+  const [worst, loss] = diffs[diffs.length - 1];
+  if (gain <= 0) return `No gains this time — your ${worst} dropped ${Math.abs(loss)}. Re-read "One thing to fix" and try once more.`;
+  return `Biggest gain: ${best} +${gain}.${a2.main_point_delay < a1.main_point_delay ? ` You reached your point ${a1.main_point_delay - a2.main_point_delay}s sooner.` : ""}${loss < 0 ? ` Watch ${worst} (${loss}).` : ""}`;
+}
