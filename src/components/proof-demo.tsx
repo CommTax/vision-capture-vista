@@ -69,7 +69,7 @@ function Metric({ label, before, after, show }: { label: string; before: number;
 }
 
 /** Data-driven retry proof. Accepts real comparison data with the same shape. */
-export function ProofDemoCard({ title, demo }: { title: string; demo: ProofDemo }) {
+export function ProofDemoCard({ title, demo }: { title?: string; demo: ProofDemo }) {
   const reduced = useReducedMotion();
   const [phase, setPhase] = useState(0);
 
@@ -83,10 +83,10 @@ export function ProofDemoCard({ title, demo }: { title: string; demo: ProofDemo 
   const proof = phase >= 3;
 
   return (
-    <div className="glass glass-float p-6 md:p-8" aria-label={`${title} ${before.patternLabels.join(" ")}: main point at ${before.mainPointDelay}s. ${after.patternLabels.join(" ")}: main point at ${after.mainPointDelay}s.`}>
-      <div className="font-display text-[20px] font-bold leading-tight md:text-[22px]">{title}</div>
+    <div className="glass glass-float p-6 md:p-8" aria-label={`${title ?? ""} ${before.patternLabels.join(" ")}: main point at ${before.mainPointDelay}s. ${after.patternLabels.join(" ")}: main point at ${after.mainPointDelay}s.`}>
+      {title && <div className="mb-6 font-display text-[20px] font-bold leading-tight md:text-[22px]">{title}</div>}
 
-      <div className="mt-6 rounded-2xl border border-border p-4 md:p-5">
+      <div className=" rounded-2xl border border-border p-4 md:p-5">
         <Attempt a={before} on={phase >= 1} slow showTime={phase >= 2} />
         <div className="my-4 flex items-center gap-3 transition-opacity duration-500" style={{ opacity: phase >= 2 ? 1 : 0.2 }} aria-hidden>
           <span className="h-px flex-1 bg-border" />

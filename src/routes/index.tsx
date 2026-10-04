@@ -7,6 +7,7 @@ import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
 import { ProofDemoCard } from "@/components/proof-demo";
+import { HeroSession, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -98,8 +99,8 @@ function Landing() {
         </div>
       </header>
 
-      {/* HERO + PROOF */}
-      <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-16 md:px-8 md:pt-28 md:pb-28 lg:grid-cols-12">
+      {/* HERO */}
+      <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-12 md:px-8 md:pt-28 md:pb-24 lg:grid-cols-12">
         <div className="rise lg:col-span-6">
           <div className="eyebrow mb-5 !text-primary">{hero.eyebrow}</div>
           <h1 className="text-balance text-[clamp(42px,6vw,80px)] font-bold leading-[0.98]">{hero.headline} <span className="text-primary">{hero.headlineAccent}</span></h1>
@@ -107,28 +108,25 @@ function Landing() {
           <div className="mt-9 flex flex-wrap gap-3"><Link to="/signup" className="btn btn-primary">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost">Try a Free Practice</button></div>
         </div>
         <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
-          <ProofDemoCard title={proof.title} demo={proof.demo} />
+          <HeroSession question={proof.demo.question} lost={feedback.whatGotLost} fix={feedback.tryThis} />
         </div>
       </section>
+
+      {/* SAME MOMENT */}
+      <Section>
+        <div className="mx-auto max-w-3xl">
+          <h2 className={H2}>{proof.title}</h2>
+          <p className={SUB}>See what changes when you try again.</p>
+          <div className="mt-10"><ProofDemoCard demo={proof.demo} /></div>
+        </div>
+      </Section>
 
       {/* THE REAL PROBLEM */}
       <Section>
         <div className="eyebrow mb-4 !text-primary">The real problem</div>
         <h2 className={`${H2} max-w-3xl`}>You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
         <p className={SUB}>Sometimes the idea is strong. The response isn't.</p>
-        <div className="mt-10 grid grid-cols-1 gap-2 sm:grid-cols-5">
-          {transformations.map(({ from, to }) => (
-            <div key={from} className="glass flex items-center justify-between gap-3 rounded-2xl px-4 py-3 sm:block sm:py-4">
-              <div className="font-mono text-[11px] text-muted-foreground line-through">{from}</div>
-              <div className="font-display text-[15px] font-bold leading-tight sm:mt-2"><span className="text-primary">→ </span>{to}</div>
-            </div>
-          ))}
-        </div>
-        <div className="relative mt-4 aspect-video overflow-hidden rounded-3xl border border-border">
-          <video src={landingVideo.url} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/70" />
-        </div>
-        <p className="mt-10 font-display text-[clamp(20px,2.4vw,28px)] font-bold">Make the thing you mean <span className="text-primary">easier to hear.</span></p>
+        <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
       {/* HOW */}
@@ -142,7 +140,7 @@ function Landing() {
               <div key={s.step} className="relative">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/40 bg-background"><Icon className="h-4 w-4 text-primary" aria-hidden /></div>
                 <div className="mt-5 font-mono text-[11px] text-primary">{String(s.step).padStart(2, "0")}</div>
-                <div className="mt-1 font-display text-[22px] font-bold">{s.title}</div>
+                <div className="mt-1 font-display text-[clamp(26px,3vw,36px)] font-bold uppercase tracking-tight">{s.title}</div>
                 <p className="mt-1 text-[14px] text-muted-foreground">{s.shortTitle}</p>
               </div>
             );
@@ -158,7 +156,7 @@ function Landing() {
           {moments.map((m) => <MomentCard key={m.id} m={m} className="w-[230px] shrink-0 snap-start" />)}
         </div>
         <div className="mt-12 hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-4">
-          {moments.map((m) => <MomentCard key={m.id} m={m} />)}
+          {moments.map((m, i) => <MomentCard key={m.id} m={m} className={i === 0 ? "md:col-span-2 lg:row-span-2 lg:[&_p]:text-[26px]" : ""} />)}
         </div>
       </Section>
 
@@ -181,7 +179,7 @@ function Landing() {
 
       {/* PATTERN */}
       <Section>
-        <h2 className={`${H2} max-w-3xl`}>Your pattern becomes clearer with practice.</h2>
+        <h2 className={`${H2} max-w-3xl`}>Your pattern gets clearer with practice.</h2>
         <div className="glass glass-float mt-12 grid gap-8 p-7 md:grid-cols-[1.4fr_1fr_1.4fr] md:p-10">
           <div><div className="font-display text-[clamp(32px,4vw,48px)] font-bold leading-none">{pattern.primaryPattern.label.toUpperCase()}</div><p className="mt-3 text-[14px] text-muted-foreground">{pattern.primaryPattern.description}</p></div>
           <div><div className="eyebrow">Focus</div><div className="mt-2 font-display text-[22px] font-bold text-primary">{pattern.currentFocus.label.toUpperCase()}</div></div>
@@ -228,7 +226,7 @@ function Landing() {
       <Section>
         <div className="text-center">
           <h2 className={`${H2} mx-auto max-w-3xl`}>Practice until the important thing doesn't get lost.</h2>
-          <p className={`${SUB} mx-auto max-w-xl`}>Your next interview. Your next presentation. Your next difficult conversation.</p>
+          <p className={`${SUB} mx-auto max-w-xl`}>Your next interview. Your next presentation. Your next difficult conversation. Practice it before it matters.</p>
           <Link to="/signup" className="btn btn-primary mt-9">Start Practicing</Link>
         </div>
       </Section>

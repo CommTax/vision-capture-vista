@@ -87,7 +87,7 @@ export const FALLBACK_DRILL_TEASERS: DrillTeaser[] = [
 
 export const FALLBACK_PRICING: PricingPlan[] = [
   { id: "free", name: "Free", price: 0, currency: "INR", billingPeriod: "once", features: ["First practices", "Basic analysis", "Your pattern"], cta: "Start Practicing", active: true },
-  { id: "practice", name: "Practice Pass", price: 499, currency: "INR", billingPeriod: "month", features: ["Unlimited practice", "Detailed analysis", "Voice + text", "History", "Drills", "Progress"], cta: "Choose Plan", highlighted: true, active: true },
+  { id: "practice", name: "Practice", price: 499, currency: "INR", billingPeriod: "month", features: ["Unlimited practice", "Detailed analysis", "Voice + text", "History", "Drills", "Progress"], cta: "Choose Plan", highlighted: true, active: true },
   { id: "sprint", name: "Sprint", price: 1499, currency: "INR", billingPeriod: "program", features: ["Goal-specific practice", "Advanced analysis", "Personalized drills", "Progress report"], cta: "Start Sprint", active: true },
 ];
 
