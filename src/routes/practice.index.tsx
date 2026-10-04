@@ -8,7 +8,10 @@ import { LEVELS, MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, GOALS, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
 import { setState, useStore } from "@/lib/store";
 
+const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
+
 export const Route = createFileRoute("/practice/")({
+  validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
   head: () => ({ meta: [{ title: "Practice — Unspoken" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — Unspoken" }, { property: "og:description", content: "Practice what you need to say next." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
@@ -35,7 +38,8 @@ function Practice() {
   const all = allScenarios(level);
   const recScenario = rec ? all.find((s) => s.scenario_id === rec.recommended_scenario_id) : undefined;
   const [goal, setGoal] = useState<Dimension | null>(null);
-  const [mode, setMode] = useState<ModeId | null>(null);
+  const initialMode = Route.useSearch().mode;
+  const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
   const activeFocus = goal ?? rec?.current_focus ?? null;
   const adaptive = activeFocus ? scenariosFor(activeFocus, level).filter((s) => s.scenario_id !== recScenario?.scenario_id).slice(0, 4) : [];

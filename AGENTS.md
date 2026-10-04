@@ -21,3 +21,5 @@
 - Contact details (name, email, phone + country code) live on the profile and are captured by `ContactDetails`, pre-filled before every paid plan/trial — one source of truth, never per-subscription copies.
 - QA demo accounts (`src/lib/demo-accounts.ts`, `/demo`) seed real profile/entitlement/response records and are shown only when `demoModeEnabled()` (dev/preview hosts) — so they exercise real entitlement checks without exposing a production feature.
 - Browser state uses the `unspoken-state-v1` key and reads the legacy product key as a fallback — so the product rename preserves existing users' data.
+- Homepage/marketing content and demo metrics are typed in `src/content/types.ts`, with fallback values only in `src/content/fallback.ts`, read through `dataProvider` in `src/services/data-provider.ts` (`withFallback`/`fetchWithFallback`) — so a backend can replace content without touching UI.
+- Practice Moments link to `/practice?mode=<category>`; the Practice page preselects that category from the search param.
