@@ -85,7 +85,6 @@ export function ProofDemoCard({ title, demo }: { title: string; demo: ProofDemo 
   return (
     <div className="glass glass-float p-6 md:p-8" aria-label={`${title} ${before.patternLabels.join(" ")}: main point at ${before.mainPointDelay}s. ${after.patternLabels.join(" ")}: main point at ${after.mainPointDelay}s.`}>
       <div className="font-display text-[20px] font-bold leading-tight md:text-[22px]">{title}</div>
-      <p className="mt-1 text-[13px] text-muted-foreground">See what changes when you try again.</p>
 
       <div className="mt-6 rounded-2xl border border-border p-4 md:p-5">
         <Attempt a={before} on={phase >= 1} slow showTime={phase >= 2} />
