@@ -70,7 +70,11 @@ export interface ContactInfo { email: string; heading: string; intro: string }
 
 export interface HeroContent { eyebrow: string; headline: string; headlineAccent: string; body: string; mobileHeadline: string; mobileBody: string }
 
-export interface ProofContent { title: string; metrics: Metric[]; mainPoint: Metric; before: string; after: string }
+export interface ResponseSegment { label: string; /** Seconds into the response. */ at: number; main?: boolean }
+export interface DemoAttempt { attemptNumber: number; patternLabels: string[]; mainPointDelay: number; structureScore: number; concisenessScore: number; responseSequence: ResponseSegment[] }
+export interface ProofDemo { question: string; whatGotLost: string; caption: string; before: DemoAttempt; after: DemoAttempt }
+
+export interface ProofContent { demo: ProofDemo; title: string; metrics: Metric[]; mainPoint: Metric; before: string; after: string }
 
 export interface HomepageContent {
   hero: HeroContent;
