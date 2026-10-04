@@ -178,18 +178,34 @@ function Landing() {
 
       {/* THE REAL PROBLEM — compact mobile version */}
       <section className="mx-auto px-5 pb-8 md:hidden">
-        <div className="eyebrow mb-2 !text-primary">The real problem</div>
-        <h2 className="text-balance text-[24px] font-bold leading-tight">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
-        <p className="mt-2 text-[14px] text-muted-foreground">Sometimes the idea is strong. The response isn't.</p>
-        <ul className="glass mt-4 divide-y divide-border">
-          {transformations.map(({ from, to }) => (
-            <li key={from} className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 py-2.5">
-              <span className="truncate font-mono text-[12px] text-muted-foreground line-through">{from}</span>
-              <span className="text-primary" aria-label="becomes">→</span>
-              <span className="truncate text-right font-display text-[14px] font-bold">{to}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="relative min-h-[480px] overflow-hidden rounded-3xl border border-border">
+          <video
+            src={landingVideo.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/15 to-background/90" />
+          <div className="relative flex min-h-[480px] flex-col justify-between p-5">
+            <div>
+              <div className="eyebrow mb-2 !text-primary">The real problem</div>
+              <h2 className="text-balance text-[24px] font-bold leading-tight">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
+              <p className="mt-2 text-[14px] text-muted-foreground">Sometimes the idea is strong. The response isn't.</p>
+            </div>
+            <ul className="glass mt-6 divide-y divide-border">
+              {transformations.map(({ from, to }) => (
+                <li key={from} className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 py-2.5">
+                  <span className="truncate font-mono text-[12px] text-muted-foreground line-through">{from}</span>
+                  <span className="text-primary" aria-label="becomes">→</span>
+                  <span className="truncate text-right font-display text-[14px] font-bold">{to}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section className="mx-auto hidden max-w-[1200px] px-5 py-20 md:block md:px-8">
