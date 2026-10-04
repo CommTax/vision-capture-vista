@@ -22,6 +22,15 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
   },
   proof: {
     title: "Same moment. Better response.",
+    demo: {
+      question: "Tell me about a difficult project.",
+      whatGotLost: "The decision you actually made.",
+      caption: "Same moment. Different response.",
+      before: { attemptNumber: 1, patternLabels: ["SCATTERED", "RAMBLING"], mainPointDelay: 23, structureScore: 42, concisenessScore: 55,
+        responseSequence: [{ label: "Context", at: 0 }, { label: "Background", at: 6 }, { label: "More context", at: 11 }, { label: "Explanation", at: 17 }, { label: "Main point", at: 23, main: true }] },
+      after: { attemptNumber: 2, patternLabels: ["STRUCTURED", "CONCISE"], mainPointDelay: 5, structureScore: 68, concisenessScore: 73,
+        responseSequence: [{ label: "Main point", at: 5, main: true }, { label: "Reason", at: 12 }, { label: "Example", at: 20 }] },
+    },
     before: "SCATTERED · RAMBLING",
     after: "STRUCTURED · CONCISE",
     mainPoint: { metric: "Time to main point", before: 23, after: 5, unit: "seconds", direction: "down-is-better" },

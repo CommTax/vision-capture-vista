@@ -7,6 +7,7 @@ import { getState } from "@/lib/store";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
+import { ProofDemoCard } from "@/components/proof-demo";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -171,25 +172,7 @@ function Landing() {
           <div className="mt-8 flex flex-wrap gap-3"><Link to="/signup" className="btn btn-primary">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost">Try a Free Practice</button></div>
         </div>
         <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
-          <div className="glass glass-float p-5 md:p-7">
-            <div className="mb-4 md:mb-6"><span className="eyebrow">{proof.title}</span></div>
-            <div className="rounded-2xl border border-border p-4">
-              <div className="eyebrow">Attempt 01</div>
-              <div className="mt-1 font-display text-[17px] font-bold text-muted-foreground line-through sm:text-[20px] decoration-1">{proof.before}</div>
-              <div className="text-[13px] text-muted-foreground">Main point at {proof.mainPoint.before}s</div>
-            </div>
-            <div className="py-2 text-center text-primary">↓</div>
-            <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
-              <div className="eyebrow !text-primary">Attempt 02</div>
-              <div className="clip-in mt-1 font-display text-[19px] font-bold sm:text-[24px]">{proof.after}</div>
-              <div className="text-[13px]">Main point at <span className="text-primary">{proof.mainPoint.after}s</span></div>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-3 text-center">
-              {proof.metrics.map((m) => (
-                <div key={m.metric}><div className="text-[11px] text-muted-foreground">{m.metric}</div><div className="mt-1 font-mono text-[13px]"><span className="text-muted-foreground">{m.before}</span> → <span className="text-primary">{m.after}</span></div></div>
-              ))}
-            </div>
-          </div>
+          <ProofDemoCard title={proof.title} demo={proof.demo} />
         </div>
       </section>
 
