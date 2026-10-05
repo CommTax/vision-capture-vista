@@ -5,3 +5,4 @@
 - [ ] Real payments (blocked: payment provider not chosen)
 - [x] Restrict Free views to focused previews and rename customer-facing Cadence branding to Unspoken
 - [x] Rebuild “How Unspoken works” as a premium, product-led journey with minimal copy, informed by Yoodli’s product clarity
+- [x] Replace the homepage feedback block with a premium, image-led Practice Moments section
