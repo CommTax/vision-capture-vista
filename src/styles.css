@@ -6,7 +6,7 @@
 
 @theme inline {
   --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -185,3 +185,54 @@
 .paper .chip[data-active="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 .paper .btn-accent { background: var(--accent); color: var(--accent-foreground); }
 .paper .btn-accent:hover:not(:disabled) { background: color-mix(in oklab, var(--accent) 88%, black); }
+
+/* Premium product stage: a self-contained midnight/amber product demonstration. */
+.product-stage {
+  --background: oklch(0.17 0.03 255);
+  --foreground: oklch(0.96 0.02 85);
+  --card: oklch(0.21 0.035 255);
+  --card-foreground: var(--foreground);
+  --secondary: oklch(1 0 0 / 6%);
+  --muted-foreground: oklch(0.7 0.025 250);
+  --accent: oklch(0.79 0.13 62);
+  --accent-foreground: oklch(0.17 0.03 255);
+  --destructive: oklch(0.68 0.18 28);
+  --border: oklch(1 0 0 / 10%);
+  background: var(--background);
+  color: var(--foreground);
+}
+.product-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.product-step { min-width: 0; }
+.product-screen {
+  min-height: 350px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  padding: 24px;
+  box-shadow: 0 28px 70px -42px oklch(0 0 0 / 0.85);
+}
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.product-status > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent);
+}
+@media (max-width: 767px) {
+  .product-screen { min-height: 320px; }
+}
