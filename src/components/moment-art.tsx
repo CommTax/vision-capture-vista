@@ -18,10 +18,10 @@ function InterviewArt() {
       <path d="M52 88h96M64 88v14M136 88v14" />
       {/* interviewer */}
       <circle cx="62" cy="46" r="7" />
-      <path d="M62 53v22M62 60l14 8" />
+      <path d="M62 53v18M62 58l-8 7M62 58l11 8M62 71l-6 13M62 71l7 13" />
       {/* candidate */}
       <circle cx="142" cy="42" r="7" />
-      <path d="M142 49v26M142 58l-12 9" />
+      <path d="M142 49v20M142 55l-11 9M142 55l10 8" />
       {/* speech bubble */}
       <rect x="112" y="12" width="56" height="20" rx="9" className="text-primary" />
       <path d="M122 22h30M136 27h12" className="text-primary" />
@@ -38,9 +38,9 @@ function LeadershipArt() {
       <path d="M52 37v34M52 46l-10 10M52 46l12 12M52 71l-7 15M52 71l8 15" />
       {/* seated listeners */}
       <circle cx="122" cy="52" r="6" />
-      <path d="M122 58v16M114 68h16" />
+      <path d="M122 58v12M122 63l-7 6M122 70h11M133 70v7" />
       <circle cx="156" cy="52" r="6" />
-      <path d="M156 58v16M148 68h16" />
+      <path d="M156 58v12M156 63l-7 6M156 70h11M167 70v7" />
       {/* direction arrow */}
       <path d="M70 44c14-2 26 2 34 10" className="text-primary" />
       <path d="M99 48l6 7-9 2" className="text-primary" />
@@ -68,10 +68,10 @@ function HighStakesArt() {
   return (
     <Stroke>
       {/* two people facing off */}
-      <circle cx="66" cy="44" r="7" />
-      <path d="M66 51v22M58 60h16" />
-      <circle cx="134" cy="44" r="7" />
-      <path d="M134 51v22M126 60h16" />
+      <circle cx="66" cy="42" r="7" />
+      <path d="M66 49v20M66 55l-9 8M66 55l9 8M66 69l-6 15M66 69l6 15" />
+      <circle cx="134" cy="42" r="7" />
+      <path d="M134 49v20M134 55l-9 8M134 55l9 8M134 69l-6 15M134 69l6 15" />
       {/* charged pause between them */}
       <path d="M92 44c3 4-3 8 0 12s-3 8 0 12" className="text-primary" />
       <path d="M104 46c2 3-2 6 0 9s-2 6 0 9" className="text-primary" />
@@ -84,9 +84,9 @@ function PersuasionArt() {
     <Stroke>
       {/* two parties */}
       <circle cx="46" cy="40" r="7" />
-      <path d="M46 47c0 14 8 22 24 28" />
+      <path d="M46 47c0 14 8 22 24 28M46 47l-6 12M46 47l7 11" />
       <circle cx="154" cy="40" r="7" />
-      <path d="M154 47c0 14-8 22-24 28" />
+      <path d="M154 47c0 14-8 22-24 28M154 47l6 12M154 47l-7 11" />
       {/* handshake */}
       <path d="M84 78c6-4 10-4 16 0s10 4 16 0" className="text-primary" />
       <path d="M92 74l6-4 6 4 6-4 6 4" className="text-primary" />
