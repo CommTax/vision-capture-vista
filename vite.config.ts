@@ -1,10 +1,12 @@
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from 'vite'
+import { nitro } from 'nitro/vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
 export default defineConfig({
-  tanstackStart: {
-    server: { entry: "server" },
-    spa: {
-      enabled: true,
-    },
-  },
-});
+  plugins: [
+    tanstackStart(),
+    nitro({
+      preset: 'vercel', // <-- This forces Vercel-compatible output
+    }),
+  ],
+})
