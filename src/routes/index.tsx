@@ -105,8 +105,8 @@ function Landing() {
 
       {/* HERO */}
       <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-0 md:px-8 md:pt-24 md:pb-0">
-        <div className="rise max-w-4xl">
-          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]"><span className="block">{hero.headline}</span><span className="block"><RotatingWord words={hero.rotatingWords} /></span><span className="block">Responses</span></h1>
+        <div className="rise max-w-5xl">
+          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]"><span className="block text-[0.82em] lg:whitespace-nowrap">{hero.headline}</span><span className="block"><RotatingWord words={hero.rotatingWords} /></span><span className="block">Responses</span></h1>
           <p className="mt-6 max-w-[48ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
           <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
           <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
