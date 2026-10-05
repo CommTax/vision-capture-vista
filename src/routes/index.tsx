@@ -112,8 +112,6 @@ function Landing() {
   const home = dataProvider.getHomepageContent();
   const { hero, transformations, contact } = home;
   const moments = dataProvider.getPracticeMoments();
-  const featuredMoments = ["interview", "leadership", "presentation"].map((id) => moments.find((moment) => moment.id === id)).filter((moment): moment is PracticeMoment => Boolean(moment));
-  const moreMoments = moments.filter((moment) => !MOMENT_IMAGES[moment.id]);
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
   const signedIn = useStore((s) => !!s.profile?.onboarded) && hydrated;
@@ -157,15 +155,8 @@ function Landing() {
           <div><div className="product-kicker !text-primary">Choose your moment</div><h2 className={`${H2} mt-4 max-w-[720px]`}>Practice where clarity matters most.</h2></div>
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {featuredMoments.map((moment, index) => {
-            const image = MOMENT_IMAGES[moment.id];
-            if (!image) return null;
-            return <FeaturedMoment key={moment.id} m={moment} image={image} layout={index === 0 ? "wide" : index === 2 ? "full" : "standard"} />;
-          })}
-        </div>
-        <div className="mt-10 grid border-b border-border md:grid-cols-3 md:gap-8">
-          {moreMoments.map((m) => <MomentCard key={m.id} m={m} />)}
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {moments.map((moment) => <MomentTile key={moment.id} m={moment} image={MOMENT_IMAGES[moment.id]} />)}
         </div>
       </Section>
 
