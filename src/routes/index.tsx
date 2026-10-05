@@ -9,7 +9,7 @@ import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
 import { ProofDemoCard } from "@/components/proof-demo";
-import { HeroSession, RotatingWord, TransformationReel } from "@/components/landing-visuals";
+import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -105,15 +105,12 @@ function Landing() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-12 md:px-8 md:pt-28 md:pb-24 lg:grid-cols-12">
-        <div className="rise lg:col-span-6">
-          <h1 className="text-balance text-[clamp(38px,5vw,64px)] font-bold leading-[1.02]">{hero.headline}<br /><RotatingWord words={hero.rotatingWords} /></h1>
-          <p className="mt-6 max-w-[40ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
+      <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-6 md:px-8 md:pt-28 md:pb-10">
+        <div className="rise max-w-4xl">
+          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]">{hero.headline} <RotatingWord words={hero.rotatingWords} /> Responses</h1>
+          <p className="mt-6 max-w-[48ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
           <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
           <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
-        </div>
-        <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
-          <HeroSession />
         </div>
       </section>
 
