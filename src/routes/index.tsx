@@ -120,12 +120,7 @@ function Landing() {
       </Section>
 
       {/* HOW UNSPOKEN WORKS */}
-      <Section id="how">
-        <h2 className={H2}>How Unspoken works</h2>
-        <p className={SUB}>Practice a real moment. See what got lost. Say it again.</p>
-        <div className="mt-10 md:mt-12"><HowItWorksDemo /></div>
-        <div className="mt-10 text-center"><Link to="/practice" className="btn btn-primary">Start Practising</Link></div>
-      </Section>
+      <section id="how" className="py-16 md:py-28"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
       <Section id="modes">
