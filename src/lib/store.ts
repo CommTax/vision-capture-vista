@@ -17,7 +17,9 @@ export type State = {
   profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult>;
   // Kept separate from identity: entitlement (access), lead (contact capture), marketing (consent).
   entitlement?: Entitlement; freeAttemptsUsed?: number; lead?: Lead; marketing?: Marketing; interests?: Interest[];
+  freeResponseIds?: string[];
 };
+export function subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l); }; }
 
 export const STORAGE_KEY = "unspoken-state-v1";
 const LEGACY_KEY = "cadence-state-v1";

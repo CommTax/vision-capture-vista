@@ -64,7 +64,11 @@ export function Conversion() {
 }
 
 export function LeadCapture({ onDone }: { onDone: () => void }) {
-  return <ContactDetails eyebrow="Your analysis is ready" title="Where should we save your results?" body="So your practice and pattern stay with you." submit="Show my result" consent onDone={onDone} />;
+  return <ContactDetails eyebrow="Your analysis is ready" title="Where should we save your results?" body="So your practice and pattern stay with you." submit="Show my result" consent onDone={() => {
+    const s = getState(); const p = s.profile;
+    if (p?.email && p.phone && p.phone_country_code) void import("@/lib/cloud-sync").then((m) => m.claimFree({ name: p.name, email: p.email, phone: p.phone!, phone_country_code: p.phone_country_code!, marketing_consent: !!s.marketing?.consent }));
+    onDone();
+  }} />;
 }
 
 const BASIC = ["structure", "clarity", "conciseness", "relevance", "impact"] as const;
