@@ -80,11 +80,18 @@ export function ShareCard({ data, inviteUrl }: { data: ShareCardData; inviteUrl?
   const [format, setFormat] = useState<Format>("story");
   const [url, setUrl] = useState("");
   const [msg, setMsg] = useState("");
+  const [qr, setQr] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => setQr(img);
+    img.src = qrAsset.url;
+  }, []);
   useEffect(() => {
     let off = false;
-    void document.fonts?.ready.then(() => { if (off || !ref.current) return; drawCard(ref.current, data, format); setUrl(ref.current.toDataURL("image/png")); });
+    void document.fonts?.ready.then(() => { if (off || !ref.current) return; drawCard(ref.current, data, format, qr); setUrl(ref.current.toDataURL("image/png")); });
     return () => { off = true; };
-  }, [data, format]);
+  }, [data, format, qr]);
 
   const link = inviteUrl ?? (typeof window !== "undefined" ? window.location.origin : "");
   const caption = `My communication pattern: ${data.title}. What's yours?${data.handle ? ` ${data.handle}` : ""} ${link}`.trim();
