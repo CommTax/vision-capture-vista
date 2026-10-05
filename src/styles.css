@@ -209,30 +209,39 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
-.product-step { min-width: 0; }
-.product-screen {
-  min-height: 350px;
+/* Yoodli-style carousel: one large product panel + step card + dots. */
+.how-panel {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card);
-  padding: 24px;
-  box-shadow: 0 28px 70px -42px oklch(0 0 0 / 0.85);
+  border-radius: 28px;
+  background:
+    radial-gradient(58% 52% at 26% 38%, color-mix(in oklab, var(--accent) 17%, transparent), transparent 70%),
+    radial-gradient(46% 58% at 78% 76%, oklch(0.5 0.1 252 / 0.28), transparent 72%),
+    var(--card);
+  box-shadow: 0 44px 96px -52px oklch(0 0 0 / 0.9);
 }
-.product-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--muted-foreground);
+.how-float {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: oklch(0.235 0.03 252 / 0.94);
+  padding: 14px 18px;
+  box-shadow: 0 24px 54px -26px oklch(0 0 0 / 0.8);
+  backdrop-filter: blur(6px);
 }
-.product-status > span {
-  width: 6px;
-  height: 6px;
+.how-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
+  background: oklch(1 0 0 / 0.22);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.how-dot:hover { background: oklch(1 0 0 / 0.4); }
+.how-dot[data-active="true"] {
   background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 16%, transparent);
 }
 @media (max-width: 767px) {
-  .product-screen { min-height: 320px; }
+  .how-panel { min-height: 380px; }
 }
