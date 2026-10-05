@@ -7,7 +7,7 @@ import { useEntitlement } from "@/lib/entitlements";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/responses/")({
-  head: () => ({ meta: [{ title: "My Responses — Unspoken" }, { name: "description", content: "Every response you've practiced, with patterns and scores." }, { property: "og:title", content: "My Responses — Unspoken" }, { property: "og:description", content: "Your response history." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "My Responses — TheUnspoken" }, { name: "description", content: "Every response you've practiced, with patterns and scores." }, { property: "og:title", content: "My Responses — TheUnspoken" }, { property: "og:description", content: "Your response history." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Responses /></AppShell>,
 });
 

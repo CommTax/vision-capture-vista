@@ -11,9 +11,9 @@ import { streak, useStore, type ResponseRecord } from "@/lib/store";
 export const Route = createFileRoute("/progress")({
   head: () => ({
     meta: [
-      { title: "Progress — Unspoken" },
+      { title: "Progress — TheUnspoken" },
       { name: "description", content: "See how your communication is changing through practice." },
-      { property: "og:title", content: "Progress — Unspoken" },
+      { property: "og:title", content: "Progress — TheUnspoken" },
       { property: "og:description", content: "See how your communication is changing through practice." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

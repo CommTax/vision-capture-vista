@@ -17,9 +17,9 @@ import { MomentArt } from "@/components/moment-art";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Unspoken — Say what you mean. Make it land." },
+      { title: "TheUnspoken — Say what you mean. Make it land." },
       { name: "description", content: "Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost when you speak." },
-      { property: "og:title", content: "Unspoken — Say what you mean. Make it land." },
+      { property: "og:title", content: "TheUnspoken — Say what you mean. Make it land." },
       { property: "og:description", content: "Practice what you need to say, see what isn't landing, fix it, and try again." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -122,7 +122,7 @@ function Landing() {
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
-      {/* HOW UNSPOKEN WORKS */}
+      {/* HOW THEUNSPOKEN WORKS */}
       <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
