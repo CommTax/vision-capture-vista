@@ -149,3 +149,30 @@
 @keyframes word-rise { from { opacity: 0; transform: translateY(0.4em); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
 .word-rise { animation: word-rise 650ms cubic-bezier(.32,.72,0,1) both; }
 @media (prefers-reduced-motion: reduce) { .word-rise { animation: none; } }
+
+/* Light "paper" scope for the free practice trial. */
+.paper {
+  --background: oklch(0.975 0.008 80);
+  --foreground: oklch(0.22 0.02 260);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 260);
+  --primary: oklch(0.28 0.03 260);
+  --primary-foreground: oklch(0.98 0.005 80);
+  --accent: oklch(0.68 0.14 58);
+  --accent-foreground: oklch(0.2 0.02 260);
+  --secondary: oklch(0.94 0.008 80);
+  --secondary-foreground: oklch(0.22 0.02 260);
+  --muted: oklch(0.94 0.008 80);
+  --muted-foreground: oklch(0.5 0.02 260);
+  --border: oklch(0.22 0.02 260 / 10%);
+  --input: oklch(0.22 0.02 260 / 16%);
+  --ring: oklch(0.68 0.14 58 / 60%);
+  --glass: oklch(1 0 0);
+  --glass-strong: oklch(0.985 0.005 80);
+  --shadow-float: 0 1px 2px oklch(0.2 0.02 260 / 5%), 0 12px 32px -12px oklch(0.2 0.02 260 / 14%);
+  background: var(--background);
+  color: var(--foreground);
+}
+.paper .glass { backdrop-filter: none; box-shadow: var(--shadow-float); }
+.paper .surface { background: var(--card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-float); }

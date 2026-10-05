@@ -50,17 +50,19 @@ export const QUESTIONS: Question[] = [
   q("evd-3", "everyday", "Explain a mistake you made to your team.", "Team standup", "Medium", 60),
 ];
 
-export const PATTERNS: Record<string, { name: string; short: string; desc: string; to: string }> = {
-  rambler: { name: "The Rambler", short: "RAMBLING", desc: "Too much detail before the point.", to: "CONCISE" },
-  scatterer: { name: "The Scatterer", short: "SCATTERED", desc: "Several ideas without a clear order.", to: "STRUCTURED" },
-  underseller: { name: "The Under-Seller", short: "UNDERSOLD", desc: "Good work, but weak impact.", to: "IMPACTFUL" },
-  vague: { name: "The Vague Responder", short: "VAGUE", desc: "Broad claims without evidence.", to: "PRECISE" },
-  context: { name: "The Context Builder", short: "SLOW START", desc: "Too much setup before answering.", to: "DIRECT" },
-  datadumper: { name: "The Data Dumper", short: "DATA-HEAVY", desc: "Facts without a clear message.", to: "FOCUSED" },
-  safe: { name: "The Safe Answer", short: "FORGETTABLE", desc: "Correct, but not distinctive.", to: "MEMORABLE" },
-  flat: { name: "The Flat Delivery", short: "FLAT", desc: "Good content, little emphasis.", to: "CONFIDENT" },
-  overexplainer: { name: "The Over-Explainer", short: "OVER-EXPLAINED", desc: "Keeps adding after the answer is clear.", to: "CRISP" },
-  structured: { name: "The Clear Communicator", short: "STRUCTURED", desc: "Point first, support second, close strong.", to: "MEMORABLE" },
+export type PatternInfo = { name: string; short: string; desc: string; to: string; line: string; explain: string };
+
+export const PATTERNS: Record<string, PatternInfo> = {
+  rambler: { name: "The Rambler", short: "RAMBLING", desc: "Too much detail before the point.", to: "CONCISE", line: "Everything you say is true — there's just too much of it before the point.", explain: "Your response keeps adding detail before it lands. The listener has to hold a lot in their head while waiting for the reason you're speaking." },
+  scatterer: { name: "Disjointed Feature Drop", short: "SCATTERED", desc: "Several ideas without a clear order.", to: "STRUCTURED", line: "You have good things to say — they arrive as pieces, not a story.", explain: "Your response contains relevant ideas, but they arrive as separate pieces. The listener has to connect them instead of receiving one clear message." },
+  underseller: { name: "The Quiet Win", short: "UNDERSOLD", desc: "Good work, but weak impact.", to: "IMPACTFUL", line: "You did the work. You just didn't let anyone see what it changed.", explain: "The effort comes through, but the outcome doesn't. Without a clear result, the listener can't tell why this matters." },
+  vague: { name: "The Soft Focus", short: "VAGUE", desc: "Broad claims without evidence.", to: "PRECISE", line: "The shape is there. The detail that makes it believable isn't.", explain: "Your response makes broad claims without the names, numbers or examples that prove them. It sounds reasonable but hard to remember or trust." },
+  context: { name: "The Long Runway", short: "SLOW START", desc: "Too much setup before answering.", to: "DIRECT", line: "Your point is strong. It just arrives after everyone has stopped waiting for it.", explain: "You spend the opening setting the scene. By the time your actual answer appears, the listener's attention has already started to drift." },
+  datadumper: { name: "The Data Wall", short: "DATA-HEAVY", desc: "Facts without a clear message.", to: "FOCUSED", line: "Every fact is right. Together, they don't say anything yet.", explain: "Your response is full of facts, but it never tells the listener what they add up to. The message is left for them to work out." },
+  safe: { name: "The Safe Answer", short: "FORGETTABLE", desc: "Correct, but not distinctive.", to: "MEMORABLE", line: "Nothing is wrong with it. Nothing about it is yours, either.", explain: "Your response is sensible and correct, but it sounds like what anyone might say. There's nothing specific enough to stick." },
+  flat: { name: "The Even Line", short: "FLAT", desc: "Good content, little emphasis.", to: "CONFIDENT", line: "The words are right. The weight behind them is missing.", explain: "Your content is solid, but every part gets the same emphasis. The listener can't hear which part you most want them to remember." },
+  overexplainer: { name: "The Second Answer", short: "OVER-EXPLAINED", desc: "Keeps adding after the answer is clear.", to: "CRISP", line: "You made your point — then kept going until it softened.", explain: "Your answer lands, then continues. The extra explanation dilutes a point that was already clear." },
+  structured: { name: "The Clear Line", short: "STRUCTURED", desc: "Point first, support second, close strong.", to: "MEMORABLE", line: "Point first. Reason next. Easy to follow, easy to repeat.", explain: "Your response leads with the point and supports it in order. The next step is making it more memorable." },
 };
 
 export type Drill = { id: string; name: string; objective: string; example: string; prompt: string; skill: Dimension; minutes: number };

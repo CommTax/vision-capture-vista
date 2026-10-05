@@ -3,7 +3,7 @@ import { Mic, Pause, Play, Square } from "lucide-react";
 
 type SR = { start(): void; stop(): void; continuous: boolean; interimResults: boolean; lang: string; onresult: ((e: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void) | null };
 
-export function Recorder({ max, onDone }: { max: number; onDone: (r: { transcript: string; duration: number; audioUrl: string }) => void }) {
+export function Recorder({ max, onDone, submitLabel = "Analyze my response" }: { max: number; submitLabel?: string; onDone: (r: { transcript: string; duration: number; audioUrl: string }) => void }) {
   const [state, setState] = useState<"idle" | "rec" | "paused" | "done">("idle");
   const [sec, setSec] = useState(0);
   const [levels, setLevels] = useState<number[]>(Array(32).fill(0.08));
@@ -81,7 +81,7 @@ export function Recorder({ max, onDone }: { max: number; onDone: (r: { transcrip
           {audioUrl && <audio controls src={audioUrl} className="w-full" />}
           <div className="text-[12px] text-muted-foreground">{supportsSR ? "Transcript — correct anything we misheard." : "Live transcription isn't supported in this browser. Type what you said so we can analyze it."}</div>
           <textarea className="field min-h-32" value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Your words…" />
-          <button className="btn btn-primary w-full" disabled={transcript.trim().split(/\s+/).length < 5} onClick={() => onDone({ transcript, duration: sec, audioUrl })}>Analyze my response</button>
+          <button className="btn btn-primary w-full" disabled={transcript.trim().split(/\s+/).length < 5} onClick={() => onDone({ transcript, duration: sec, audioUrl })}>{submitLabel}</button>
         </div>
       )}
     </div>
