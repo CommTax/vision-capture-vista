@@ -132,7 +132,7 @@ function Landing() {
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
         <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {moments.map((moment) => <MomentTile key={moment.id} m={moment} image={MOMENT_IMAGES[moment.id]} />)}
+          {moments.map((moment) => <MomentTile key={moment.id} m={moment} />)}
         </div>
       </Section>
 
