@@ -9,7 +9,7 @@ import { buildRecommendations, type Recommendation } from "@/lib/recommendations
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/")({
-  head: () => ({ meta: [{ title: "Drills — Unspoken" }, { name: "description", content: "Practice what your responses need most." }, { property: "og:title", content: "Drills — Unspoken" }, { property: "og:description", content: "See what gets lost. Practice one thing. Try again." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Drills — TheUnspoken" }, { name: "description", content: "Practice what your responses need most." }, { property: "og:title", content: "Drills — TheUnspoken" }, { property: "og:description", content: "See what gets lost. Practice one thing. Try again." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Drills /></AppShell>,
 });
 

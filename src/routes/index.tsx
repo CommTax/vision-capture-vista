@@ -17,9 +17,9 @@ import { MomentArt } from "@/components/moment-art";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Unspoken — Say what you mean. Make it land." },
+      { title: "TheUnspoken — Say what you mean. Make it land." },
       { name: "description", content: "Practice the answers, conversations, and high-stakes moments that matter — then see exactly what gets lost when you speak." },
-      { property: "og:title", content: "Unspoken — Say what you mean. Make it land." },
+      { property: "og:title", content: "TheUnspoken — Say what you mean. Make it land." },
       { property: "og:description", content: "Practice what you need to say, see what isn't landing, fix it, and try again." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -99,10 +99,10 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
-          <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
-            <Link to="/" className="hover:text-foreground">Home</Link><a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
+          <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
+            <Link to="/" className="hover:text-primary">Home</Link><a href="#modes" className="hover:text-primary">Practice</a><a href="#how" className="hover:text-primary">How it works</a><a href="#pricing" className="hover:text-primary">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link> : <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link> : <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 
@@ -122,7 +122,7 @@ function Landing() {
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
-      {/* HOW UNSPOKEN WORKS */}
+      {/* HOW THEUNSPOKEN WORKS */}
       <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}

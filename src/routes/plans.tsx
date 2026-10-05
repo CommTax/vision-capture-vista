@@ -10,7 +10,7 @@ import type { PlanKey } from "@/lib/prices";
 
 export const Route = createFileRoute("/plans")({
   validateSearch: z.object({ p: z.enum(["practice", "sprint"]).optional() }),
-  head: () => ({ meta: [{ title: "Plans — Practice and Sprint — Unspoken" }, { name: "description", content: "Choose ongoing Practice or a focused, goal-specific Sprint." }, { property: "og:title", content: "Plans — Unspoken" }, { property: "og:description", content: "Ongoing Practice or a focused Sprint." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Plans — Practice and Sprint — TheUnspoken" }, { name: "description", content: "Choose ongoing Practice or a focused, goal-specific Sprint." }, { property: "og:title", content: "Plans — TheUnspoken" }, { property: "og:description", content: "Ongoing Practice or a focused Sprint." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell allowGuest><Plans /></AppShell>,
 });
 

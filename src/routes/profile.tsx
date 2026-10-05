@@ -4,7 +4,7 @@ import { setState, STORAGE_KEY, useStore } from "@/lib/store";
 import { STATE_LABEL, setMarketingConsent, useEntitlement } from "@/lib/entitlements";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — Unspoken" }, { name: "description", content: "Your goals, experience and plan." }, { property: "og:title", content: "Profile — Unspoken" }, { property: "og:description", content: "Manage your Unspoken profile." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Profile — TheUnspoken" }, { name: "description", content: "Your goals, experience and plan." }, { property: "og:title", content: "Profile — TheUnspoken" }, { property: "og:description", content: "Manage your TheUnspoken profile." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Profile /></AppShell>,
 });
 
@@ -22,7 +22,7 @@ function Profile() {
           <div key={l} className="flex justify-between gap-4 p-5 text-[14px]"><span className="text-muted-foreground">{l}</span><span className="text-right">{v}</span></div>
         ))}
       </div>
-      <label className="glass mt-4 flex cursor-pointer items-center gap-3 p-5 text-[14px]"><input type="checkbox" checked={!!mk?.consent && !mk.unsubscribed} onChange={(e) => setMarketingConsent(e.target.checked)} />Send me Unspoken tips, product updates, and offers by email.</label>
+      <label className="glass mt-4 flex cursor-pointer items-center gap-3 p-5 text-[14px]"><input type="checkbox" checked={!!mk?.consent && !mk.unsubscribed} onChange={(e) => setMarketingConsent(e.target.checked)} />Send me TheUnspoken tips, product updates, and offers by email.</label>
       <div className="mt-6 flex flex-wrap gap-3">
         <button className="btn btn-ghost" onClick={() => { setState((s) => ({ ...s, profile: s.profile && { ...s.profile, onboarded: false } })); navigate({ to: "/onboarding" }); }}>Redo onboarding</button>
         <Link to="/plans" className="btn btn-ghost">Plans</Link>

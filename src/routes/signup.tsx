@@ -8,7 +8,7 @@ import { demoModeEnabled } from "@/lib/demo-accounts";
 
 export const Route = createFileRoute("/signup")({
   validateSearch: z.object({ mode: z.enum(["signup", "signin"]).optional() }),
-  head: () => ({ meta: [{ title: "Sign in — Unspoken" }, { name: "description", content: "Sign in to Unspoken with a one-time code sent to your email." }, { property: "og:title", content: "Sign in — Unspoken" }, { property: "og:description", content: "Sign in to Unspoken with a one-time code sent to your email." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Sign in — TheUnspoken" }, { name: "description", content: "Sign in to TheUnspoken with a one-time code sent to your email." }, { property: "og:title", content: "Sign in — TheUnspoken" }, { property: "og:description", content: "Sign in to TheUnspoken with a one-time code sent to your email." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: SignIn,
 });
 
@@ -59,7 +59,7 @@ function SignIn() {
             <input className="field" type="email" autoComplete="email" placeholder="Email" aria-label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
             {err && <p className="text-[13px] text-destructive">{err}</p>}
             <button className="btn btn-primary w-full" disabled={!hydrated || busy}>{busy ? "Sending…" : "Continue"}</button>
-            <p className="text-center text-[13px] text-muted-foreground">New here? <Link to="/practice" className="text-primary">Try Unspoken free</Link></p>
+            <p className="text-center text-[13px] text-muted-foreground">New here? <Link to="/practice" className="text-primary">Try TheUnspoken free</Link></p>
           </form>
         ) : (
           <form onSubmit={verify} className="glass glass-float rise space-y-4 p-7" noValidate>

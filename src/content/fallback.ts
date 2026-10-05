@@ -18,7 +18,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     rotatingWords: ["Rambling", "Scattered", "Unclear", "Forgettable"],
     body: "Practice the moment. See what got lost. Say it again.",
     audience: "For job seekers, managers and students.",
-    cta: "Try Unspoken Free",
+    cta: "Try TheUnspoken Free",
     ctaSignedIn: "Start Practicing",
     mobileHeadline: "Practice for moments that matter.",
     mobileBody: "Practice a real response. See what got lost. Fix one thing. Try again.",
@@ -75,7 +75,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
   contact: {
     email: "info@theunspoken.co.in",
     heading: "Have a question or want a callback?",
-    intro: "Have a question, need help, or want to talk about Unspoken?",
+    intro: "Have a question, need help, or want to talk about TheUnspoken?",
   },
 };
 
@@ -94,12 +94,12 @@ export const FALLBACK_PRICING: PricingPlan[] = [
 ];
 
 export const FALLBACK_FAQ: FAQItem[] = [
-  { id: "what", question: "What is Unspoken?", answer: "Unspoken is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again." },
+  { id: "what", question: "What is TheUnspoken?", answer: "TheUnspoken is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again." },
   { id: "practice", question: "What can I practice?", answer: "You can practice interviews, presentations, leadership communication, difficult conversations, persuasion, professional updates, group discussions, and custom situations." },
-  { id: "feedback", question: "How does Unspoken give feedback?", answer: "Unspoken analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability." },
-  { id: "script", question: "Is Unspoken writing answers for me?", answer: "No. Unspoken is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas." },
-  { id: "voice", question: "Can I practice with text as well as voice?", answer: "Yes. Unspoken supports both text and voice practice where available." },
-  { id: "retry", question: "How does retry work?", answer: "After you respond, Unspoken identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed." },
-  { id: "who", question: "Who is Unspoken for?", answer: "Unspoken is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations." },
+  { id: "feedback", question: "How does TheUnspoken give feedback?", answer: "TheUnspoken analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability." },
+  { id: "script", question: "Is TheUnspoken writing answers for me?", answer: "No. TheUnspoken is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas." },
+  { id: "voice", question: "Can I practice with text as well as voice?", answer: "Yes. TheUnspoken supports both text and voice practice where available." },
+  { id: "retry", question: "How does retry work?", answer: "After you respond, TheUnspoken identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed." },
+  { id: "who", question: "Who is TheUnspoken for?", answer: "TheUnspoken is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations." },
   { id: "free", question: "Is there a free version?", answer: "Yes. You can start practicing for free. Paid plans provide more practice, deeper analysis, history, targeted drills, and progress tracking." },
 ];

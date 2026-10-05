@@ -31,7 +31,7 @@ export function PayButton({ plan, label, goal, goalText, onPaid, beforePay }: { 
       await loadCheckout();
       const o = await create({ data: { plan, goal, goal_text: goalText } });
       new window.Razorpay!({
-        key: o.keyId, order_id: o.orderId, amount: o.amount, currency: "INR", name: "Unspoken", description: o.label,
+        key: o.keyId, order_id: o.orderId, amount: o.amount, currency: "INR", name: "TheUnspoken", description: o.label,
         prefill: { email: o.email }, theme: { color: "#F3A34A" },
         handler: async (r: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           try {

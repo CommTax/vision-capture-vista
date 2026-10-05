@@ -5,7 +5,7 @@ import { EXPERIENCE, GOALS, STRUGGLES } from "@/lib/data";
 import { setState } from "@/lib/store";
 
 export const Route = createFileRoute("/onboarding")({
-  head: () => ({ meta: [{ title: "Set up your practice — Unspoken" }, { name: "description", content: "Tell us what you're preparing for." }, { property: "og:title", content: "Set up your practice — Unspoken" }, { property: "og:description", content: "Personalize your practice plan." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Set up your practice — TheUnspoken" }, { name: "description", content: "Tell us what you're preparing for." }, { property: "og:title", content: "Set up your practice — TheUnspoken" }, { property: "og:description", content: "Personalize your practice plan." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Onboarding,
 });
 

@@ -9,7 +9,7 @@ import { scenariosFor } from "@/lib/scenarios";
 import { useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/sprint")({
-  head: () => ({ meta: [{ title: "Your Sprint — Unspoken" }, { name: "description", content: "Your goal, focus areas, practice plan and progress report." }, { property: "og:title", content: "Your Sprint — Unspoken" }, { property: "og:description", content: "A focused, goal-specific practice program." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Your Sprint — TheUnspoken" }, { name: "description", content: "Your goal, focus areas, practice plan and progress report." }, { property: "og:title", content: "Your Sprint — TheUnspoken" }, { property: "og:description", content: "A focused, goal-specific practice program." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell><Gate feature="sprint" title="Start a focused Sprint." body="A goal-specific program with a baseline, a practice plan and a final progress report."><Sprint /></Gate></AppShell>,
 });
 

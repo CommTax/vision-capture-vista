@@ -8,7 +8,7 @@ import { useEntitlement } from "@/lib/entitlements";
 import { FreeResult } from "@/components/plan-gate";
 
 export const Route = createFileRoute("/responses/$responseId")({
-  head: () => ({ meta: [{ title: "Response analysis — Unspoken" }, { name: "description", content: "Detailed analysis of a practiced response." }, { property: "og:title", content: "Response analysis — Unspoken" }, { property: "og:description", content: "Pattern, what got lost, and how to improve." }] }),
+  head: () => ({ meta: [{ title: "Response analysis — TheUnspoken" }, { name: "description", content: "Detailed analysis of a practiced response." }, { property: "og:title", content: "Response analysis — TheUnspoken" }, { property: "og:description", content: "Pattern, what got lost, and how to improve." }] }),
   component: () => <AppShell><Detail /></AppShell>,
 });
 

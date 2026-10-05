@@ -203,7 +203,7 @@ export function HowItWorksDemo() {
   return (
     <div className="product-stage py-14 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 md:px-8">
-        <div className="eyebrow text-center !text-primary">How Unspoken works</div>
+        <div className="eyebrow text-center !text-primary">How TheUnspoken works</div>
 
         <div className="mt-8 grid items-stretch gap-6 md:mt-10 md:grid-cols-[1.4fr_1fr]">
           {/* Product panel */}
