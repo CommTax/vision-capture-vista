@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
-import { Flame, Home, Mic, ListChecks, LineChart, User } from "lucide-react";
+import { Flame } from "lucide-react";
+import { MobileNav } from "@/components/mobile-nav";
 import { streak, useStore } from "@/lib/store";
 import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
 
@@ -21,13 +22,6 @@ const NAV = [
   { to: "/progress", label: "Progress" },
 ] as const;
 
-const MOBILE = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/practice", label: "Practice", icon: Mic },
-  { to: "/responses", label: "Responses", icon: ListChecks },
-  { to: "/progress", label: "Progress", icon: LineChart },
-  { to: "/profile", label: "Profile", icon: User },
-] as const;
 
 export function AppShell({ children, allowGuest = false }: { children: ReactNode; allowGuest?: boolean }) {
   const { state, has } = useEntitlement();
@@ -64,13 +58,7 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
         </div>
       </header>
       <main className="mx-auto max-w-[1200px] px-5 py-8 md:px-8 md:py-12">{children}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-popover/90 py-2 backdrop-blur-xl md:hidden">
-        {MOBILE.map(({ to, label, icon: Icon }) => (
-          <Link key={to} to={to} className="flex flex-col items-center gap-1 px-2 text-[11px] text-muted-foreground" activeProps={{ className: "text-primary" }}>
-            <Icon className="size-5" />{label}
-          </Link>
-        ))}
-      </nav>
+      <MobileNav />
     </div>
   );
 }

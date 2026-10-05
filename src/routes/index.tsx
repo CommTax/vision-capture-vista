@@ -4,6 +4,7 @@ import { ArrowRight, Mic, Eye, Target, RotateCcw, Briefcase, TrendingUp, Message
 import { Logo } from "@/components/app-shell";
 import { getState, useStore } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
+import { MobileNav } from "@/components/mobile-nav";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
@@ -92,14 +93,14 @@ function Landing() {
   const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
   const primaryCta = () => (signedIn ? navigate({ to: "/practice" }) : tryFree());
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden pb-20 md:pb-0">
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
-          <Link to="/" className="font-display text-[19px] font-bold tracking-tight">Home</Link>
+          <Logo />
           <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
             <a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3"><Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link><button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3">{!signedIn && <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 
@@ -240,6 +241,7 @@ function Landing() {
           <div className="flex gap-6 text-[13px] text-muted-foreground"><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><a href={`mailto:${contact.email}`}>Contact</a></div>
         </div>
       </footer>
+      <MobileNav />
     </div>
   );
 }
