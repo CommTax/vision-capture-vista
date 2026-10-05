@@ -32,6 +32,9 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-cool: var(--cool);
+  --color-accent-soft: var(--accent-soft);
+  --color-coral-soft: var(--coral-soft);
+  --color-green-soft: var(--green-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -150,29 +153,35 @@
 .word-rise { animation: word-rise 650ms cubic-bezier(.32,.72,0,1) both; }
 @media (prefers-reduced-motion: reduce) { .word-rise { animation: none; } }
 
-/* Light "paper" scope for the free practice trial. */
+/* Light editorial "paper" scope for the free practice trial (ivory, ink, cobalt). */
 .paper {
-  --background: oklch(0.975 0.008 80);
-  --foreground: oklch(0.22 0.02 260);
-  --card: oklch(1 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 260);
-  --primary: oklch(0.28 0.03 260);
-  --primary-foreground: oklch(0.98 0.005 80);
-  --accent: oklch(0.68 0.14 58);
-  --accent-foreground: oklch(0.2 0.02 260);
-  --secondary: oklch(0.94 0.008 80);
-  --secondary-foreground: oklch(0.22 0.02 260);
-  --muted: oklch(0.94 0.008 80);
-  --muted-foreground: oklch(0.5 0.02 260);
-  --border: oklch(0.22 0.02 260 / 10%);
-  --input: oklch(0.22 0.02 260 / 16%);
-  --ring: oklch(0.68 0.14 58 / 60%);
-  --glass: oklch(1 0 0);
-  --glass-strong: oklch(0.985 0.005 80);
-  --shadow-float: 0 1px 2px oklch(0.2 0.02 260 / 5%), 0 12px 32px -12px oklch(0.2 0.02 260 / 14%);
+  --background: #F8F7F3;
+  --foreground: #17181C;
+  --card: #FFFFFF;
+  --popover: #FFFFFF;
+  --popover-foreground: #17181C;
+  --primary: #17181C;
+  --primary-foreground: #FFFFFF;
+  --accent: #3157E8;
+  --accent-foreground: #FFFFFF;
+  --accent-soft: #EAF0FF;
+  --coral-soft: #FFF0ED;
+  --green-soft: #E8F5ED;
+  --secondary: #F1EFE9;
+  --secondary-foreground: #17181C;
+  --muted: #F1EFE9;
+  --muted-foreground: #70747D;
+  --border: rgb(23 24 28 / 9%);
+  --input: rgb(23 24 28 / 15%);
+  --ring: rgb(49 87 232 / 55%);
+  --glass: #FFFFFF;
+  --glass-strong: #FBFAF7;
+  --shadow-float: 0 1px 2px rgb(23 24 28 / 4%), 0 8px 24px -16px rgb(23 24 28 / 12%);
   background: var(--background);
   color: var(--foreground);
 }
 .paper .glass { backdrop-filter: none; box-shadow: var(--shadow-float); }
-.paper .surface { background: var(--card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-float); }
+.paper .surface { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-float); }
+.paper .chip[data-active="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.paper .btn-accent { background: var(--accent); color: var(--accent-foreground); }
+.paper .btn-accent:hover:not(:disabled) { background: color-mix(in oklab, var(--accent) 88%, black); }

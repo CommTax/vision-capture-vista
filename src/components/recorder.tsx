@@ -3,7 +3,7 @@ import { Mic, Pause, Play, Square } from "lucide-react";
 
 type SR = { start(): void; stop(): void; continuous: boolean; interimResults: boolean; lang: string; onresult: ((e: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void) | null };
 
-export function Recorder({ max, onDone, submitLabel = "Analyze my response" }: { max: number; submitLabel?: string; onDone: (r: { transcript: string; duration: number; audioUrl: string }) => void }) {
+export function Recorder({ max, onDone, submitLabel = "Analyze my response", stopLabel = "Stop" }: { max: number; submitLabel?: string; stopLabel?: string; onDone: (r: { transcript: string; duration: number; audioUrl: string }) => void }) {
   const [state, setState] = useState<"idle" | "rec" | "paused" | "done">("idle");
   const [sec, setSec] = useState(0);
   const [levels, setLevels] = useState<number[]>(Array(32).fill(0.08));
@@ -71,7 +71,7 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response" }: {
         {state === "idle" && <button className="btn btn-primary" onClick={start}><Mic className="size-4" />Start recording</button>}
         {(state === "rec" || state === "paused") && <>
           <button className="btn btn-ghost" onClick={pause}>{state === "rec" ? <><Pause className="size-4" />Pause</> : <><Play className="size-4" />Resume</>}</button>
-          <button className="btn btn-primary" onClick={stop}><Square className="size-4" />Stop</button>
+          <button className="btn btn-primary" onClick={stop}><Square className="size-4" />{stopLabel}</button>
         </>}
         {state === "done" && <button className="btn btn-ghost" onClick={() => { setState("idle"); setSec(0); setTranscript(""); finalText.current = ""; setAudioUrl(""); }}>Re-record</button>}
       </div>

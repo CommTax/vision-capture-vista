@@ -16,13 +16,13 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 export function drawCard(c: HTMLCanvasElement, d: ShareCardData) {
   c.width = S; c.height = S;
   const ctx = c.getContext("2d")!;
-  const ink = "#1f2433", soft = "#6b6f7d", amber = "#d98a2b";
-  ctx.fillStyle = "#f7f2ea"; ctx.fillRect(0, 0, S, S);
+  const ink = "#17181C", soft = "#70747D", amber = "#3157E8";
+  ctx.fillStyle = "#F8F7F3"; ctx.fillRect(0, 0, S, S);
   // graphic detail: soft amber sun + fine rules
   const g = ctx.createRadialGradient(880, 200, 10, 880, 200, 420);
-  g.addColorStop(0, "rgba(217,138,43,0.32)"); g.addColorStop(1, "rgba(217,138,43,0)");
+  g.addColorStop(0, "rgba(49,87,232,0.14)"); g.addColorStop(1, "rgba(49,87,232,0)");
   ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
-  ctx.strokeStyle = "rgba(31,36,51,0.08)"; ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(23,24,28,0.08)"; ctx.lineWidth = 2;
   for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(880, 200, 120 + i * 60, 0, Math.PI * 2); ctx.stroke(); }
   const pad = 96;
   ctx.fillStyle = ink; ctx.font = "700 34px 'Space Grotesk', sans-serif"; ctx.fillText("unspoken", pad, 140);
@@ -40,8 +40,8 @@ export function drawCard(c: HTMLCanvasElement, d: ShareCardData) {
     let yy = y + 44; for (const l of wrap(ctx, body, col).slice(0, 3)) { ctx.fillText(l, x, yy); yy += 38; }
   };
   block(pad, "WHAT GOT LOST", d.lost);
-  block(pad + col + 48, "WHAT I'M WORKING ON", d.focus);
-  ctx.strokeStyle = "rgba(31,36,51,0.15)"; ctx.beginPath(); ctx.moveTo(pad, 980); ctx.lineTo(S - pad, 980); ctx.stroke();
+  block(pad + col + 48, "MY FOCUS", d.focus);
+  ctx.strokeStyle = "rgba(23,24,28,0.15)"; ctx.beginPath(); ctx.moveTo(pad, 980); ctx.lineTo(S - pad, 980); ctx.stroke();
   ctx.fillStyle = soft; ctx.font = "500 24px 'Inter', sans-serif"; ctx.fillText("Practice. See what got lost. Say it again.", pad, 1024);
 }
 
