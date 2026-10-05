@@ -83,7 +83,7 @@ export function HowItWorksDemo() {
         </div>
 
         {/* right: analysis states */}
-        <div className="relative min-h-[300px] p-6 md:p-9">
+        <div className="relative min-h-[420px] p-6 md:min-h-[360px] md:p-9">
           <div className={`absolute inset-6 md:inset-9 ${fade(phase <= 1)}`}>
             <div className="eyebrow">Analysis</div>
             <p className="mt-3 text-[14px] text-muted-foreground">Listening for your main point…</p>
