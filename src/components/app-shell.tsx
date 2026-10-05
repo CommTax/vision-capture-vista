@@ -5,13 +5,19 @@ import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { streak, useStore } from "@/lib/store";
 import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
+import logoImg from "@/assets/logo.png";
 
 export function useHydrated() {
   return useSyncExternalStore(() => () => {}, () => true, () => false);
 }
 
 export function Logo() {
-  return <Link to="/" className="font-display text-[19px] font-bold tracking-tight">unspoken</Link>;
+  return (
+    <Link to="/" className="flex items-center gap-2 font-display text-[19px] font-bold tracking-tight">
+      <img src={logoImg} alt="TheUnspoken logo" className="h-8 w-auto" />
+      TheUnspoken
+    </Link>
+  );
 }
 
 const NAV = [
