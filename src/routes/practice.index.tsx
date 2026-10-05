@@ -4,7 +4,7 @@ import { AppShell, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
-import { MODES, type ModeId } from "@/lib/data";
+import { MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/practice/")({
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
-function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: string; recommended?: boolean }) {
+function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: Dimension; recommended?: boolean }) {
   return (
     <Link to="/practice/$questionId" params={{ questionId: s.scenario_id }} search={focus ? { f: focus } : {}} className={`glass flex flex-col p-5 transition hover:bg-glass-strong ${recommended ? "border-primary/50" : ""}`}>
       {recommended && <div className="eyebrow mb-2 !text-primary">Recommended for you</div>}
