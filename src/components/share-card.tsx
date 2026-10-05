@@ -65,6 +65,13 @@ export function drawCard(c: HTMLCanvasElement, d: ShareCardData, format: Format 
     ctx.fillStyle = soft; ctx.font = "500 24px 'DM Sans', sans-serif";
     const right = d.code ? `Code ${d.code}` : d.handle ?? "";
     if (right) { const w = ctx.measureText(right).width; ctx.fillText(right, W - pad - w, 1012); }
+    if (qr) {
+      const s = 120, x = W - pad - s, qy = 700;
+      ctx.fillStyle = "#FFFFFF"; ctx.beginPath(); ctx.roundRect(x - 10, qy - 10, s + 20, s + 20, 18); ctx.fill();
+      ctx.drawImage(qr, x, qy, s, s);
+      ctx.fillStyle = soft; ctx.font = "500 18px 'JetBrains Mono', monospace";
+      ctx.fillText("SCAN TO FOLLOW", x - 10, qy + s + 34);
+    }
   }
 }
 
