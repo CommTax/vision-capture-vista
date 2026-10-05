@@ -65,7 +65,7 @@ function Plans() {
           {d.trial
             ? <button className="btn btn-ghost mt-6 w-full" disabled={state.startsWith("SPRINT")} onClick={() => begin(`Sprint · ${d.label} · ${PLAN_CONFIG.sprint.trialDays}-day trial`, () => { startSprintTrial(goal, dur, goalText || undefined); navigate({ to: "/sprint" }); })}>{state.startsWith("SPRINT") ? "You're on a Sprint" : `Start ${PLAN_CONFIG.sprint.trialDays}-day trial`}</button>
             : <button className="btn btn-ghost mt-6 w-full" onClick={() => begin(`Sprint · ${d.label}`, () => { registerInterest("sprint", `sprint-${dur}`); setNote("Thanks — we'll let you know when 7-day Sprints can be purchased."); })}>Notify me when available</button>}
-          {state !== "SPRINT_PAID" && <Link to="/checkout" search={{ product: "sprint", d: dur === "28d" ? "14d" : dur, goal }} className="btn btn-primary mt-3 w-full">Choose Sprint</Link>}
+          {state !== "SPRINT_PAID" && <Link to="/checkout" search={{ product: "sprint", d: (dur === "28d" ? "14d" : dur) as "7d" | "14d" | "3m", goal }} className="btn btn-primary mt-3 w-full">Choose Sprint</Link>}
           {note && <p className="mt-2 text-[13px] text-primary">{note}</p>}
         </section>
       </div>
