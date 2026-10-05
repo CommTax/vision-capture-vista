@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import { ContactDetails } from "@/components/contact-details";
+import { getState } from "@/lib/store";
 import type { Analysis } from "@/lib/analysis";
 import { PATTERNS } from "@/lib/data";
 import { useEntitlement, type Feature } from "@/lib/entitlements";
@@ -64,7 +65,11 @@ export function Conversion() {
 }
 
 export function LeadCapture({ onDone }: { onDone: () => void }) {
-  return <ContactDetails eyebrow="Your analysis is ready" title="Where should we save your results?" body="So your practice and pattern stay with you." submit="Show my result" consent onDone={onDone} />;
+  return <ContactDetails eyebrow="Your analysis is ready" title="Where should we save your results?" body="So your practice and pattern stay with you." submit="Show my result" consent onDone={() => {
+    const s = getState(); const p = s.profile;
+    if (p?.email && p.phone && p.phone_country_code) void import("@/lib/cloud-sync").then((m) => m.claimFree({ name: p.name, email: p.email, phone: p.phone!, phone_country_code: p.phone_country_code!, marketing_consent: !!s.marketing?.consent }));
+    onDone();
+  }} />;
 }
 
 const BASIC = ["structure", "clarity", "conciseness", "relevance", "impact"] as const;

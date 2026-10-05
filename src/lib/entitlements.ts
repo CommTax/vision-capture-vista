@@ -117,6 +117,7 @@ export function startPracticeTrial(billing: "monthly" | "annual") {
     user_id: userId(s), product_type: "practice", plan_type: "practice", billing_frequency: billing, status: "trialing",
     started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.practice.trialDays), expires_at: null, cancelled_at: null,
   } }));
+  void import("./cloud-sync").then((m) => m.pushTrial());
 }
 
 export function sprintDuration(id: SprintDurationId) { return PLAN_CONFIG.sprint.durations.find((d) => d.id === id)!; }
@@ -130,6 +131,7 @@ export function startSprintTrial(goalId: string, duration: SprintDurationId, goa
     started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.sprint.trialDays), expires_at: null, cancelled_at: null,
     sprint: { duration, goal: goalId, goal_text: goalText, start_date: today(), end_date: addDays(d.days).slice(0, 10), status: "active" },
   } }));
+  void import("./cloud-sync").then((m) => m.pushTrial());
 }
 
 export function cancelEntitlement() {

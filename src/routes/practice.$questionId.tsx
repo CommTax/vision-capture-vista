@@ -12,7 +12,7 @@ import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
 import { FreeCounter, FreeResult, Conversion, LeadCapture } from "@/components/plan-gate";
 import { canSubmit, hasLead, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
-import { addResponse, getState, uid, useStore, type ResponseRecord } from "@/lib/store";
+import { addResponse, getState, setState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/$questionId")({
   validateSearch: z.object({ s: z.string().optional(), retry: z.string().optional(), f: z.enum(DIMENSIONS).optional(), ctx: z.string().optional() }),
@@ -81,8 +81,10 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     try {
       const a: Analysis = await analyzeResponse({ question: q.text, transcript, mode: q.mode, level, durationSec: duration || undefined, responseType: type });
       const rec: ResponseRecord = { id: uid(), question_id: q.id, question: q.text, mode: q.mode, response_type: type, transcript, audio_url: audioUrl, duration: a.duration, created_at: new Date().toISOString(), attempt: attempts.length + 1, parent_id: attempts[0]?.id, analysis: a };
+      const wasFree = isFree(getState());
       addResponse(rec);
       recordSubmission();
+      if (wasFree) setState((s) => ({ ...s, freeResponseIds: [...(s.freeResponseIds ?? []), rec.id] }));
       const next = [...attempts, rec];
       setAttempts(next);
       setView(next.length - 1);
