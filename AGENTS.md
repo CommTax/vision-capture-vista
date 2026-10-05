@@ -25,3 +25,4 @@
 - Homepage/marketing content and demo metrics are typed in `src/content/types.ts`, with fallback values only in `src/content/fallback.ts`, read through `dataProvider` in `src/services/data-provider.ts` (`withFallback`/`fetchWithFallback`) — so a backend can replace content without touching UI.
 - Practice Moments link to `/practice?mode=<category>`; the Practice page preselects that category from the search param.
 - Mobile navigation is one entitlement-aware `MobileNav` (Home · Practice · Learn · More sheet) shared by the landing page and `AppShell` — so every user state gets the same navigation.
+- Backend content and share rewards live in Cloud tables behind `app_settings` switches (start off); `growth.functions.ts` reads them and returns null/disabled until switched on — so content can move to the database without UI changes.
