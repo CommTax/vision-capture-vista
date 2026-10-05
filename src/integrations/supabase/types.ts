@@ -14,7 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      entitlements: {
+        Row: {
+          data: Json | null
+          state: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json | null
+          state?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          data?: Json | null
+          state?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      free_attempts: {
+        Row: {
+          analysis_id: string | null
+          attempt_number: number
+          entitlement_type: string
+          id: string
+          response_id: string
+          scenario_id: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          attempt_number: number
+          entitlement_type?: string
+          id?: string
+          response_id: string
+          scenario_id: string
+          submitted_at: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          attempt_number?: number
+          entitlement_type?: string
+          id?: string
+          response_id?: string
+          scenario_id?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          consent_at: string | null
+          created_at: string
+          email: string
+          id: string
+          marketing_consent: boolean
+          name: string
+          phone: string | null
+          phone_country_code: string | null
+          prefs: Json
+          updated_at: string
+        }
+        Insert: {
+          consent_at?: string | null
+          created_at?: string
+          email: string
+          id: string
+          marketing_consent?: boolean
+          name?: string
+          phone?: string | null
+          phone_country_code?: string | null
+          prefs?: Json
+          updated_at?: string
+        }
+        Update: {
+          consent_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          marketing_consent?: boolean
+          name?: string
+          phone?: string | null
+          phone_country_code?: string | null
+          prefs?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      responses: {
+        Row: {
+          created_at: string
+          id: string
+          record: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          record: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          record?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
