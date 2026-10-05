@@ -51,10 +51,10 @@ function MomentCard({ m, className = "" }: { m: PracticeMoment; className?: stri
   );
 }
 
-function FeaturedMoment({ m, image, wide = false }: { m: PracticeMoment; image: string; wide?: boolean }) {
+function FeaturedMoment({ m, image, layout = "standard" }: { m: PracticeMoment; image: string; layout?: "standard" | "wide" | "full" }) {
   const Icon = ICONS[m.icon];
   return (
-    <Link to="/practice" search={{ mode: m.category }} className={`group relative isolate min-h-[360px] overflow-hidden rounded-lg border border-border bg-card ${wide ? "md:col-span-2 md:min-h-[520px]" : "md:min-h-[520px]"}`}>
+    <Link to="/practice" search={{ mode: m.category }} className={`group relative isolate min-h-[360px] overflow-hidden rounded-lg border border-border bg-card ${layout === "wide" ? "md:col-span-2 md:min-h-[520px]" : layout === "full" ? "md:col-span-3 md:min-h-[440px]" : "md:min-h-[520px]"}`}>
       <img src={image} alt="" loading="lazy" width={1600} height={1072} className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.025]" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-6 md:p-8">
@@ -160,7 +160,7 @@ function Landing() {
           {featuredMoments.map((moment, index) => {
             const image = MOMENT_IMAGES[moment.id];
             if (!image) return null;
-            return <FeaturedMoment key={moment.id} m={moment} image={image} wide={index === 0} />;
+            return <FeaturedMoment key={moment.id} m={moment} image={image} layout={index === 0 ? "wide" : index === 2 ? "full" : "standard"} />;
           })}
         </div>
         <div className="mt-10 grid border-b border-border md:grid-cols-3 md:gap-8">
