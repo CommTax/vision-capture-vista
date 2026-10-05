@@ -176,6 +176,7 @@ export type Database = {
           prompt: string
           recommended_when: string[]
           sort: number
+          source: string
           target_skills: string[]
           time_limit: number
           title: string
@@ -192,6 +193,7 @@ export type Database = {
           prompt: string
           recommended_when?: string[]
           sort?: number
+          source?: string
           target_skills?: string[]
           time_limit?: number
           title: string
@@ -208,6 +210,7 @@ export type Database = {
           prompt?: string
           recommended_when?: string[]
           sort?: number
+          source?: string
           target_skills?: string[]
           time_limit?: number
           title?: string
@@ -265,6 +268,51 @@ export type Database = {
           response_id?: string
           scenario_id?: string
           submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_orders: {
+        Row: {
+          amount_paise: number
+          created_at: string
+          currency: string
+          id: string
+          meta: Json
+          plan: string
+          product: string
+          razorpay_order_id: string
+          razorpay_payment_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paise: number
+          created_at?: string
+          currency?: string
+          id?: string
+          meta?: Json
+          plan: string
+          product: string
+          razorpay_order_id: string
+          razorpay_payment_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paise?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          meta?: Json
+          plan?: string
+          product?: string
+          razorpay_order_id?: string
+          razorpay_payment_id?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
