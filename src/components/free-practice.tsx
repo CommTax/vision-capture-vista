@@ -318,7 +318,7 @@ function Reflection() {
   );
 }
 
-function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: string }) {
+export function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: string }) {
   const [card, setCard] = useState(false);
   const p = PATTERNS[a.primary_pattern] ?? PATTERNS.scatterer;
   const setup = useShareSetup();
