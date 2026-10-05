@@ -83,7 +83,7 @@ const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 function Landing() {
   const navigate = useNavigate();
   const home = dataProvider.getHomepageContent();
-  const { hero, proof, transformations, howItWorks, feedback, pattern, contact } = home;
+  const { hero, transformations, howItWorks, feedback, pattern, contact } = home;
   const moments = dataProvider.getPracticeMoments();
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
