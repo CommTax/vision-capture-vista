@@ -21,7 +21,7 @@ function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: string; 
     <Link to="/practice/$questionId" params={{ questionId: s.scenario_id }} search={focus ? { f: focus } : {}} className={`glass flex flex-col p-5 transition hover:bg-glass-strong ${recommended ? "border-primary/50" : ""}`}>
       {recommended && <div className="eyebrow mb-2 !text-primary">Recommended for you</div>}
       <div className="font-display text-[17px] font-bold leading-snug">{s.title}</div>
-      <div className="mt-1 text-[13px] text-muted-foreground">{s.context}{level === "Senior / Leadership" && s.experience_level !== "any" ? "" : ""}</div>
+      <div className="mt-1 text-[13px] text-muted-foreground">{s.context}</div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px]">
         <span className="text-muted-foreground">FOCUS: <span className="text-foreground">{s.target_skills.map(cap).join(" + ")}</span></span>
         <span className="text-muted-foreground">{s.difficulty} · {s.time_limit}s <span className="ml-2 text-primary">Start →</span></span>
