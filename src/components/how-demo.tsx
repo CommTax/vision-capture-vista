@@ -169,9 +169,9 @@ function ScrollStory() {
   });
   return (
     <div ref={ref} className="relative h-[600vh]">
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center gap-6 py-10">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center gap-5 pb-6 pt-20">
         <StageIndicator stage={stage} />
-        <Canvas stage={stage} live className="h-[min(700px,78vh)] w-[min(1000px,82vw)]" />
+        <Canvas stage={stage} live className="h-[min(700px,74vh)] w-[min(1000px,82vw)]" />
       </div>
     </div>
   );
