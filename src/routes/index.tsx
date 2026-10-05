@@ -8,7 +8,6 @@ import { MobileNav } from "@/components/mobile-nav";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
-import { ProofDemoCard } from "@/components/proof-demo";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
@@ -84,7 +83,7 @@ const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 function Landing() {
   const navigate = useNavigate();
   const home = dataProvider.getHomepageContent();
-  const { hero, proof, transformations, howItWorks, feedback, pattern, contact } = home;
+  const { hero, transformations, howItWorks, feedback, pattern, contact } = home;
   const moments = dataProvider.getPracticeMoments();
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
@@ -97,9 +96,9 @@ function Landing() {
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
           <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
-            <a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
+            <Link to="/" className="hover:text-foreground">Home</Link><a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3">{!signedIn && <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3">{signedIn ? <Link to="/dashboard" className="text-[13px] text-muted-foreground hover:text-foreground">Dashboard</Link> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 
@@ -118,15 +117,6 @@ function Landing() {
         <div className="eyebrow mb-4 text-center !text-primary">The real problem</div>
         <h2 className="mx-auto max-w-[880px] text-pretty text-center text-[clamp(28px,3.6vw,46px)] font-bold leading-[1.1]">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
-      </Section>
-
-      {/* SAME MOMENT */}
-      <Section>
-        <div className="mx-auto max-w-3xl">
-          <h2 className={H2}>{proof.title}</h2>
-          <p className={SUB}>See what changes when you try again.</p>
-          <div className="mt-10"><ProofDemoCard demo={proof.demo} /></div>
-        </div>
       </Section>
 
       {/* HOW */}

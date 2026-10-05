@@ -47,7 +47,6 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     { from: "SCATTERED", to: "STRUCTURED" },
     { from: "UNCLEAR", to: "PRECISE" },
     { from: "FORGETTABLE", to: "MEMORABLE" },
-    { from: "UNCONVINCING", to: "PERSUASIVE" },
   ],
   howItWorks: [
     { step: 1, title: "Practice", shortTitle: "Choose a real moment." },

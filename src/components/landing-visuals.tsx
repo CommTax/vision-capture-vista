@@ -43,7 +43,7 @@ export function RotatingWord({ words }: { words: string[] }) {
 function PairVisual({ index, after }: { index: number; after: boolean }) {
   const t = "all 800ms cubic-bezier(.32,.72,0,1)";
   const bar = (w: string, hi = false, extra: React.CSSProperties = {}) => ({ width: w, transition: t, ...extra, className: `h-3 rounded-full ${hi ? "bg-primary" : "bg-muted-foreground/35"}` });
-  switch (index % 5) {
+  switch (index % 4) {
     case 0: // rambling → concise: many bars compress to two
       return <div className="w-full space-y-2">{[92, 84, 96, 70, 88, 60].map((w, i) => { const b = bar(after ? (i < 2 ? `${[70, 45][i]}%` : "0%") : `${w}%`, after && i === 0, { opacity: after && i >= 2 ? 0 : 1 }); return <div key={i} className={b.className} style={{ width: b.width, transition: b.transition, opacity: b.opacity }} />; })}</div>;
     case 1: { // scattered → structured
@@ -54,15 +54,12 @@ function PairVisual({ index, after }: { index: number; after: boolean }) {
     }
     case 2: // unclear → precise: blur to sharp
       return <p className="font-display text-[clamp(18px,3vw,28px)] font-bold leading-snug" style={{ filter: after ? "none" : "blur(3px)", opacity: after ? 1 : 0.6, transition: t }}>{after ? "Cut onboarding from 9 days to 4." : "We kind of improved things a lot."}</p>;
-    case 3: // forgettable → memorable: one point rises
+    default: // forgettable → memorable: one point rises
       return <div className="flex w-full items-end gap-2 h-24">{[0, 1, 2, 3, 4].map((i) => <span key={i} className={`flex-1 rounded-md ${i === 2 && after ? "bg-primary" : "bg-muted-foreground/30"}`} style={{ height: i === 2 && after ? "100%" : "35%", transition: t }} />)}</div>;
-    default: // unconvincing → persuasive: claim gains evidence
-      return <div className="w-full space-y-2"><div className="h-3 w-[60%] rounded-full bg-foreground/70" />{["Data", "Example", "Outcome"].map((l, i) => (
-        <div key={l} className="flex items-center gap-2" style={{ opacity: after ? 1 : 0, transform: after ? "none" : "translateX(-8px)", transition: `${t} ${i * 120}ms` }}><span className="h-px w-4 bg-primary" /><span className="font-mono text-[10px] uppercase tracking-[0.12em] text-primary">{l}</span></div>))}</div>;
   }
 }
 
-/** "The real problem" reel: the five transformations play inside the video frame, then the closing line. */
+/** "The real problem" reel: the four transformations play inside the video frame, then the closing line. */
 export function TransformationReel({ pairs, video, closing }: { pairs: ProblemTransformation[]; video: string; closing: React.ReactNode }) {
   const frames = pairs.length * 2 + 1; // before/after per pair, then end frame
   const f = useCycle(frames, 1500);
