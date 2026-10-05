@@ -37,21 +37,15 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      - name: Debug build output
+      # 🔽 THIS IS THE NEW STEP - Renames the TanStack shell to index.html
+      - name: Prepare SPA files for GitHub Pages
         run: |
-          echo "=== Build output structure ==="
-          ls -la
-          echo "=== Looking for dist ==="
-          ls -la dist/ 2>/dev/null || echo "no dist/"
-          ls -la .output/public/ 2>/dev/null || echo "no .output/public/"
-          ls -la build/ 2>/dev/null || echo "no build/"
-
-      - name: Create 404.html for SPA Routing
-        run: |
-          if [ -f dist/index.html ]; then
-            cp dist/index.html dist/404.html
-          elif [ -f .output/public/index.html ]; then
-            cp .output/public/index.html .output/public/404.html
+          if [ -f dist/_shell.html ]; then
+            mv dist/_shell.html dist/index.html
+            echo "Renamed _shell.html to index.html"
+          else
+            echo "Warning: _shell.html not found. Checking build output..."
+            ls -la dist/
           fi
 
       - name: Setup Pages
