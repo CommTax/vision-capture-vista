@@ -26,38 +26,47 @@ function useCycle(count: number, ms: number) {
 
 const fade = (on: boolean, delay = 0) => ({ opacity: on ? 1 : 0, transform: on ? "none" : "translateY(6px)", transition: `opacity 600ms ease ${delay}ms, transform 700ms cubic-bezier(.32,.72,0,1) ${delay}ms` });
 
-/** Hero product visual: a practice session cycling Question → Response → Analysis → Retry. */
-export function HeroSession({ question, lost, fix }: { question: string; lost: string; fix: string }) {
-  const step = useCycle(5, 1900); // 0 question · 1 response · 2 analysis · 3 retry · 4 hold
-  const stages = ["Question", "Response", "Analysis", "Retry"];
+/** Rotating hero word: soft vertical crossfade, no typing effect. */
+export function RotatingWord({ words }: { words: string[] }) {
+  const i = useCycle(words.length, 2400);
+  const reduced = useReducedMotion();
+  const w = reduced ? words[0]! : words[i % words.length]!;
   return (
-    <div className="glass glass-float overflow-hidden" aria-label="A practice session: question, response, analysis, retry">
-      <div className="flex items-center gap-1.5 border-b border-border px-5 py-3">
+    <span className="relative inline-grid overflow-hidden align-bottom" aria-live="off">
+      {words.map((x) => <span key={x} aria-hidden className="invisible col-start-1 row-start-1">{x}.</span>)}
+      <span key={w} className="word-rise col-start-1 row-start-1 text-primary">{w}.</span>
+      <span className="sr-only">{words.join(", ")}</span>
+    </span>
+  );
+}
+
+/** Hero product visual: Response → What got lost → Fix → Retry, almost no text. */
+export function HeroSession() {
+  const step = useCycle(5, 1700); // 0 response · 1 lost · 2 fix · 3 retry · 4 hold
+  const stages = ["Response", "What got lost", "Fix", "Retry"];
+  const bars = [62, 88, 74, 92, 56];
+  return (
+    <div className="glass glass-float overflow-hidden" aria-label="A response being practiced, diagnosed, fixed and retried">
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-5 py-3">
         {stages.map((s, i) => (
           <span key={s} className={`rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-500 ${Math.min(step, 3) === i ? "bg-primary/15 text-primary" : "text-muted-foreground"}`}>{s}</span>
         ))}
       </div>
-      <div className="space-y-5 p-5 md:p-7">
-        <p className="font-display text-[20px] font-bold leading-snug md:text-[24px]">“{question}”</p>
-        <div style={fade(step >= 1)} className="flex items-center gap-3">
-          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/50">
-            <span className={`h-2 w-2 rounded-full bg-primary ${step === 1 ? "animate-pulse" : ""}`} />
-          </span>
-          <div className="flex h-8 flex-1 items-center gap-[3px]" aria-hidden>
-            {Array.from({ length: 32 }).map((_, i) => (
-              <span key={i} className="flex-1 rounded-full bg-muted-foreground/40" style={{ height: `${20 + ((i * 37) % 70)}%` }} />
-            ))}
-          </div>
-          <span className="font-mono text-[11px] text-muted-foreground">0:34</span>
-        </div>
-        <div style={fade(step >= 2)} className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <div className="eyebrow !text-primary">What got lost</div>
-          <p className="mt-1.5 font-display text-[17px] font-bold">{lost}</p>
-          <div className="mt-3 text-[13px] text-muted-foreground">Try this: <span className="text-foreground">{fix}</span></div>
-        </div>
-        <div style={fade(step >= 3)} className="flex items-center justify-between">
-          <span className="btn btn-primary btn-sm pointer-events-none">Try again</span>
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Attempt 02</span>
+      <div className="space-y-2.5 p-5 md:p-7">
+        {bars.map((w, i) => {
+          const isMain = i === 4;
+          const moved = step >= 3; // retry: main point jumps to the top
+          const order = moved ? (isMain ? 0 : i + 1) : i;
+          return (
+            <div key={i} className={`h-7 rounded-md border transition-all duration-700 ${isMain && step >= 1 ? "border-primary/60 bg-primary/15" : "border-border bg-secondary/50"}`}
+              style={{ width: isMain && moved ? "100%" : `${w}%`, transform: `translateY(${(order - i) * 38}px)`, opacity: step >= 2 && !isMain && i > 1 ? 0.25 : 1, transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+              {isMain && step >= 1 && <span className="flex h-full items-center px-3 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">Main point</span>}
+            </div>
+          );
+        })}
+        <div className="flex items-center justify-between pt-3">
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground" style={fade(step >= 2)}>Say it first</span>
+          <span className="btn btn-primary btn-sm pointer-events-none" style={fade(step >= 3)}>Try again</span>
         </div>
       </div>
     </div>

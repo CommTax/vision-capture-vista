@@ -7,11 +7,11 @@ export type Dimension = (typeof DIMENSIONS)[number];
 
 export const MODES: { id: ModeId; name: string; blurb: string; tag: string }[] = [
   { id: "interview", name: "Interview", blurb: "Tell me about yourself, failures, leadership, conflict.", tag: "Most practiced" },
-  { id: "conversation", name: "High-stakes conversation", blurb: "Promotion asks, salary, disagreeing with your manager.", tag: "Career" },
+  { id: "conversation", name: "High-stakes conversation", blurb: "Disagreement, feedback, difficult and sensitive conversations.", tag: "Tough talks" },
   { id: "presentation", name: "Presentation", blurb: "Openings, recommendations, explaining data.", tag: "Speaking" },
   { id: "group", name: "Group discussion", blurb: "A topic, a timer, your take.", tag: "Timed" },
-  { id: "sales", name: "Sales & persuasion", blurb: "Pitches, objections, influencing stakeholders.", tag: "Influence" },
-  { id: "everyday", name: "Professional communication", blurb: "Status updates, delays, escalations.", tag: "Daily" },
+  { id: "sales", name: "Persuasion", blurb: "Influencing stakeholders, getting buy-in, making a case.", tag: "Influence" },
+  { id: "everyday", name: "Leadership", blurb: "Executive updates, ambiguity, difficult decisions, team leadership.", tag: "Lead" },
   { id: "custom", name: "Custom practice", blurb: "Describe any situation — we'll build the scenario.", tag: "Your call" },
 ];
 
@@ -45,7 +45,7 @@ export const QUESTIONS: Question[] = [
   q("imp-3", "presentation", "Recommend a change and explain its business impact.", "Planning review", "Hard", 90),
   q("imp-4", "conversation", "Ask for something and make the value clear.", "Budget or headcount request", "Medium", 60),
   q("ldr-1", "presentation", "Present a strategic recommendation with a hard trade-off.", "Exec staff meeting — two options, limited budget", "Hard", 120),
-  q("ldr-2", "conversation", "Lead your team through a reorg announcement.", "All-hands — people are anxious", "Hard", 120),
+  q("ldr-2", "everyday", "Lead your team through a reorg announcement.", "All-hands — people are anxious", "Hard", 120),
   q("ldr-3", "sales", "Influence a peer org without authority.", "Cross-functional dependency is blocking your launch", "Hard", 90),
   q("evd-3", "everyday", "Explain a mistake you made to your team.", "Team standup", "Medium", 60),
 ];

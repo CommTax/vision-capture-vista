@@ -23,3 +23,4 @@
 - Browser state uses the `unspoken-state-v1` key and reads the legacy product key as a fallback — so the product rename preserves existing users' data.
 - Homepage/marketing content and demo metrics are typed in `src/content/types.ts`, with fallback values only in `src/content/fallback.ts`, read through `dataProvider` in `src/services/data-provider.ts` (`withFallback`/`fetchWithFallback`) — so a backend can replace content without touching UI.
 - Practice Moments link to `/practice?mode=<category>`; the Practice page preselects that category from the search param.
+- Mobile navigation is one entitlement-aware `MobileNav` (Home · Practice · Learn · More sheet) shared by the landing page and `AppShell` — so every user state gets the same navigation.
