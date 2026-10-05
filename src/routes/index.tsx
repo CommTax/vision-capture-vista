@@ -107,7 +107,7 @@ function Landing() {
       {/* HERO */}
       <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-12 md:px-8 md:pt-28 md:pb-24 lg:grid-cols-12">
         <div className="rise lg:col-span-6">
-          <h1 className="text-balance text-[clamp(40px,6vw,76px)] font-bold leading-[1.02]">{hero.headline}<br /><RotatingWord words={hero.rotatingWords} /></h1>
+          <h1 className="text-balance text-[clamp(38px,5vw,64px)] font-bold leading-[1.02]">{hero.headline}<br /><RotatingWord words={hero.rotatingWords} /></h1>
           <p className="mt-6 max-w-[40ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
           <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
           <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
