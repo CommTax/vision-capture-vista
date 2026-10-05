@@ -61,12 +61,12 @@ export const syncAccount = createServerFn({ method: "POST" })
       supabase.from("profiles").select("name,email,phone,phone_country_code,marketing_consent,prefs").eq("id", userId).maybeSingle(),
       supabase.from("free_attempts").select("id", { count: "exact", head: true }).eq("user_id", userId),
     ]);
-    return {
+    return JSON.stringify({
       entitlement: (ent?.data ?? null) as Record<string, unknown> | null,
       profile: p2 ? { ...p2, prefs: (p2.prefs ?? {}) as Record<string, unknown> } : null,
       responses: (rs ?? []).map((r) => r.record as Record<string, unknown>),
       freeAttempts: count ?? 0,
-    };
+    });
   });
 
 /** Saves contact details for a signed-in person (same email = same person). */

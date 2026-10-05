@@ -19,11 +19,12 @@ export async function syncNow(): Promise<EntitlementState | null> {
     signedIn = true;
     const s = getState();
     const p = s.profile;
-    const res = await syncAccount({ data: {
+    const raw = await syncAccount({ data: {
       responses: s.responses.map(strip) as never,
       freeIds: s.freeResponseIds ?? [],
       prefs: p ? { goal: p.goal, struggle: p.struggle, experience: p.experience, level: p.level, onboarded: p.onboarded } : undefined,
     } });
+    const res = JSON.parse(raw) as { entitlement: unknown; freeAttempts: number; responses: unknown[]; profile: null | { name: string; email: string; phone: string | null; phone_country_code: string | null; marketing_consent: boolean; prefs: Record<string, unknown> } };
     setState((cur) => {
       const byId = new Map(cur.responses.map((r) => [r.id, r]));
       for (const r of res.responses as unknown as ResponseRecord[]) if (!byId.has(r.id)) byId.set(r.id, r);
