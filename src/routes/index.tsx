@@ -34,7 +34,7 @@ function MomentTile({ m }: { m: PracticeMoment }) {
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+      className="group flex w-[76vw] max-w-[280px] shrink-0 snap-start flex-col rounded-2xl border border-border bg-card p-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 sm:w-[300px] md:w-auto md:max-w-none"
     >
       <MomentArt id={m.id} />
       <h3 className="mt-5 font-display text-[17px] font-semibold leading-snug">{m.name}</h3>
@@ -130,7 +130,7 @@ function Landing() {
           <div><div className="product-kicker !text-primary">Choose your moment</div><h2 className={`${H2} mt-4 max-w-[720px]`}>Practice where clarity matters most.</h2></div>
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-10 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0">
           {moments.map((moment) => <MomentTile key={moment.id} m={moment} />)}
         </div>
       </Section>
