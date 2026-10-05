@@ -27,7 +27,6 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const ICONS: Record<IconKey, LucideIcon> = { briefcase: Briefcase, trending: TrendingUp, message: MessageSquare, presentation: Presentation, crown: Crown, handshake: Handshake, sparkles: Sparkles };
 
 
 function MomentTile({ m }: { m: PracticeMoment }) {
