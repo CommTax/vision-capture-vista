@@ -2,12 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Mic, Eye, Target, RotateCcw, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/app-shell";
-import { getState } from "@/lib/store";
+import { getState, useStore } from "@/lib/store";
+import { useHydrated } from "@/components/app-shell";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
 import { ProofDemoCard } from "@/components/proof-demo";
-import { HeroSession, TransformationReel } from "@/components/landing-visuals";
+import { HeroSession, RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -86,7 +87,10 @@ function Landing() {
   const moments = dataProvider.getPracticeMoments();
   const drills = dataProvider.getDrillTeasers();
   const plans = dataProvider.getPricingPlans();
+  const hydrated = useHydrated();
+  const signedIn = useStore((s) => !!s.profile?.onboarded) && hydrated;
   const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
+  const primaryCta = () => (signedIn ? navigate({ to: "/practice" }) : tryFree());
   return (
     <div className="overflow-x-hidden">
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
@@ -95,22 +99,29 @@ function Landing() {
           <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
             <a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3"><Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Start Practicing</Link></div>
+          <div className="flex items-center gap-3"><Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link><button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 
       {/* HERO */}
       <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-12 md:px-8 md:pt-28 md:pb-24 lg:grid-cols-12">
         <div className="rise lg:col-span-6">
-          <div className="eyebrow mb-5 !text-primary">{hero.eyebrow}</div>
-          <h1 className="text-balance text-[clamp(42px,6vw,80px)] font-bold leading-[0.98]">{hero.headline} <span className="text-primary">{hero.headlineAccent}</span></h1>
-          <p className="mt-6 max-w-[40ch] text-[16px] leading-7 text-muted-foreground md:text-[18px]">{hero.body}</p>
-          <div className="mt-9 flex flex-wrap gap-3"><Link to="/signup" className="btn btn-primary">Start Practicing</Link><button onClick={tryFree} className="btn btn-ghost">Try a Free Practice</button></div>
+          <h1 className="text-balance text-[clamp(40px,6vw,76px)] font-bold leading-[1.02]">{hero.headline}<br /><RotatingWord words={hero.rotatingWords} /></h1>
+          <p className="mt-6 max-w-[40ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
+          <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
+          <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
         <div className="rise lg:col-span-6" style={{ animationDelay: "120ms" }}>
-          <HeroSession question={proof.demo.question} lost={feedback.whatGotLost} fix={feedback.tryThis} />
+          <HeroSession />
         </div>
       </section>
+
+      {/* THE REAL PROBLEM */}
+      <Section>
+        <div className="eyebrow mb-4 !text-primary">The real problem</div>
+        <h2 className={`${H2} max-w-3xl`}>You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
+        <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
+      </Section>
 
       {/* SAME MOMENT */}
       <Section>
@@ -119,14 +130,6 @@ function Landing() {
           <p className={SUB}>See what changes when you try again.</p>
           <div className="mt-10"><ProofDemoCard demo={proof.demo} /></div>
         </div>
-      </Section>
-
-      {/* THE REAL PROBLEM */}
-      <Section>
-        <div className="eyebrow mb-4 !text-primary">The real problem</div>
-        <h2 className={`${H2} max-w-3xl`}>You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
-        <p className={SUB}>Sometimes the idea is strong. The response isn't.</p>
-        <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
       {/* HOW */}
@@ -227,7 +230,7 @@ function Landing() {
         <div className="text-center">
           <h2 className={`${H2} mx-auto max-w-3xl`}>Practice until the important thing doesn't get lost.</h2>
           <p className={`${SUB} mx-auto max-w-xl`}>Your next interview. Your next presentation. Your next difficult conversation. Practice it before it matters.</p>
-          <Link to="/signup" className="btn btn-primary mt-9">Start Practicing</Link>
+          <button onClick={primaryCta} className="btn btn-primary mt-9">{signedIn ? hero.ctaSignedIn : hero.cta}</button>
         </div>
       </Section>
 
