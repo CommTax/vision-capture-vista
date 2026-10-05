@@ -29,3 +29,4 @@
 - PAID entitlements are written only by `fulfilOrder` in `payments.server.ts` after a verified Razorpay signature (checkout handler or `/api/public/razorpay-webhook`); prices live server-readable in `src/lib/prices.ts` — the client never sends an amount.
 - Free limit is per India-time day (`istDay`), counted server-side from `free_attempts` — so clearing the browser doesn't reset it.
 - Questions load from `content_questions` at startup into the shared list; when a topic is exhausted a signed-in user gets an AI-written question saved with `source='ai'` — built-in list stays the fallback.
+- Buying goes through `/checkout` (choose → name/email/phone → account via claimFree or email code → Razorpay); Practice Pass is a Razorpay subscription renewed by the `subscription.charged` webhook — one payment path for every plan.
