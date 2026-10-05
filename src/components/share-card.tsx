@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Instagram, MessageCircle, Share2 } from "lucide-react";
+import qrAsset from "@/assets/instagram-qr.png.asset.json";
 
 export type ShareCardData = { title: string; line: string; lost: string; focus: string; code?: string; handle?: string };
 type Format = "square" | "story";
