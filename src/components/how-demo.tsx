@@ -80,9 +80,6 @@ function ChooseView() {
       <div className="absolute -bottom-6 -right-12 z-10 hidden sm:block">
         <OptionChip icon={<ThumbsUp className="size-4 text-emerald-400" />} label="Leadership" />
       </div>
-      <div className="absolute -right-10 top-9 z-10 hidden lg:block">
-        <OptionChip icon={<Presentation className="size-4 text-sky-400" />} label="Presentation" />
-      </div>
 
       <div className="relative w-full max-w-[340px] space-y-3">
         <div className="how-float">
