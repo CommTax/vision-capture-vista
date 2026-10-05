@@ -4,9 +4,9 @@ import { AppShell, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
-import { LEVELS, MODES, type ModeId } from "@/lib/data";
-import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
-import { setState, useStore } from "@/lib/store";
+import { MODES, type ModeId } from "@/lib/data";
+import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
+import { useStore } from "@/lib/store";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 
