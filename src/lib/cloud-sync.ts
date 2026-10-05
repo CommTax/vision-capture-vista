@@ -3,7 +3,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { claimFreeIdentity, saveContactCloud, startTrialCloud, syncAccount } from "./account.functions";
 import { getState, setState, subscribe, type ResponseRecord } from "./store";
-import { entitlementState, type Entitlement, type EntitlementState } from "./entitlements";
+import { entitlementState, istDay, type Entitlement, type EntitlementState } from "./entitlements";
 
 let running: Promise<EntitlementState | null> | null = null;
 let signedIn = false;
@@ -48,7 +48,7 @@ export async function syncNow(): Promise<EntitlementState | null> {
       return {
         ...cur, profile: { ...profile }, responses, practiceDays,
         entitlement: (res.entitlement as Entitlement | null) ?? undefined,
-        freeAttemptsUsed: Math.max(cur.freeAttemptsUsed ?? 0, res.freeAttempts),
+        freeAttemptsUsed: Math.max(cur.freeDay === istDay() ? cur.freeAttemptsUsed ?? 0 : 0, res.freeAttempts), freeDay: istDay(),
         marketing: cur.marketing ?? (res.profile ? { consent: !!res.profile.marketing_consent, consent_at: null, unsubscribed: false } : undefined),
       };
     });

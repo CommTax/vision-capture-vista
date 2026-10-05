@@ -5,10 +5,11 @@ import type { Dimension } from "./data";
 import { getState, setState, today, useStore, type State } from "./store";
 
 export const PLAN_CONFIG = {
+  /** Free: this many submitted answers per day (India time); resets at midnight IST. */
   free: { attempts: 5 },
   practice: {
     trialDays: 3,
-    billing: ["monthly", "annual"] as const,
+    billing: ["monthly"] as const,
     monthlyPrice: "₹499/mo",
     /** Configure when annual pricing is decided. null = not configured, no % shown. */
     annualDiscountPct: null as number | null,
@@ -16,14 +17,13 @@ export const PLAN_CONFIG = {
   sprint: {
     trialDays: 3,
     durations: [
-      { id: "7d", label: "7 days", days: 7, trial: false },
-      { id: "14d", label: "14 days", days: 14, trial: true },
-      { id: "28d", label: "28 days", days: 28, trial: true },
-      { id: "3m", label: "3 months", days: 90, trial: true },
+      { id: "7d", label: "7 days", days: 7, trial: false, price: "₹499" },
+      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹799" },
+      { id: "28d", label: "28 days", days: 28, trial: true, price: "₹1,499" },
+      { id: "3m", label: "3 months", days: 90, trial: true, price: "₹999/mo · ₹2,997" },
     ],
-    price: "From ₹1,499",
+    price: "From ₹499",
   },
-  paymentsLive: false,
 };
 
 export type SprintDurationId = (typeof PLAN_CONFIG.sprint.durations)[number]["id"];
@@ -80,7 +80,9 @@ export function entitlementState(s: State): EntitlementState {
 }
 
 export const isFree = (s: State) => entitlementState(s) === "FREE";
-export const freeUsed = (s: State) => s.freeAttemptsUsed ?? 0;
+/** Today's date in India time (YYYY-MM-DD) — the free limit resets at IST midnight. */
+export const istDay = (d = new Date()) => new Date(d.getTime() + 330 * 60000).toISOString().slice(0, 10);
+export const freeUsed = (s: State) => (s.freeDay === istDay() ? s.freeAttemptsUsed ?? 0 : 0);
 export const freeRemaining = (s: State) => Math.max(0, PLAN_CONFIG.free.attempts - freeUsed(s));
 export const canSubmit = (s: State) => !isFree(s) || freeRemaining(s) > 0;
 
@@ -106,7 +108,7 @@ export function useEntitlement() {
 
 /** Called after a submitted response is analyzed. Only submissions count. */
 export function recordSubmission() {
-  setState((s) => (isFree(s) ? { ...s, freeAttemptsUsed: freeUsed(s) + 1 } : s));
+  setState((s) => (isFree(s) ? { ...s, freeAttemptsUsed: freeUsed(s) + 1, freeDay: istDay() } : s));
 }
 
 const addDays = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };

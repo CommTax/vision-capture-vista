@@ -59,7 +59,7 @@ export const syncAccount = createServerFn({ method: "POST" })
       supabase.from("entitlements").select("state,data").eq("user_id", userId).maybeSingle(),
       supabase.from("responses").select("record").eq("user_id", userId).order("created_at", { ascending: false }).limit(500),
       supabase.from("profiles").select("name,email,phone,phone_country_code,marketing_consent,prefs").eq("id", userId).maybeSingle(),
-      supabase.from("free_attempts").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      supabase.from("free_attempts").select("id", { count: "exact", head: true }).eq("user_id", userId).gte("submitted_at", new Date(Date.parse(new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10) + "T00:00:00Z") - 330 * 60000).toISOString()),
     ]);
     return JSON.stringify({
       entitlement: (ent?.data ?? null) as Record<string, unknown> | null,
