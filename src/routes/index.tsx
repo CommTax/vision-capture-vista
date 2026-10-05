@@ -120,7 +120,7 @@ function Landing() {
       </Section>
 
       {/* HOW UNSPOKEN WORKS */}
-      <section id="how" className="py-16 md:py-28"><HowItWorksDemo /></section>
+      <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
       <Section id="modes">
