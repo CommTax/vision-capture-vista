@@ -74,13 +74,13 @@ function ChooseView() {
       <div aria-hidden="true" className="pointer-events-none absolute -inset-x-16 -inset-y-14 grid place-items-center">
         <CageArt />
       </div>
-      <div className="absolute -left-9 -top-5 hidden sm:block">
+      <div className="absolute -left-12 -top-6 z-10 hidden sm:block">
         <OptionChip icon={<Mic className="size-4" />} label="Interview" active />
       </div>
-      <div className="absolute -bottom-5 -right-9 hidden sm:block">
+      <div className="absolute -bottom-6 -right-12 z-10 hidden sm:block">
         <OptionChip icon={<ThumbsUp className="size-4 text-emerald-400" />} label="Leadership" />
       </div>
-      <div className="absolute -right-7 top-8 hidden lg:block">
+      <div className="absolute -right-10 top-9 z-10 hidden lg:block">
         <OptionChip icon={<Presentation className="size-4 text-sky-400" />} label="Presentation" />
       </div>
 
