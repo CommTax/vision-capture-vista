@@ -4,8 +4,8 @@ import { AppShell, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
-import { LEVELS, MODES, type Dimension, type ModeId } from "@/lib/data";
-import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, GOALS, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
+import { LEVELS, MODES, type ModeId } from "@/lib/data";
+import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
 import { setState, useStore } from "@/lib/store";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
@@ -37,12 +37,9 @@ function Practice() {
   const rec = recommendPractice(rs, level);
   const all = allScenarios(level);
   const recScenario = rec ? all.find((s) => s.scenario_id === rec.recommended_scenario_id) : undefined;
-  const [goal, setGoal] = useState<Dimension | null>(null);
   const initialMode = Route.useSearch().mode;
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
-  const activeFocus = goal ?? rec?.current_focus ?? null;
-  const adaptive = activeFocus ? scenariosFor(activeFocus, level).filter((s) => s.scenario_id !== recScenario?.scenario_id).slice(0, 4) : [];
   const library = mode && mode !== "custom" ? all.filter((s) => s.category === mode) : [];
   const ent = useEntitlement();
   const preview = custom.trim().length > 8 ? buildCustomScenario(custom, level) : null;
