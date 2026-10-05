@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, ArrowUpRight, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/app-shell";
 import { getState, useStore } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
@@ -8,15 +8,10 @@ import { MobileNav } from "@/components/mobile-nav";
 import { HowItWorksDemo } from "@/components/how-demo";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
-import type { IconKey, PracticeMoment } from "@/content/types";
+import type { PracticeMoment } from "@/content/types";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
-import interviewImage from "@/assets/practice-interview.jpg";
-import leadershipImage from "@/assets/practice-leadership.jpg";
-import presentationImage from "@/assets/practice-presentation.jpg";
-import highStakesImage from "@/assets/practice-high-stakes.jpg";
-import persuasionImage from "@/assets/practice-persuasion.jpg";
-import customImage from "@/assets/practice-custom.jpg";
+import { MomentArt } from "@/components/moment-art";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,37 +27,18 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const ICONS: Record<IconKey, LucideIcon> = { briefcase: Briefcase, trending: TrendingUp, message: MessageSquare, presentation: Presentation, crown: Crown, handshake: Handshake, sparkles: Sparkles };
 
 
-const MOMENT_IMAGES: Partial<Record<PracticeMoment["id"], string>> = {
-  interview: interviewImage,
-  leadership: leadershipImage,
-  presentation: presentationImage,
-  "high-stakes": highStakesImage,
-  persuasion: persuasionImage,
-  custom: customImage,
-};
-
-function MomentTile({ m, image }: { m: PracticeMoment; image?: string }) {
-  const Icon = ICONS[m.icon];
+function MomentTile({ m }: { m: PracticeMoment }) {
   return (
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group flex flex-col items-center rounded-lg border border-border bg-card px-6 pb-7 pt-6 text-center transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+      className="group flex flex-col rounded-2xl border border-border bg-card p-5 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
     >
-      {image ? (
-        <span className="block w-full max-w-[230px] overflow-hidden rounded-md ring-1 ring-foreground/10">
-          <img src={image} alt="" loading="lazy" width={1024} height={1024} className="aspect-[16/10] w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04]" />
-        </span>
-      ) : (
-        <span className="grid aspect-[16/10] w-full max-w-[230px] place-items-center rounded-md border border-border bg-secondary/60 text-primary">
-          <Icon className="size-6" aria-hidden="true" />
-        </span>
-      )}
+      <MomentArt id={m.id} />
       <h3 className="mt-5 font-display text-[17px] font-semibold leading-snug">{m.name}</h3>
-      <p className="mt-1.5 max-w-[32ch] text-[13px] leading-5 text-muted-foreground">{m.description}</p>
+      <p className="mt-1.5 max-w-[38ch] text-[13px] leading-5 text-muted-foreground">{m.description}</p>
       <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary opacity-0 transition duration-300 group-hover:opacity-100">
         Practice <ArrowUpRight className="size-3.5" aria-hidden="true" />
       </span>
@@ -142,7 +118,6 @@ function Landing() {
       {/* THE REAL PROBLEM */}
       <Section className="!pt-14 md:!pt-20">
         <div className="eyebrow mb-4 text-center !text-primary">The real problem</div>
-        <h2 className="mx-auto max-w-[880px] text-pretty text-center text-[clamp(28px,3.6vw,46px)] font-bold leading-[1.1]">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
@@ -156,7 +131,7 @@ function Landing() {
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
         <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {moments.map((moment) => <MomentTile key={moment.id} m={moment} image={MOMENT_IMAGES[moment.id]} />)}
+          {moments.map((moment) => <MomentTile key={moment.id} m={moment} />)}
         </div>
       </Section>
 
