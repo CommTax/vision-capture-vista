@@ -14,6 +14,9 @@ import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 import interviewImage from "@/assets/practice-interview.jpg";
 import leadershipImage from "@/assets/practice-leadership.jpg";
 import presentationImage from "@/assets/practice-presentation.jpg";
+import highStakesImage from "@/assets/practice-high-stakes.jpg";
+import persuasionImage from "@/assets/practice-persuasion.jpg";
+import customImage from "@/assets/practice-custom.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,35 +39,33 @@ const MOMENT_IMAGES: Partial<Record<PracticeMoment["id"], string>> = {
   interview: interviewImage,
   leadership: leadershipImage,
   presentation: presentationImage,
+  "high-stakes": highStakesImage,
+  persuasion: persuasionImage,
+  custom: customImage,
 };
 
-function MomentCard({ m, className = "" }: { m: PracticeMoment; className?: string }) {
+function MomentTile({ m, image }: { m: PracticeMoment; image?: string }) {
   const Icon = ICONS[m.icon];
   return (
-    <Link to="/practice" search={{ mode: m.category }} className={`group flex min-h-28 items-center justify-between gap-5 border-t border-border py-5 transition-colors hover:border-primary/50 ${className}`}>
-      <span className="flex min-w-0 items-center gap-4">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-secondary text-primary"><Icon className="size-4" aria-hidden="true" /></span>
-        <span className="min-w-0"><span className="block font-display text-[17px] font-semibold">{m.name}</span><span className="mt-1 block text-[13px] leading-5 text-muted-foreground">{m.description}</span></span>
+    <Link
+      to="/practice"
+      search={{ mode: m.category }}
+      className="group flex flex-col items-center rounded-lg border border-border bg-card px-6 pb-7 pt-6 text-center transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+    >
+      {image ? (
+        <span className="block w-full max-w-[230px] overflow-hidden rounded-md ring-1 ring-foreground/10">
+          <img src={image} alt="" loading="lazy" width={1024} height={1024} className="aspect-[16/10] w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04]" />
+        </span>
+      ) : (
+        <span className="grid aspect-[16/10] w-full max-w-[230px] place-items-center rounded-md border border-border bg-secondary/60 text-primary">
+          <Icon className="size-6" aria-hidden="true" />
+        </span>
+      )}
+      <h3 className="mt-5 font-display text-[17px] font-semibold leading-snug">{m.name}</h3>
+      <p className="mt-1.5 max-w-[32ch] text-[13px] leading-5 text-muted-foreground">{m.description}</p>
+      <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary opacity-0 transition duration-300 group-hover:opacity-100">
+        Practice <ArrowUpRight className="size-3.5" aria-hidden="true" />
       </span>
-      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
-    </Link>
-  );
-}
-
-function FeaturedMoment({ m, image, layout = "standard" }: { m: PracticeMoment; image: string; layout?: "standard" | "wide" | "full" }) {
-  const Icon = ICONS[m.icon];
-  return (
-    <Link to="/practice" search={{ mode: m.category }} className={`group relative isolate min-h-[360px] overflow-hidden rounded-lg border border-border bg-card ${layout === "wide" ? "md:col-span-2 md:min-h-[520px]" : layout === "full" ? "md:col-span-3 md:min-h-[440px]" : "md:min-h-[520px]"}`}>
-      <img src={image} alt="" loading="lazy" width={1600} height={1072} className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.025]" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-6 md:p-8">
-        <div>
-          <span className="mb-4 grid size-10 place-items-center rounded-full border border-foreground/20 bg-background/60 text-primary backdrop-blur-md"><Icon className="size-4" aria-hidden="true" /></span>
-          <h3 className="text-[26px] font-semibold leading-tight md:text-[30px]">{m.name}</h3>
-          <p className="mt-2 max-w-[38ch] text-[14px] leading-6 text-foreground/75">{m.description}</p>
-        </div>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition group-hover:-translate-y-1 group-hover:translate-x-1"><ArrowUpRight className="size-4" aria-hidden="true" /></span>
-      </div>
     </Link>
   );
 }
