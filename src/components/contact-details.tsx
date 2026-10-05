@@ -60,7 +60,7 @@ export function ContactDetails({ eyebrow, title, body, submit, consent, onDone, 
       {consent && (
         <label className="flex cursor-pointer items-start gap-2 text-[13px] text-muted-foreground">
           <input type="checkbox" className="mt-0.5" checked={ok} onChange={(e) => setOk(e.target.checked)} />
-          Send me Unspoken tips, product updates, and offers by email.
+          I’d like to receive occasional practice tips and updates from Unspoken.
         </label>
       )}
       <button className="btn btn-primary w-full">{submit}</button>
