@@ -5,7 +5,7 @@ import type { Dimension } from "./data";
 import { getState, setState, today, useStore, type State } from "./store";
 
 export const PLAN_CONFIG = {
-  free: { attempts: 3 },
+  free: { attempts: 5 },
   practice: {
     trialDays: 3,
     billing: ["monthly", "annual"] as const,
