@@ -1,144 +1,125 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, Keyboard, Mic } from "lucide-react";
-
-/* "How Unspoken works": three alternating steps, each led by a large product UI mock. Scenario-neutral by design. */
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Mic, RotateCcw } from "lucide-react";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
-const reveal = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.3 }, transition: { duration: 0.7, ease: EASE } };
-
-const Eyebrow = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`text-[11px] font-semibold tracking-[0.16em] text-muted-foreground ${className}`}>{children}</div>
-);
-
-function Frame({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.div {...reveal} className="overflow-hidden rounded-[22px] border border-border bg-card shadow-[0_1px_2px_rgb(23_24_28/4%),0_20px_40px_-28px_rgb(23_24_28/18%)]">
-      <div className="flex items-center gap-1.5 border-b border-border px-5 py-3">
-        {[0, 1, 2].map((i) => <span key={i} className="size-2.5 rounded-full bg-muted" />)}
-        <span className="ml-3 text-[10px] font-semibold tracking-[0.22em]">UNSPOKEN</span>
-      </div>
-      <div className="p-6 md:p-10">{children}</div>
-    </motion.div>
-  );
-}
-
-function ChooseUI() {
-  const cats = ["Interview", "Leadership", "Presentation", "High-stakes conversation", "Persuasion"];
-  const focus = ["Structure", "Clarity", "Impact", "Specificity", "Delivery"];
-  return (
-    <Frame>
-      <Eyebrow>PRACTICE</Eyebrow>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        {cats.map((c, i) => (
-          <div key={c} className={`flex items-center justify-between rounded-xl border px-4 py-3.5 text-[15px] transition ${i === 1 ? "border-accent bg-accent-soft font-medium text-accent" : "border-border hover:border-input"} ${i === 4 ? "sm:col-span-2" : ""}`}>
-            {c}{i === 1 && <span className="size-2 rounded-full bg-accent" />}
-          </div>
-        ))}
-      </div>
-      <div className="mt-8 text-[15px] font-medium">What do you want to improve?</div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {focus.map((f, i) => <span key={f} className={`rounded-full border px-4 py-2 text-[14px] ${i === 0 ? "border-accent bg-accent-soft text-accent" : "border-input text-muted-foreground"}`}>{f}</span>)}
-      </div>
-      <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-[14px] font-medium text-accent-foreground">Start responding <ArrowRight className="size-4" /></div>
-    </Frame>
-  );
-}
 
 function Waveform() {
+  const reducedMotion = useReducedMotion();
   return (
-    <div className="flex h-24 items-center justify-center gap-[3px]">
-      {Array.from({ length: 44 }).map((_, i) => {
-        const b = 0.25 + 0.65 * Math.abs(Math.sin(i * 0.55) * Math.cos(i * 0.21));
-        return <motion.span key={i} className="w-[4px] rounded-full bg-accent" animate={{ height: [96 * b * 0.45, 96 * b, 96 * b * 0.6] }} transition={{ duration: 1 + (i % 5) * 0.15, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }} />;
+    <div className="flex h-16 items-center justify-center gap-1.5" aria-hidden="true">
+      {Array.from({ length: 25 }, (_, i) => {
+        const height = 14 + Math.abs(Math.sin(i * 0.72) * 34);
+        return (
+          <motion.span
+            key={i}
+            className="w-1 rounded-full bg-accent"
+            style={{ height }}
+            animate={reducedMotion ? undefined : { scaleY: [0.55, 1, 0.7] }}
+            transition={{ duration: 0.8 + (i % 4) * 0.18, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+          />
+        );
       })}
     </div>
   );
 }
 
-function Timer() {
-  const [s, setS] = useState(14);
-  useEffect(() => { const id = setInterval(() => setS((x) => (x >= 59 ? 14 : x + 1)), 1000); return () => clearInterval(id); }, []);
-  return <span className="text-[14px] font-medium tabular-nums">00:{String(s).padStart(2, "0")}</span>;
-}
-
-function RespondUI() {
+function PracticeView() {
   return (
-    <Frame>
+    <div className="flex h-full flex-col">
       <div className="flex items-center justify-between">
-        <Eyebrow>YOUR RESPONSE</Eyebrow>
-        <div className="flex gap-1 rounded-full border border-border p-1 text-[13px]">
-          <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-accent"><Mic className="size-3.5" />Speak</span>
-          <span className="flex items-center gap-1.5 px-3 py-1 text-muted-foreground"><Keyboard className="size-3.5" />Type</span>
-        </div>
+        <span className="product-kicker">High-stakes conversation</span>
+        <span className="product-status"><span /> Live</span>
       </div>
-      <div className="mt-8 rounded-2xl bg-background p-6"><Waveform /></div>
-      <div className="mt-5 flex items-center justify-center gap-3"><span className="size-2 animate-pulse rounded-full bg-destructive" /><Timer /><Eyebrow>RECORDING</Eyebrow></div>
-      <div className="mt-6 rounded-xl border border-dashed border-input px-4 py-3 text-[14px] text-muted-foreground">
-        <span>Your words appear here as you speak</span> <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-block h-4 w-px translate-y-0.5 bg-foreground" />
+      <h4 className="mt-5 max-w-[25ch] text-[19px] font-medium leading-snug md:text-[22px]">Tell your manager you disagree with the proposed approach.</h4>
+      <div className="my-auto py-6"><Waveform /></div>
+      <div className="flex items-center justify-between border-t border-border pt-4">
+        <span className="font-mono text-[12px] text-muted-foreground">00:18</span>
+        <span className="grid size-11 place-items-center rounded-full bg-accent text-accent-foreground"><Mic className="size-4" /></span>
       </div>
-      <div className="mt-6 flex justify-end gap-3">
-        <span className="rounded-full border border-input px-5 py-2.5 text-[14px]">Pause</span>
-        <span className="rounded-full bg-primary px-5 py-2.5 text-[14px] text-primary-foreground">Finish response</span>
-      </div>
-    </Frame>
+    </div>
   );
 }
 
-function InsightUI() {
+function InsightView() {
   return (
-    <Frame>
-      <Eyebrow className="!text-accent">YOUR PATTERN</Eyebrow>
-      <div className="mt-3 font-display text-[clamp(28px,3.6vw,42px)] font-bold uppercase leading-[0.95] tracking-tight">Disjointed<br />Feature Drop</div>
-      <p className="mt-4 max-w-[36ch] text-[16px] italic text-muted-foreground">“You have good things to say — they arrive as pieces, not a story.”</p>
-      <motion.div initial={{ backgroundColor: "var(--card)" }} whileInView={{ backgroundColor: "var(--coral-soft)" }} viewport={{ once: true, amount: 0.6 }} transition={{ delay: 0.4, duration: 0.8 }} className="mt-8 rounded-2xl border border-border p-6">
-        <Eyebrow>WHAT GOT LOST</Eyebrow>
-        <p className="mt-2 font-display text-[clamp(22px,2.6vw,28px)] font-bold leading-tight">Your main point wasn't easy to find.</p>
-      </motion.div>
-      <div className="mt-3 rounded-2xl bg-accent-soft p-6">
-        <Eyebrow className="!text-accent">MAKE IT LAND</Eyebrow>
-        <p className="mt-2 text-[18px] font-medium">Lead with the point. Then support it.</p>
+    <div className="flex h-full flex-col">
+      <span className="product-kicker">What got lost</span>
+      <h4 className="mt-5 text-[22px] font-semibold leading-tight md:text-[25px]">Your recommendation came too late.</h4>
+      <div className="my-6 border-l-2 border-accent pl-4 text-[14px] leading-6 text-muted-foreground">
+        The context arrived first.<br />The decision was easy to miss.
       </div>
-      <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-[14px] font-medium text-accent-foreground">Try again <ArrowRight className="size-4" /></div>
-    </Frame>
+      <div className="mt-auto rounded-lg border border-accent/30 bg-accent/10 p-4">
+        <div className="product-kicker !text-accent">One thing to fix</div>
+        <p className="mt-2 text-[16px] font-medium">Lead with your recommendation.</p>
+      </div>
+    </div>
+  );
+}
+
+function RetryView() {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between">
+        <span className="product-kicker">Second take</span>
+        <RotateCcw className="size-4 text-accent" />
+      </div>
+      <div className="my-auto space-y-4 py-8">
+        <div className="grid grid-cols-[62px_1fr] items-center gap-3 text-[13px]">
+          <span className="text-muted-foreground">Before</span>
+          <span className="rounded-md bg-secondary px-3 py-2 text-muted-foreground line-through decoration-destructive/70">Context first</span>
+        </div>
+        <div className="grid grid-cols-[62px_1fr] items-center gap-3 text-[13px]">
+          <span className="text-accent">After</span>
+          <span className="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 font-medium">Recommendation first</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t border-border pt-4">
+        <span className="text-[13px] text-muted-foreground">Same moment. Clearer shape.</span>
+        <ArrowRight className="size-4 text-accent" />
+      </div>
+    </div>
   );
 }
 
 const STEPS = [
-  { n: "01", t: "Choose what to practise", d: "Pick the kind of moment you want to get better at.", ui: <ChooseUI /> },
-  { n: "02", t: "Respond naturally", d: "Speak or type. Just respond the way you normally would.", ui: <RespondUI /> },
-  { n: "03", t: "See what got lost", d: "Get one clear insight. Change it. Try again.", ui: <InsightUI /> },
+  { n: "01", title: "Respond naturally", label: "Practice", view: <PracticeView /> },
+  { n: "02", title: "See what got lost", label: "Insight", view: <InsightView /> },
+  { n: "03", title: "Say it again", label: "Retry", view: <RetryView /> },
 ];
 
 export function HowItWorksDemo() {
+  const reducedMotion = useReducedMotion();
   return (
-    <div className="paper py-20 md:py-32">
+    <div className="product-stage py-20 md:py-28">
       <div className="mx-auto max-w-[1200px] px-5 md:px-8">
-        <div className="text-center">
-          <Eyebrow>HOW UNSPOKEN WORKS</Eyebrow>
-          <h2 className="mx-auto mt-4 max-w-[20ch] text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">Practice a real moment. See what got lost.</h2>
-          <p className="mt-3 text-[15px] text-muted-foreground md:text-[17px]">Say it again. See what changes.</p>
+        <div className="mx-auto max-w-[680px] text-center">
+          <div className="product-kicker !text-accent">How Unspoken works</div>
+          <h2 className="mt-4 text-balance text-[clamp(32px,4vw,54px)] font-bold leading-[1.04]">Practice. See it. Change it.</h2>
         </div>
 
-        <div className="mt-16 space-y-24 md:mt-24 md:space-y-36">
-          {STEPS.map((s, i) => (
-            <div key={s.n} className={`grid items-center gap-8 md:gap-16 ${i % 2 === 1 ? "md:grid-cols-[7fr_3fr]" : "md:grid-cols-[3fr_7fr]"}`}>
-              <motion.div {...reveal} className={i % 2 === 1 ? "md:order-2" : ""}>
-                <div className="text-[14px] font-semibold text-accent">{s.n}</div>
-                <h3 className="mt-3 text-[clamp(26px,3vw,38px)] font-bold leading-tight">{s.t}</h3>
-                <p className="mt-3 max-w-[32ch] text-[16px] leading-relaxed text-muted-foreground">{s.d}</p>
-              </motion.div>
-              <div className={i % 2 === 1 ? "md:order-1" : ""}>{s.ui}</div>
-            </div>
+        <div className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <motion.article
+              key={step.n}
+              initial={reducedMotion ? false : { opacity: 0, y: 22 }}
+              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.65, delay: i * 0.1, ease: EASE }}
+              className="product-step"
+            >
+              <div className="mb-4 flex items-end justify-between px-1">
+                <div><span className="product-kicker text-accent">{step.n}</span><h3 className="mt-1 text-[18px] font-medium">{step.title}</h3></div>
+                <span className="text-[11px] text-muted-foreground">{step.label}</span>
+              </div>
+              <div className="product-screen">{step.view}</div>
+            </motion.article>
           ))}
         </div>
 
-        <div className="mx-auto mt-28 max-w-[640px] text-center">
-          <div className="text-[12px] font-semibold tracking-[0.16em] text-muted-foreground">PRACTICE → SEE → CHANGE → REPEAT</div>
-          <h3 className="mt-5 text-[clamp(26px,3.2vw,40px)] font-bold leading-tight">Practice the moments that matter.</h3>
-          <p className="mt-3 text-[16px] text-muted-foreground">Your next interview. Your next presentation. Your next difficult conversation.</p>
-          <Link to="/practice" className="btn btn-accent mt-7 px-7 py-3.5">Start Practising <ArrowRight className="size-4" /></Link>
+        <div className="mt-14 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 text-center md:flex-row md:text-left">
+          <h3 className="text-[clamp(24px,3vw,34px)] font-semibold">Practice the moments that matter.</h3>
+          <Link to="/practice" className="btn btn-primary shrink-0 px-7 py-3.5">Start Practising <ArrowRight className="size-4" /></Link>
         </div>
       </div>
     </div>
