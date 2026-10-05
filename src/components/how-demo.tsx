@@ -9,15 +9,15 @@ const EASE = [0.32, 0.72, 0, 1] as const;
 const reveal = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.3 }, transition: { duration: 0.7, ease: EASE } };
 
 const Eyebrow = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`font-mono text-[11px] tracking-[0.16em] text-muted-foreground ${className}`}>{children}</div>
+  <div className={`text-[11px] font-semibold tracking-[0.16em] text-muted-foreground ${className}`}>{children}</div>
 );
 
 function Frame({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div {...reveal} whileHover={{ y: -4 }} className="overflow-hidden rounded-[22px] border border-border bg-card shadow-[0_1px_2px_rgb(23_24_28/4%),0_30px_60px_-30px_rgb(23_24_28/22%)]">
+    <motion.div {...reveal} className="overflow-hidden rounded-[22px] border border-border bg-card shadow-[0_1px_2px_rgb(23_24_28/4%),0_20px_40px_-28px_rgb(23_24_28/18%)]">
       <div className="flex items-center gap-1.5 border-b border-border px-5 py-3">
         {[0, 1, 2].map((i) => <span key={i} className="size-2.5 rounded-full bg-muted" />)}
-        <span className="ml-3 font-mono text-[10px] font-semibold tracking-[0.22em]">UNSPOKEN</span>
+        <span className="ml-3 text-[10px] font-semibold tracking-[0.22em]">UNSPOKEN</span>
       </div>
       <div className="p-6 md:p-10">{children}</div>
     </motion.div>
@@ -37,7 +37,7 @@ function ChooseUI() {
           </div>
         ))}
       </div>
-      <div className="mt-8 text-[15px] font-medium">What do you want to work on?</div>
+      <div className="mt-8 text-[15px] font-medium">What do you want to improve?</div>
       <div className="mt-3 flex flex-wrap gap-2">
         {focus.map((f, i) => <span key={f} className={`rounded-full border px-4 py-2 text-[14px] ${i === 0 ? "border-accent bg-accent-soft text-accent" : "border-input text-muted-foreground"}`}>{f}</span>)}
       </div>
@@ -60,7 +60,7 @@ function Waveform() {
 function Timer() {
   const [s, setS] = useState(14);
   useEffect(() => { const id = setInterval(() => setS((x) => (x >= 59 ? 14 : x + 1)), 1000); return () => clearInterval(id); }, []);
-  return <span className="font-mono text-[14px] tabular-nums">00:{String(s).padStart(2, "0")}</span>;
+  return <span className="text-[14px] font-medium tabular-nums">00:{String(s).padStart(2, "0")}</span>;
 }
 
 function RespondUI() {
@@ -76,7 +76,7 @@ function RespondUI() {
       <div className="mt-8 rounded-2xl bg-background p-6"><Waveform /></div>
       <div className="mt-5 flex items-center justify-center gap-3"><span className="size-2 animate-pulse rounded-full bg-destructive" /><Timer /><Eyebrow>RECORDING</Eyebrow></div>
       <div className="mt-6 rounded-xl border border-dashed border-input px-4 py-3 text-[14px] text-muted-foreground">
-        <span className="text-foreground">“So the way I see it…</span> <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-block h-4 w-px translate-y-0.5 bg-foreground" />
+        <span className="mr-1 text-[12px] font-semibold tracking-[0.12em]">YOUR RESPONSE</span> <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-block h-4 w-px translate-y-0.5 bg-foreground" />
       </div>
       <div className="mt-6 flex justify-end gap-3">
         <span className="rounded-full border border-input px-5 py-2.5 text-[14px]">Pause</span>
@@ -106,8 +106,8 @@ function InsightUI() {
 }
 
 const STEPS = [
-  { n: "01", t: "Choose what to practise", d: "Pick a situation and the thing you want to improve.", ui: <ChooseUI /> },
-  { n: "02", t: "Respond naturally", d: "Speak or type. Unspoken looks at what you actually said.", ui: <RespondUI /> },
+  { n: "01", t: "Choose what to practise", d: "Pick the kind of moment you want to get better at.", ui: <ChooseUI /> },
+  { n: "02", t: "Respond naturally", d: "Speak or type. Just respond the way you normally would.", ui: <RespondUI /> },
   { n: "03", t: "See what got lost", d: "Get one clear insight. Change it. Try again.", ui: <InsightUI /> },
 ];
 
@@ -123,9 +123,9 @@ export function HowItWorksDemo() {
 
         <div className="mt-16 space-y-24 md:mt-24 md:space-y-36">
           {STEPS.map((s, i) => (
-            <div key={s.n} className={`grid items-center gap-8 md:gap-16 ${i % 2 === 1 ? "md:grid-cols-[2fr_1fr]" : "md:grid-cols-[1fr_2fr]"}`}>
+            <div key={s.n} className={`grid items-center gap-8 md:gap-16 ${i % 2 === 1 ? "md:grid-cols-[7fr_3fr]" : "md:grid-cols-[3fr_7fr]"}`}>
               <motion.div {...reveal} className={i % 2 === 1 ? "md:order-2" : ""}>
-                <div className="font-mono text-[14px] text-accent">{s.n}</div>
+                <div className="text-[14px] font-semibold text-accent">{s.n}</div>
                 <h3 className="mt-3 text-[clamp(26px,3vw,38px)] font-bold leading-tight">{s.t}</h3>
                 <p className="mt-3 max-w-[32ch] text-[16px] leading-relaxed text-muted-foreground">{s.d}</p>
               </motion.div>
@@ -135,7 +135,7 @@ export function HowItWorksDemo() {
         </div>
 
         <div className="mx-auto mt-28 max-w-[640px] text-center">
-          <div className="font-mono text-[12px] tracking-[0.16em] text-muted-foreground">PRACTICE → SEE → CHANGE → REPEAT</div>
+          <div className="text-[12px] font-semibold tracking-[0.16em] text-muted-foreground">PRACTICE → SEE → CHANGE → REPEAT</div>
           <h3 className="mt-5 text-[clamp(26px,3.2vw,40px)] font-bold leading-tight">Practice the moments that matter.</h3>
           <p className="mt-3 text-[16px] text-muted-foreground">Your next interview. Your next presentation. Your next difficult conversation.</p>
           <Link to="/practice" className="btn btn-accent mt-7 px-7 py-3.5">Start Practising <ArrowRight className="size-4" /></Link>
