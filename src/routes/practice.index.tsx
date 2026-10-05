@@ -16,7 +16,7 @@ export const Route = createFileRoute("/practice/")({
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
-function ScenarioCard({ s, level, focus, recommended }: { s: Scenario; level: string; focus?: Dimension; recommended?: boolean }) {
+function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: string; recommended?: boolean }) {
   return (
     <Link to="/practice/$questionId" params={{ questionId: s.scenario_id }} search={focus ? { f: focus } : {}} className={`glass flex flex-col p-5 transition hover:bg-glass-strong ${recommended ? "border-primary/50" : ""}`}>
       {recommended && <div className="eyebrow mb-2 !text-primary">Recommended for you</div>}
