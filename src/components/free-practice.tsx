@@ -130,9 +130,9 @@ function FreePracticeStart({ q, focus, setFocus, retryOf, onStart }: { q: Questi
           <div className="font-display text-[28px] font-bold tracking-tight">{(focus && LABEL[focus]) ?? "Structure"}</div>
           <p className="mt-2 text-[16px] leading-relaxed">“{retryOf.analysis.retry_instruction}”</p>
         </div>
-      ) : <Eyebrow>PRACTICE A REAL MOMENT</Eyebrow>}
+      ) : null}
       <section>
-        {!retryOf && <h2 className="font-display text-[15px] font-medium text-muted-foreground">Practice a real moment.</h2>}
+        {!retryOf && <Eyebrow tone="accent">PRACTICE A REAL MOMENT</Eyebrow>}
         <h1 className="mt-3 text-balance font-display text-[clamp(30px,5.4vw,52px)] font-bold leading-[1.06] tracking-tight">“{q.text}”</h1>
         <p className="mt-5 font-mono text-[13px] text-muted-foreground">{q.difficulty} · ~{q.seconds} sec</p>
       </section>
@@ -213,7 +213,7 @@ function FreePracticeResult({ a, prev, onRetry, canRetry, remaining }: { a: Anal
           </div>
           <div className="grid border-t border-border md:grid-cols-2">
             <div className="p-7 md:border-r md:border-border"><Eyebrow>WHAT YOU INTENDED</Eyebrow><p className="mt-2 text-[16px] leading-relaxed">{a.what_got_lost.intended}</p></div>
-            <div className="border-t border-border p-7 md:border-t-0"><Eyebrow>WHAT YOUR LISTENER MAY HEAR</Eyebrow><p className="mt-2 font-display text-[19px] italic leading-snug">“{a.what_got_lost.heard}”</p></div>
+            <div className="border-t border-border p-7 md:border-t-0"><Eyebrow>WHAT YOUR LISTENER MAY HEAR</Eyebrow><p className="mt-2 font-display text-[19px] italic leading-snug">“{a.what_got_lost.heard.replace(/^[“"]+|[”"]+$/g, "")}”</p></div>
           </div>
           <div className="border-t border-border bg-accent-soft p-7 md:p-10">
             <Eyebrow tone="accent">MAKE IT LAND</Eyebrow>
