@@ -69,26 +69,6 @@ function Practice() {
         </section>
       )}
 
-      {/* 2. Goal selector */}
-      <section>
-        <h2 className="text-[22px] font-bold">What do you want to work on?</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {GOALS.map((g) => (
-            <button key={g.label} onClick={() => setGoal((c) => (c === g.skill ? null : g.skill))} className={`glass p-4 text-left transition ${goal === g.skill ? "border-primary/60 bg-primary/10" : "hover:bg-glass-strong"}`}>
-              <div className="font-display text-[16px] font-bold">{g.label}</div><div className="text-[13px] text-muted-foreground">{g.hint}</div>
-            </button>
-          ))}
-        </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2"><span className="eyebrow mr-2">Experience level</span>
-          {LEVELS.map((l) => <button key={l} className="chip" data-active={level === l} onClick={() => setState((s) => ({ ...s, profile: s.profile && { ...s.profile, level: l } }))}>{l}</button>)}
-        </div>
-        {activeFocus && adaptive.length > 0 && (
-          <div className="mt-6">
-            <div className="eyebrow mb-3">{goal ? "Scenarios that train" : "Your current focus"}: <span className="!text-primary text-primary">{cap(activeFocus)}</span></div>
-            <div className="grid gap-3 md:grid-cols-2">{adaptive.map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} focus={activeFocus} />)}</div>
-          </div>
-        )}
-      </section>
 
       {/* 3. Categories */}
       <section>
