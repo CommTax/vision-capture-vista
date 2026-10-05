@@ -11,12 +11,7 @@ import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
-import interviewImage from "@/assets/practice-interview.jpg";
-import leadershipImage from "@/assets/practice-leadership.jpg";
-import presentationImage from "@/assets/practice-presentation.jpg";
-import highStakesImage from "@/assets/practice-high-stakes.jpg";
-import persuasionImage from "@/assets/practice-persuasion.jpg";
-import customImage from "@/assets/practice-custom.jpg";
+import { MomentArt } from "@/components/moment-art";
 
 export const Route = createFileRoute("/")({
   head: () => ({
