@@ -51,7 +51,7 @@ export function HowItWorksDemo() {
   const retry = phase >= 4;
 
   return (
-    <div ref={ref} data-phase={phase} data-vis={String(visible)} className="glass glass-float overflow-hidden">
+    <div ref={ref} className="glass glass-float overflow-hidden">
       {/* window chrome */}
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3 md:px-7">
         <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">High-stakes conversation</span></div>
