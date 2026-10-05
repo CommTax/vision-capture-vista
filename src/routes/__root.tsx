@@ -83,6 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
           ],
+    scripts: [
+      {
+        children:
+          "try{var t=localStorage.getItem('unspoken-theme');if(t==='light'){document.documentElement.classList.add('light');document.documentElement.style.colorScheme='light';}}catch(e){}",
+      },
+    ],
     links: [
       {
         rel: "stylesheet",

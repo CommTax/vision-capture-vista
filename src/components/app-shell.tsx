@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Flame } from "lucide-react";
 import { MobileNav } from "@/components/mobile-nav";
+import { ThemeToggle } from "@/components/theme";
 import { streak, useStore } from "@/lib/store";
 import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
 
@@ -49,6 +50,7 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
             ))}
           </nav>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/plans" className="hidden rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground sm:inline">{STATE_LABEL[state]}</Link>
             {profile ? <>
               <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>

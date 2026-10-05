@@ -5,6 +5,7 @@ import { Logo } from "@/components/app-shell";
 import { getState, useStore } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
+import { ThemeToggle } from "@/components/theme";
 import { HowItWorksDemo } from "@/components/how-demo";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
@@ -101,7 +102,7 @@ function Landing() {
           <nav className="hidden items-center gap-8 text-[13px] text-muted-foreground md:flex">
             <Link to="/" className="hover:text-foreground">Home</Link><a href="#modes" className="hover:text-foreground">Practice</a><a href="#how" className="hover:text-foreground">How it works</a><a href="#pricing" className="hover:text-foreground">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3">{signedIn ? <Link to="/dashboard" className="text-[13px] text-muted-foreground hover:text-foreground">Dashboard</Link> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="text-[13px] text-muted-foreground hover:text-foreground">Dashboard</Link> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 
