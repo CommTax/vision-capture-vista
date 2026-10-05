@@ -34,26 +34,75 @@ function LogoMark() {
   );
 }
 
+function CageArt() {
+  return (
+    <svg
+      viewBox="0 0 220 220"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-[190px] text-accent/45 md:size-[230px]"
+      aria-hidden="true"
+    >
+      <rect x="70" y="30" width="120" height="110" rx="10" />
+      <rect x="30" y="70" width="120" height="110" rx="10" />
+      <path d="M30 70 70 30M150 70 190 30M30 180 70 140M150 180 190 140" />
+      <path d="M70 70v110M110 70v110M30 110h120M30 145h120" />
+    </svg>
+  );
+}
+
+function OptionChip({ icon, label, active }: { icon: React.ReactNode; label: string; active?: boolean }) {
+  return (
+    <span
+      className={
+        "how-float inline-flex items-center gap-2 !rounded-full !px-4 !py-2 text-[14px] font-semibold " +
+        (active ? "!border-accent/50 !bg-accent/15 text-accent" : "text-foreground")
+      }
+    >
+      {icon}
+      {label}
+    </span>
+  );
+}
+
 function ChooseView() {
   return (
-    <div className="flex h-full flex-col justify-center gap-4 py-4">
-      <div className="how-float">
-        <div className="product-kicker">The moment</div>
-        <p className="mt-1.5 text-[17px] font-semibold leading-snug">Tell your manager you disagree with the proposed approach.</p>
+    <div className="relative flex h-full items-center justify-center">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center">
+        <CageArt />
       </div>
-      <div className="how-float flex items-center justify-between">
-        <div>
-          <div className="product-kicker">What to work on</div>
-          <p className="mt-1 text-[17px] font-semibold">Structure</p>
-        </div>
-        <ChevronDown className="size-4 text-muted-foreground" />
+      <div className="absolute left-1 top-6 hidden sm:block md:-left-2">
+        <OptionChip icon={<Mic className="size-4" />} label="Interview" active />
       </div>
-      <div className="how-float flex items-center justify-between">
-        <div>
-          <div className="product-kicker">Mode</div>
-          <p className="mt-1 text-[17px] font-semibold">High-stakes conversation</p>
+      <div className="absolute bottom-8 right-1 hidden sm:block md:-right-2">
+        <OptionChip icon={<ThumbsUp className="size-4 text-emerald-400" />} label="Leadership" />
+      </div>
+
+      <div className="relative w-full max-w-[360px] space-y-3">
+        <div className="how-float">
+          <div className="product-kicker">The moment</div>
+          <div className="mt-1.5 flex items-center gap-2.5">
+            <Search className="size-4 shrink-0 text-muted-foreground" />
+            <p className="truncate text-[16px] font-semibold leading-snug">Tell your manager you disagree with the proposed approach.</p>
+          </div>
         </div>
-        <ChevronDown className="size-4 text-muted-foreground" />
+        <div className="how-float flex items-center justify-between !border-accent/40">
+          <div>
+            <div className="product-kicker !text-accent">What to work on</div>
+            <p className="mt-1 text-[17px] font-semibold">Structure</p>
+          </div>
+          <ChevronDown className="size-4 text-accent" />
+        </div>
+        <div className="how-float flex items-center justify-between">
+          <div>
+            <div className="product-kicker">Mode</div>
+            <p className="mt-1 text-[17px] font-semibold">High-stakes conversation</p>
+          </div>
+          <ChevronDown className="size-4 text-muted-foreground" />
+        </div>
       </div>
     </div>
   );
