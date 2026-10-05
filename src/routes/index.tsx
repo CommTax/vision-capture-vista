@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/app-shell";
 import { getState, useStore } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
@@ -11,6 +11,9 @@ import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
+import interviewImage from "@/assets/practice-interview.jpg";
+import leadershipImage from "@/assets/practice-leadership.jpg";
+import presentationImage from "@/assets/practice-presentation.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,16 +32,39 @@ export const Route = createFileRoute("/")({
 const ICONS: Record<IconKey, LucideIcon> = { briefcase: Briefcase, trending: TrendingUp, message: MessageSquare, presentation: Presentation, crown: Crown, handshake: Handshake, sparkles: Sparkles };
 
 
+const MOMENT_IMAGES: Partial<Record<PracticeMoment["id"], string>> = {
+  interview: interviewImage,
+  leadership: leadershipImage,
+  presentation: presentationImage,
+};
+
 function MomentCard({ m, className = "" }: { m: PracticeMoment; className?: string }) {
   const Icon = ICONS[m.icon];
   return (
-    <Link to="/practice" search={{ mode: m.category }} className={`glass group relative flex flex-col p-6 transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-glass-strong ${m.category === "custom" ? "border-dashed" : ""} ${className}`}>
-      <div className="flex items-center justify-between gap-2">
-        <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
-        <ArrowRight className="h-4 w-4 -translate-x-1 text-primary opacity-0 transition duration-300 group-hover:translate-x-0 group-hover:opacity-100" aria-hidden="true" />
+    <Link to="/practice" search={{ mode: m.category }} className={`group flex min-h-28 items-center justify-between gap-5 border-t border-border py-5 transition-colors hover:border-primary/50 ${className}`}>
+      <span className="flex min-w-0 items-center gap-4">
+        <span className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-secondary text-primary"><Icon className="size-4" aria-hidden="true" /></span>
+        <span className="min-w-0"><span className="block font-display text-[17px] font-semibold">{m.name}</span><span className="mt-1 block text-[13px] leading-5 text-muted-foreground">{m.description}</span></span>
+      </span>
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
+    </Link>
+  );
+}
+
+function FeaturedMoment({ m, image, layout = "standard" }: { m: PracticeMoment; image: string; layout?: "standard" | "wide" | "full" }) {
+  const Icon = ICONS[m.icon];
+  return (
+    <Link to="/practice" search={{ mode: m.category }} className={`group relative isolate min-h-[360px] overflow-hidden rounded-lg border border-border bg-card ${layout === "wide" ? "md:col-span-2 md:min-h-[520px]" : layout === "full" ? "md:col-span-3 md:min-h-[440px]" : "md:min-h-[520px]"}`}>
+      <img src={image} alt="" loading="lazy" width={1600} height={1072} className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.025]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-5 p-6 md:p-8">
+        <div>
+          <span className="mb-4 grid size-10 place-items-center rounded-full border border-foreground/20 bg-background/60 text-primary backdrop-blur-md"><Icon className="size-4" aria-hidden="true" /></span>
+          <h3 className="text-[26px] font-semibold leading-tight md:text-[30px]">{m.name}</h3>
+          <p className="mt-2 max-w-[38ch] text-[14px] leading-6 text-foreground/75">{m.description}</p>
+        </div>
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition group-hover:-translate-y-1 group-hover:translate-x-1"><ArrowUpRight className="size-4" aria-hidden="true" /></span>
       </div>
-      <div className="eyebrow mt-6">{m.name}</div>
-      <p className="mt-2 font-display text-[17px] font-bold leading-snug">{m.description}</p>
     </Link>
   );
 }
@@ -83,8 +109,10 @@ const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 function Landing() {
   const navigate = useNavigate();
   const home = dataProvider.getHomepageContent();
-  const { hero, transformations, feedback, contact } = home;
+  const { hero, transformations, contact } = home;
   const moments = dataProvider.getPracticeMoments();
+  const featuredMoments = ["interview", "leadership", "presentation"].map((id) => moments.find((moment) => moment.id === id)).filter((moment): moment is PracticeMoment => Boolean(moment));
+  const moreMoments = moments.filter((moment) => !MOMENT_IMAGES[moment.id]);
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
   const signedIn = useStore((s) => !!s.profile?.onboarded) && hydrated;
@@ -123,32 +151,21 @@ function Landing() {
       <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
-      <Section id="modes">
-        <h2 className={H2}>Practice the moments that matter.</h2>
-        <p className={SUB}>Choose a situation.</p>
-        <div className="-mx-5 mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 md:hidden">
-          {moments.map((m) => <MomentCard key={m.id} m={m} className="w-[230px] shrink-0 snap-start" />)}
+      <Section id="modes" className="!py-20 md:!py-32">
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div><div className="product-kicker !text-primary">Choose your moment</div><h2 className={`${H2} mt-4 max-w-[720px]`}>Practice where clarity matters most.</h2></div>
+          <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
-        <div className="mt-12 hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-4">
-          {moments.map((m, i) => <MomentCard key={m.id} m={m} className={i === 0 ? "md:col-span-2 lg:row-span-2 lg:[&_p]:text-[26px]" : ""} />)}
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {featuredMoments.map((moment, index) => {
+            const image = MOMENT_IMAGES[moment.id];
+            if (!image) return null;
+            return <FeaturedMoment key={moment.id} m={moment} image={image} layout={index === 0 ? "wide" : index === 2 ? "full" : "standard"} />;
+          })}
         </div>
-      </Section>
-
-      {/* FEEDBACK */}
-      <Section id="analysis">
-        <h2 className={H2}>Feedback that <span className="text-primary">listens.</span></h2>
-        <p className={SUB}>Based on what you actually said.</p>
-        <div className="glass glass-float mt-12 overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-border px-6 py-3">
-            <span className="h-2 w-2 rounded-full bg-primary" /><span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Analysis · Attempt 01</span>
-          </div>
-          <div className="grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
-            {([["What got lost", feedback.whatGotLost, true], ["Why", feedback.why, false], ["Try this", feedback.tryThis, true]] as const).map(([l, t, hi]) => (
-              <div key={l} className="p-6 md:p-9"><div className={`eyebrow ${hi ? "!text-primary" : ""}`}>{l}</div><p className="mt-3 font-display text-[20px] font-bold leading-snug md:text-[24px]">{t}</p></div>
-            ))}
-          </div>
+        <div className="mt-10 grid border-b border-border md:grid-cols-3 md:gap-8">
+          {moreMoments.map((m) => <MomentCard key={m.id} m={m} />)}
         </div>
-        <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.14em] text-primary">Try again. See what changes. →</p>
       </Section>
 
       {/* PRICING */}
