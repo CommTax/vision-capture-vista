@@ -66,6 +66,16 @@ export const GOALS: { label: string; hint: string; skill: Dimension }[] = [
   { label: "Improve delivery", hint: "Control pace, pauses and filler words.", skill: "delivery" },
 ];
 
+/** Focus options on the free practice screen. `skill: null` = practice the situation as a whole. */
+export const FREE_FOCUS: { label: string; skill: Dimension | null }[] = [
+  { label: "Reduce rambling", skill: "conciseness" },
+  { label: "Structure responses", skill: "structure" },
+  { label: "Make an impact", skill: "impact" },
+  { label: "Be specific", skill: "clarity" },
+  { label: "Improve delivery", skill: "delivery" },
+  { label: "Practice the situation", skill: null },
+];
+
 export const CATEGORY_BLURB: Partial<Record<ModeId, string>> = {
   interview: "Tell me about yourself, failures, leadership, conflict.",
   conversation: "Disagreement, feedback, difficult and sensitive conversations.",

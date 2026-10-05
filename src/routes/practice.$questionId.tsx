@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Keyboard, Mic } from "lucide-react";
-import { AppShell } from "@/components/app-shell";
+import { AppShell, useHydrated } from "@/components/app-shell";
+import { FreePractice } from "@/components/free-practice";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
 import { AICoach } from "@/components/ai-coach";
@@ -23,6 +24,16 @@ export const Route = createFileRoute("/practice/$questionId")({
 function SessionRoute() {
   const { questionId } = Route.useParams();
   const { s, retry, f, ctx } = Route.useSearch();
+  const ent = useEntitlement();
+  const hydrated = useHydrated();
+  const level = useStore((st) => st.profile?.level ?? "Mid career");
+  if (!hydrated) return <div className="min-h-screen" />;
+  if (ent.free && questionId !== "custom") {
+    const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
+    const sc = toScenario(base, level);
+    const q: Question = { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
+    return <FreePractice key={`${questionId}|${retry ?? ""}`} q={q} level={level} initial={loadChain(retry)} />;
+  }
   // Remount on question / retry change so session state never leaks between questions.
   return <AppShell allowGuest><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} focus={f} ctx={ctx} /></AppShell>;
 }
