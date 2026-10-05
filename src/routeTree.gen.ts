@@ -27,6 +27,7 @@ import { Route as PracticeIndexRouteImport } from './routes/practice.index'
 import { Route as PracticeQuestionIdRouteImport } from './routes/practice.$questionId'
 import { Route as ResponsesIndexRouteImport } from './routes/responses.index'
 import { Route as ResponsesResponseIdRouteImport } from './routes/responses.$responseId'
+import { Route as ApiPublicRazorpayWebhookRouteImport } from './routes/api/public/razorpay-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -118,6 +119,12 @@ const ResponsesResponseIdRoute = ResponsesResponseIdRouteImport.update({
   path: '/responses/$responseId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRazorpayWebhookRoute =
+  ApiPublicRazorpayWebhookRouteImport.update({
+    id: '/api/public/razorpay-webhook',
+    path: '/api/public/razorpay-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/drills/': typeof DrillsIndexRoute
   '/practice/': typeof PracticeIndexRoute
   '/responses/': typeof ResponsesIndexRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesByTo {
   '/drills': typeof DrillsIndexRoute
   '/practice': typeof PracticeIndexRoute
   '/responses': typeof ResponsesIndexRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +188,7 @@ export interface FileRoutesById {
   '/drills/': typeof DrillsIndexRoute
   '/practice/': typeof PracticeIndexRoute
   '/responses/': typeof ResponsesIndexRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/drills/'
     | '/practice/'
     | '/responses/'
+    | '/api/public/razorpay-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/drills'
     | '/practice'
     | '/responses'
+    | '/api/public/razorpay-webhook'
   id:
     | '__root__'
     | '/'
@@ -241,6 +253,7 @@ export interface FileRouteTypes {
     | '/drills/'
     | '/practice/'
     | '/responses/'
+    | '/api/public/razorpay-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +275,7 @@ export interface RootRouteChildren {
   DrillsIndexRoute: typeof DrillsIndexRoute
   PracticeIndexRoute: typeof PracticeIndexRoute
   ResponsesIndexRoute: typeof ResponsesIndexRoute
+  ApiPublicRazorpayWebhookRoute: typeof ApiPublicRazorpayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -392,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResponsesResponseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/razorpay-webhook': {
+      id: '/api/public/razorpay-webhook'
+      path: '/api/public/razorpay-webhook'
+      fullPath: '/api/public/razorpay-webhook'
+      preLoaderRoute: typeof ApiPublicRazorpayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -414,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   DrillsIndexRoute: DrillsIndexRoute,
   PracticeIndexRoute: PracticeIndexRoute,
   ResponsesIndexRoute: ResponsesIndexRoute,
+  ApiPublicRazorpayWebhookRoute: ApiPublicRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

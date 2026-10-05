@@ -26,3 +26,6 @@
 - Practice Moments link to `/practice?mode=<category>`; the Practice page preselects that category from the search param.
 - Mobile navigation is one entitlement-aware `MobileNav` (Home · Practice · Learn · More sheet) shared by the landing page and `AppShell` — so every user state gets the same navigation.
 - Backend content and share rewards live in Cloud tables behind `app_settings` switches (start off); `growth.functions.ts` reads them and returns null/disabled until switched on — so content can move to the database without UI changes.
+- PAID entitlements are written only by `fulfilOrder` in `payments.server.ts` after a verified Razorpay signature (checkout handler or `/api/public/razorpay-webhook`); prices live server-readable in `src/lib/prices.ts` — the client never sends an amount.
+- Free limit is per India-time day (`istDay`), counted server-side from `free_attempts` — so clearing the browser doesn't reset it.
+- Questions load from `content_questions` at startup into the shared list; when a topic is exhausted a signed-in user gets an AI-written question saved with `source='ai'` — built-in list stays the fallback.

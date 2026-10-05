@@ -122,7 +122,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { void import("../lib/cloud-sync").then((m) => m.startCloudSync()); }, []);
+  useEffect(() => { void import("../lib/cloud-sync").then((m) => m.startCloudSync()); void import("../lib/content-loader").then((m) => m.loadBackendQuestions()); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

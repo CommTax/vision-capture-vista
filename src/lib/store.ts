@@ -16,7 +16,7 @@ export type DrillResult = { skill: string; first_score: number; last_score: numb
 export type State = {
   profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult>;
   // Kept separate from identity: entitlement (access), lead (contact capture), marketing (consent).
-  entitlement?: Entitlement; freeAttemptsUsed?: number; lead?: Lead; marketing?: Marketing; interests?: Interest[];
+  entitlement?: Entitlement; freeAttemptsUsed?: number; freeDay?: string; lead?: Lead; marketing?: Marketing; interests?: Interest[];
   freeResponseIds?: string[];
 };
 export function subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l); }; }
