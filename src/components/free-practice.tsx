@@ -294,7 +294,7 @@ function FreePracticeConversion({ a, final }: { a?: Analysis; final?: boolean })
         <p className="mt-4 font-display text-[18px]">Ready to work on it?</p>
         <div className="mt-5 flex flex-wrap items-center gap-5">
           <Link to="/plans" className="btn btn-accent px-7 py-3.5 text-[15px]">Keep practising <ArrowRight className="size-4" /></Link>
-          <Link to="/plans" className="text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Explore Practice Pass</Link>
+          <Link to="/checkout" search={{ product: "practice" }} className="text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Explore Practice Pass</Link>
         </div>
         {skill && <p className="mt-4 text-[13px] text-muted-foreground">Build on this response with targeted practice for {skill}.</p>}
       </div>
