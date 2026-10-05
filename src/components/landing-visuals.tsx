@@ -24,7 +24,6 @@ function useCycle(count: number, ms: number) {
   return i;
 }
 
-const fade = (on: boolean, delay = 0) => ({ opacity: on ? 1 : 0, transform: on ? "none" : "translateY(6px)", transition: `opacity 600ms ease ${delay}ms, transform 700ms cubic-bezier(.32,.72,0,1) ${delay}ms` });
 
 /** Rotating hero word: soft vertical crossfade, no typing effect. */
 export function RotatingWord({ words }: { words: string[] }) {
@@ -33,43 +32,10 @@ export function RotatingWord({ words }: { words: string[] }) {
   const w = reduced ? words[0]! : words[i % words.length]!;
   return (
     <span className="relative inline-grid overflow-hidden align-bottom" aria-live="off">
-      {words.map((x) => <span key={x} aria-hidden className="invisible col-start-1 row-start-1">{x}.</span>)}
-      <span key={w} className="word-rise col-start-1 row-start-1 text-primary">{w}.</span>
+      {words.map((x) => <span key={x} aria-hidden className="invisible col-start-1 row-start-1">{x}</span>)}
+      <span key={w} className="word-rise col-start-1 row-start-1 text-primary">{w}</span>
       <span className="sr-only">{words.join(", ")}</span>
     </span>
-  );
-}
-
-/** Hero product visual: Response → What got lost → Fix → Retry, almost no text. */
-export function HeroSession() {
-  const step = useCycle(5, 1700); // 0 response · 1 lost · 2 fix · 3 retry · 4 hold
-  const stages = ["Response", "What got lost", "Fix", "Retry"];
-  const bars = [62, 88, 74, 92, 56];
-  return (
-    <div className="glass glass-float overflow-hidden" aria-label="A response being practiced, diagnosed, fixed and retried">
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-5 py-3">
-        {stages.map((s, i) => (
-          <span key={s} className={`rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-500 ${Math.min(step, 3) === i ? "bg-primary/15 text-primary" : "text-muted-foreground"}`}>{s}</span>
-        ))}
-      </div>
-      <div className="space-y-2.5 p-5 md:p-7">
-        {bars.map((w, i) => {
-          const isMain = i === 4;
-          const moved = step >= 3; // retry: main point jumps to the top
-          const order = moved ? (isMain ? 0 : i + 1) : i;
-          return (
-            <div key={i} className={`h-7 rounded-md border transition-all duration-700 ${isMain && step >= 1 ? "border-primary/60 bg-primary/15" : "border-border bg-secondary/50"}`}
-              style={{ width: isMain && moved ? "100%" : `${w}%`, transform: `translateY(${(order - i) * 38}px)`, opacity: step >= 2 && !isMain && i > 1 ? 0.25 : 1, transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
-              {isMain && step >= 1 && <span className="flex h-full items-center px-3 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">Main point</span>}
-            </div>
-          );
-        })}
-        <div className="flex items-center justify-between pt-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground" style={fade(step >= 2)}>Say it first</span>
-          <span className="btn btn-primary btn-sm pointer-events-none" style={fade(step >= 3)}>Try again</span>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -105,7 +71,7 @@ export function TransformationReel({ pairs, video, closing }: { pairs: ProblemTr
   const after = f % 2 === 1;
   const pair = pairs[Math.min(idx, pairs.length - 1)]!;
   return (
-    <div className="relative mt-10 aspect-[4/5] overflow-hidden rounded-3xl border border-border sm:aspect-video">
+    <div className="relative mt-10 aspect-[4/5] w-full overflow-hidden rounded-3xl border border-border sm:aspect-video lg:aspect-auto lg:h-[min(82vh,860px)] lg:min-h-[560px]">
       <video src={video} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-40" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background/90" />
       <div className="absolute inset-x-0 top-0 flex gap-1 p-4 md:p-6" aria-hidden>
@@ -117,7 +83,8 @@ export function TransformationReel({ pairs, video, closing }: { pairs: ProblemTr
         ) : (
           <div key={idx} className="rise grid items-center gap-8 md:grid-cols-2">
             <div>
-              <div className="font-mono text-[12px] uppercase tracking-[0.16em] text-muted-foreground transition-all duration-500" style={{ textDecoration: after ? "line-through" : "none", opacity: after ? 0.5 : 1 }}>{pair.from}</div>
+              <div className="mt-2 font-mono text-[12px] uppercase tracking-[0.16em] text-muted-foreground transition-all duration-500" style={{ textDecoration: after ? "line-through" : "none", opacity: after ? 0.5 : 1 }}>{pair.from}</div>
+              <div className="font-mono text-[11px] text-primary">{String(idx + 1).padStart(2, "0")}</div>
               <div className="mt-2 font-display text-[clamp(32px,5vw,60px)] font-bold leading-none transition-all duration-500" style={{ opacity: after ? 1 : 0.15 }}><span className="text-primary">↓ </span>{pair.to}</div>
             </div>
             <div className="glass rounded-2xl p-5"><PairVisual index={idx} after={after} /></div>

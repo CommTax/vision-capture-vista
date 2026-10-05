@@ -15,7 +15,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     eyebrow: "Practice for moments that matter.",
     headline: "Stop losing opportunities to",
     headlineAccent: "rambling",
-    rotatingWords: ["rambling", "scattered", "unclear", "forgettable"],
+    rotatingWords: ["Rambling", "Scattered", "Unclear", "Forgettable"],
     body: "Practice the moment. See what got lost. Say it again.",
     audience: "For job seekers, managers and students.",
     cta: "Try Unspoken Free",
