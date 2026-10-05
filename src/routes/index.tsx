@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Mic, Eye, Target, RotateCcw, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, Briefcase, TrendingUp, MessageSquare, Presentation, Crown, Handshake, Sparkles, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/app-shell";
 import { getState, useStore } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
+import { HowItWorksDemo } from "@/components/how-demo";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { IconKey, PracticeMoment } from "@/content/types";
@@ -72,7 +73,6 @@ function FaqSection() {
 }
 
 
-const STEP_ICONS = [Mic, Eye, Target, RotateCcw];
 
 function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
   return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-16 md:px-8 md:py-28 ${className}`}>{children}</section>;
@@ -83,7 +83,7 @@ const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 function Landing() {
   const navigate = useNavigate();
   const home = dataProvider.getHomepageContent();
-  const { hero, transformations, howItWorks, feedback, pattern, contact } = home;
+  const { hero, transformations, feedback, contact } = home;
   const moments = dataProvider.getPracticeMoments();
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
@@ -119,23 +119,12 @@ function Landing() {
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
-      {/* HOW */}
+      {/* HOW UNSPOKEN WORKS */}
       <Section id="how">
-        <h2 className={H2}>Practice. See. Fix. <span className="text-primary">Retry.</span></h2>
-        <div className="relative mt-12 grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div aria-hidden className="absolute left-0 right-0 top-5 hidden h-px bg-gradient-to-r from-primary/60 via-border to-primary/60 md:block" />
-          {howItWorks.map((s, i) => {
-            const Icon = STEP_ICONS[i] ?? Mic;
-            return (
-              <div key={s.step} className="relative">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/40 bg-background"><Icon className="h-4 w-4 text-primary" aria-hidden /></div>
-                <div className="mt-5 font-mono text-[11px] text-primary">{String(s.step).padStart(2, "0")}</div>
-                <div className="mt-1 font-display text-[clamp(26px,3vw,36px)] font-bold uppercase tracking-tight">{s.title}</div>
-                <p className="mt-1 text-[14px] text-muted-foreground">{s.shortTitle}</p>
-              </div>
-            );
-          })}
-        </div>
+        <h2 className={H2}>How Unspoken works</h2>
+        <p className={SUB}>Practice a real moment. See what got lost. Say it again.</p>
+        <div className="mt-10 md:mt-12"><HowItWorksDemo /></div>
+        <div className="mt-10 text-center"><Link to="/practice" className="btn btn-primary">Start Practising</Link></div>
       </Section>
 
       {/* PRACTICE MOMENTS */}
@@ -165,16 +154,6 @@ function Landing() {
           </div>
         </div>
         <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.14em] text-primary">Try again. See what changes. →</p>
-      </Section>
-
-      {/* PATTERN */}
-      <Section>
-        <h2 className={`${H2} max-w-3xl`}>Your pattern gets clearer with practice.</h2>
-        <div className="glass glass-float mt-12 grid gap-8 p-7 md:grid-cols-[1.4fr_1fr_1.4fr] md:p-10">
-          <div><div className="font-display text-[clamp(32px,4vw,48px)] font-bold leading-none">{pattern.primaryPattern.label.toUpperCase()}</div><p className="mt-3 text-[14px] text-muted-foreground">{pattern.primaryPattern.description}</p></div>
-          <div><div className="eyebrow">Focus</div><div className="mt-2 font-display text-[22px] font-bold text-primary">{pattern.currentFocus.label.toUpperCase()}</div></div>
-          <div><div className="eyebrow">Next move</div><p className="mt-2 font-display text-[18px] font-bold leading-snug">{pattern.nextMove}</p></div>
-        </div>
       </Section>
 
       {/* PRICING */}
