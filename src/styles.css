@@ -212,7 +212,6 @@
 .product-step { min-width: 0; }
 .product-screen {
   min-height: 350px;
-  height: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 8px;

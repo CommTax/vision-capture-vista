@@ -106,13 +106,13 @@ export function HowItWorksDemo() {
               whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
               transition={{ duration: 0.65, delay: i * 0.1, ease: EASE }}
-              className="product-step"
+              className="product-step flex flex-col"
             >
               <div className="mb-4 flex items-end justify-between px-1">
                 <div><span className="product-kicker text-accent">{step.n}</span><h3 className="mt-1 text-[18px] font-medium">{step.title}</h3></div>
                 <span className="text-[11px] text-muted-foreground">{step.label}</span>
               </div>
-              <div className="product-screen">{step.view}</div>
+              <div className="product-screen flex-1">{step.view}</div>
             </motion.article>
           ))}
         </div>
