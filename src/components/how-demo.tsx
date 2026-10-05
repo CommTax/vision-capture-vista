@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, ChevronDown, Flag, Mic, Presentation, RotateCcw, Search, ThumbsUp } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Flag, Mic, RotateCcw, Search, ThumbsUp } from "lucide-react";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
 const AUTO_MS = 6000;
