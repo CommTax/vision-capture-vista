@@ -70,23 +70,26 @@ function OptionChip({ icon, label, active }: { icon: ReactNode; label: string; a
 
 function ChooseView() {
   return (
-    <div className="relative flex h-full items-center justify-center">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center">
+    <div className="relative flex items-center justify-center">
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-x-16 -inset-y-14 grid place-items-center">
         <CageArt />
       </div>
-      <div className="absolute left-1 top-6 hidden sm:block md:-left-2">
+      <div className="absolute -left-9 -top-5 hidden sm:block">
         <OptionChip icon={<Mic className="size-4" />} label="Interview" active />
       </div>
-      <div className="absolute bottom-8 right-1 hidden sm:block md:-right-2">
+      <div className="absolute -bottom-5 -right-9 hidden sm:block">
         <OptionChip icon={<ThumbsUp className="size-4 text-emerald-400" />} label="Leadership" />
       </div>
+      <div className="absolute -right-7 top-8 hidden lg:block">
+        <OptionChip icon={<Presentation className="size-4 text-sky-400" />} label="Presentation" />
+      </div>
 
-      <div className="relative w-full max-w-[360px] space-y-3">
+      <div className="relative w-full max-w-[340px] space-y-3">
         <div className="how-float">
           <div className="product-kicker">The moment</div>
           <div className="mt-1.5 flex items-center gap-2.5">
             <Search className="size-4 shrink-0 text-muted-foreground" />
-            <p className="truncate text-[16px] font-semibold leading-snug">Tell your manager you disagree with the proposed approach.</p>
+            <p className="truncate text-[16px] font-semibold leading-snug">Tell your manager you disagree with the approach.</p>
           </div>
         </div>
         <div className="how-float flex items-center justify-between !border-accent/40">
