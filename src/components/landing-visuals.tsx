@@ -24,7 +24,6 @@ function useCycle(count: number, ms: number) {
   return i;
 }
 
-const fade = (on: boolean, delay = 0) => ({ opacity: on ? 1 : 0, transform: on ? "none" : "translateY(6px)", transition: `opacity 600ms ease ${delay}ms, transform 700ms cubic-bezier(.32,.72,0,1) ${delay}ms` });
 
 /** Rotating hero word: soft vertical crossfade, no typing effect. */
 export function RotatingWord({ words }: { words: string[] }) {
