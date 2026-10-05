@@ -105,7 +105,7 @@ function Landing() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-6 md:px-8 md:pt-28 md:pb-10">
+      <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-0 md:px-8 md:pt-24 md:pb-0">
         <div className="rise max-w-4xl">
           <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]">{hero.headline} <RotatingWord words={hero.rotatingWords} /> Responses</h1>
           <p className="mt-6 max-w-[48ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
@@ -115,7 +115,7 @@ function Landing() {
       </section>
 
       {/* THE REAL PROBLEM */}
-      <Section>
+      <Section className="!pt-14 md:!pt-20">
         <div className="eyebrow mb-4 !text-primary">The real problem</div>
         <h2 className={`${H2} max-w-3xl`}>You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
