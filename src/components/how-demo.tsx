@@ -83,13 +83,13 @@ export function HowItWorksDemo() {
         </div>
 
         {/* right: analysis states */}
-        <div className="relative min-h-[420px] p-6 md:min-h-[360px] md:p-9">
-          <div className={`absolute inset-6 md:inset-9 ${fade(phase <= 1)}`}>
+        <div className="grid p-6 md:p-9">
+          <div className={`[grid-area:1/1] ${fade(phase <= 1)}`}>
             <div className="eyebrow">Analysis</div>
             <p className="mt-3 text-[14px] text-muted-foreground">Listening for your main point…</p>
           </div>
 
-          <div className={`absolute inset-6 md:inset-9 ${fade(phase === 2 || phase === 3)}`}>
+          <div className={`[grid-area:1/1] ${fade(phase === 2 || phase === 3)}`}>
             <div className="eyebrow !text-primary">What got lost</div>
             <p className="mt-2 font-display text-[22px] font-bold leading-snug md:text-[26px]">Your recommendation came too late.</p>
             <div className="mt-5 eyebrow">Why</div>
@@ -107,7 +107,7 @@ export function HowItWorksDemo() {
             </div>
           </div>
 
-          <div className={`absolute inset-6 md:inset-9 ${fade(retry)}`}>
+          <div className={`[grid-area:1/1] ${fade(retry)}`}>
             <div className="eyebrow !text-primary">Try again</div>
             <p className="mt-2 text-[13px] text-muted-foreground">Same situation. Same goal. New focus.</p>
             <div className={`mt-6 ${fade(phase === 5)}`}>
