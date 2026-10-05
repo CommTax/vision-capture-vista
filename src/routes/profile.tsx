@@ -26,7 +26,7 @@ function Profile() {
       <div className="mt-6 flex flex-wrap gap-3">
         <button className="btn btn-ghost" onClick={() => { setState((s) => ({ ...s, profile: s.profile && { ...s.profile, onboarded: false } })); navigate({ to: "/onboarding" }); }}>Redo onboarding</button>
         <Link to="/plans" className="btn btn-ghost">Plans</Link>
-        <button className="btn btn-ghost" onClick={() => { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem("cadence-state-v1"); setState(() => ({ profile: null, responses: [], drillsDone: [], practiceDays: [] })); navigate({ to: "/" }); }}>Sign out & clear data</button>
+        <button className="btn btn-ghost" onClick={async () => { await import("@/lib/cloud-sync").then((m) => m.signOut()); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem("cadence-state-v1"); setState(() => ({ profile: null, responses: [], drillsDone: [], practiceDays: [] })); navigate({ to: "/" }); }}>Sign out & clear data</button>
       </div>
     </div>
   );
