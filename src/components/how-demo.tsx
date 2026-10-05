@@ -263,9 +263,8 @@ export function HowItWorksDemo() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-6 md:mt-14">
+        <div className="mt-8 flex justify-center md:mt-10">
           <Link to="/practice" className="btn btn-primary px-8 py-3.5 text-[16px]">Start Practising <ArrowRight className="size-4" /></Link>
-          <h3 className="text-center text-[clamp(22px,2.6vw,30px)] font-semibold">Practice the moments that matter.</h3>
         </div>
       </div>
     </div>

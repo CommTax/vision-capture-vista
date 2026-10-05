@@ -34,13 +34,13 @@ function MomentTile({ m }: { m: PracticeMoment }) {
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group flex w-[76vw] max-w-[280px] shrink-0 snap-start flex-col rounded-2xl border border-border bg-card p-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 sm:w-[300px] md:w-auto md:max-w-none"
+      className="group flex w-[68vw] max-w-[240px] shrink-0 snap-start flex-col rounded-2xl border border-border bg-card p-3 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 sm:w-[240px] md:w-auto md:max-w-none"
     >
       <MomentArt id={m.id} />
-      <h3 className="mt-5 font-display text-[17px] font-semibold leading-snug">{m.name}</h3>
-      <p className="mt-1.5 max-w-[38ch] text-[13px] leading-5 text-muted-foreground">{m.description}</p>
-      <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary opacity-0 transition duration-300 group-hover:opacity-100">
-        Practice <ArrowUpRight className="size-3.5" aria-hidden="true" />
+      <h3 className="mt-3 font-display text-[13px] font-semibold leading-snug whitespace-nowrap">{m.name}</h3>
+      <p className="mt-1 line-clamp-2 text-[11.5px] leading-4 text-muted-foreground">{m.description}</p>
+      <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-primary opacity-0 transition duration-300 group-hover:opacity-100">
+        Practice <ArrowUpRight className="size-3" aria-hidden="true" />
       </span>
     </Link>
   );
@@ -64,7 +64,7 @@ function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: strin
 function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-12 md:px-8 md:py-20">
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14">
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">Questions</h2>
       <div className="mt-8 border-b border-border">
         {dataProvider.getFaq().map((f, i) => (
@@ -78,7 +78,7 @@ function FaqSection() {
 
 
 function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
-  return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-12 md:px-8 md:py-20 ${className}`}>{children}</section>;
+  return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}>{children}</section>;
 }
 const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
@@ -125,12 +125,12 @@ function Landing() {
       <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
-      <Section id="modes" className="!py-12 md:!py-20">
-        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div><div className="product-kicker !text-primary">Choose your moment</div><h2 className={`${H2} mt-4 max-w-[720px]`}>Practice where clarity matters most.</h2></div>
+      <Section id="modes" className="!py-10 md:!py-14">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div className="product-kicker !text-primary">Choose your moment</div>
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
         </div>
-        <div className="mt-10 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0">
+        <div className="mt-7 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-6 md:overflow-visible md:px-0 md:pb-0">
           {moments.map((moment) => <MomentTile key={moment.id} m={moment} />)}
         </div>
       </Section>

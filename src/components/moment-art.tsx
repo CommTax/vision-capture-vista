@@ -166,7 +166,7 @@ export function MomentArt({ id }: { id: string }) {
             ? "-right-1 bottom-3 sm:bottom-4"
             : "-left-1 bottom-3";
         return (
-          <span key={c.text} className={`absolute ${pos} z-10 inline-flex max-w-[86%] items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px] font-medium leading-none shadow-sm ${toneClass[c.tone]}`}>
+          <span key={c.text} className={`absolute ${pos} z-10 inline-flex max-w-[92%] items-center gap-1 rounded-full border px-2 py-0.5 text-[9.5px] font-medium leading-none shadow-sm ${toneClass[c.tone]}`}>
             <Icon className="size-3 shrink-0" aria-hidden="true" />
             <span className="truncate">{c.text}</span>
           </span>
