@@ -116,10 +116,22 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const another = () => {
+  const another = async () => {
     if (q.mode === "custom") { navigate({ to: "/practice" }); return; }
-    const pool = QUESTIONS.filter((x) => x.mode === q.mode && x.id !== q.id);
-    const n = pool[Math.floor(Math.random() * pool.length)] ?? QUESTIONS[0];
+    const seen = new Set(getState().responses.map((r) => r.question_id));
+    const all = QUESTIONS.filter((x) => x.mode === q.mode && x.id !== q.id);
+    const unseen = all.filter((x) => !seen.has(x.id));
+    let n = unseen[Math.floor(Math.random() * unseen.length)];
+    if (!n) {
+      // Topic finished: ask AI for a new question (saved to the database), else reuse one.
+      const { isSignedIn } = await import("@/lib/cloud-sync");
+      if (isSignedIn()) {
+        const { generateQuestion } = await import("@/lib/questions.functions");
+        const g = await generateQuestion({ data: { mode: q.mode as never, avoid: all.map((x) => x.text).slice(0, 60) } }).catch(() => null);
+        if (g) { const { addQuestions } = await import("@/lib/content-loader"); addQuestions([g as Question]); n = g as Question; }
+      }
+    }
+    n = n ?? all[Math.floor(Math.random() * all.length)] ?? QUESTIONS[0];
     navigate({ to: "/practice/$questionId", params: { questionId: n.id }, search: {} });
   };
 
