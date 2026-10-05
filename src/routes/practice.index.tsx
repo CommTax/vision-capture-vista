@@ -104,12 +104,12 @@ function Practice() {
         )}
         {library.length > 0 && (
           <div className="mt-5"><div className="eyebrow mb-3">{categoryName(mode!)}</div>
-            <div className="grid gap-3 md:grid-cols-2">{library.map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} recommended={s.scenario_id === recScenario?.scenario_id} />)}</div>
+            <div className="grid gap-3 md:grid-cols-2">{library.map((s) => <ScenarioCard key={s.scenario_id} s={s} recommended={s.scenario_id === recScenario?.scenario_id} />)}</div>
           </div>
         )}
         {!mode && !rec && (
           <div className="mt-5"><div className="eyebrow mb-3">Start anywhere</div>
-            <div className="grid gap-3 md:grid-cols-2">{all.filter((s) => s.category === "interview").map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} />)}</div>
+            <div className="grid gap-3 md:grid-cols-2">{all.filter((s) => s.category === "interview").map((s) => <ScenarioCard key={s.scenario_id} s={s} />)}</div>
           </div>
         )}
       </section>
