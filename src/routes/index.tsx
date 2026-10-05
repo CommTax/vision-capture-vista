@@ -64,7 +64,7 @@ function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: strin
 function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-16 md:px-8 md:py-28">
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-12 md:px-8 md:py-20">
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">Questions</h2>
       <div className="mt-8 border-b border-border">
         {dataProvider.getFaq().map((f, i) => (
@@ -78,7 +78,7 @@ function FaqSection() {
 
 
 function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
-  return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-16 md:px-8 md:py-28 ${className}`}>{children}</section>;
+  return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-12 md:px-8 md:py-20 ${className}`}>{children}</section>;
 }
 const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
@@ -125,7 +125,7 @@ function Landing() {
       <section id="how"><HowItWorksDemo /></section>
 
       {/* PRACTICE MOMENTS */}
-      <Section id="modes" className="!py-20 md:!py-32">
+      <Section id="modes" className="!py-12 md:!py-20">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div><div className="product-kicker !text-primary">Choose your moment</div><h2 className={`${H2} mt-4 max-w-[720px]`}>Practice where clarity matters most.</h2></div>
           <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>

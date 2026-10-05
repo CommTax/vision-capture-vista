@@ -201,11 +201,11 @@ export function HowItWorksDemo() {
   const active = STEPS[step]!;
 
   return (
-    <div className="product-stage py-20 md:py-28">
+    <div className="product-stage py-14 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 md:px-8">
-        <h2 className="text-center font-display text-[clamp(32px,4vw,54px)] font-bold leading-[1.04]">How Unspoken works</h2>
+        <div className="eyebrow text-center !text-primary">How Unspoken works</div>
 
-        <div className="mt-10 grid items-stretch gap-6 md:mt-14 md:grid-cols-[1.4fr_1fr]">
+        <div className="mt-8 grid items-stretch gap-6 md:mt-10 md:grid-cols-[1.4fr_1fr]">
           {/* Product panel */}
           <div className="how-panel min-h-[440px] md:min-h-[520px]">
             <div className="mx-auto flex h-full max-w-[420px] items-center px-6 py-10 md:px-12">
