@@ -102,7 +102,7 @@ function Landing() {
           <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
             <Link to="/" className="hover:text-primary">Home</Link><a href="#modes" className="hover:text-primary">Practice</a><a href="#how" className="hover:text-primary">How it works</a><a href="#pricing" className="hover:text-primary">Pricing</a>
           </nav>
-          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link> : <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link> : <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
         </div>
       </header>
 

@@ -13,9 +13,9 @@ export function useHydrated() {
 
 export function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2 font-display text-[19px] font-bold tracking-tight">
+    <Link to="/" className="flex shrink-0 items-center gap-2 font-display text-[19px] font-bold tracking-tight">
       <img src={logoImg} alt="TheUnspoken logo" className="h-8 w-auto" />
-      TheUnspoken
+      <span className="hidden sm:inline">TheUnspoken</span>
     </Link>
   );
 }
