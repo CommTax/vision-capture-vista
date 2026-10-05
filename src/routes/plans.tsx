@@ -38,7 +38,7 @@ function Plans() {
     <div className="mx-auto max-w-5xl space-y-8">
       <div><PageHead eyebrow="Plans" title="Keep practicing." /><p className="-mt-6 text-[15px] text-muted-foreground">Choose the way you want to improve.</p></div>
       <div className="glass flex flex-wrap items-center justify-between gap-3 p-5 text-[14px]">
-        <span><span className="text-muted-foreground">Your plan: </span>{STATE_LABEL[state]}{free && ` · ${remaining} free attempt${remaining === 1 ? "" : "s"} remaining`}{ent?.trial_ends_at && ent.status === "trialing" && ` · trial ends ${new Date(ent.trial_ends_at).toLocaleDateString()}`}{ent?.status === "expired" && " · your trial has ended"}</span>
+        <span><span className="text-muted-foreground">Your plan: </span>{STATE_LABEL[state]}{free && ` · ${remaining} free question${remaining === 1 ? "" : "s"} left today`}{ent?.trial_ends_at && ent.status === "trialing" && ` · trial ends ${new Date(ent.trial_ends_at).toLocaleDateString()}`}{ent?.status === "expired" && " · your trial has ended"}</span>
         {!free && <button className="text-[13px] text-muted-foreground underline" onClick={cancelEntitlement}>Cancel {ent?.status === "trialing" ? "trial" : "plan"}</button>}
       </div>
 
