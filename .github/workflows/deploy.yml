@@ -3,11 +3,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -19,20 +24,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '22'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install Dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Debug build output
+        run: |
+          echo "=== Build output structure ==="
+          ls -la
+          echo "=== Looking for dist ==="
+          ls -la dist/ 2>/dev/null || echo "no dist/"
+          ls -la .output/public/ 2>/dev/null || echo "no .output/public/"
+          ls -la build/ 2>/dev/null || echo "no build/"
 
       - name: Create 404.html for SPA Routing
-        run: cp dist/index.html dist/404.html
+        run: |
+          if [ -f dist/index.html ]; then
+            cp dist/index.html dist/404.html
+          elif [ -f .output/public/index.html ]; then
+            cp .output/public/index.html .output/public/404.html
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
