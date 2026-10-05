@@ -86,8 +86,7 @@ function Landing() {
   const home = dataProvider.getHomepageContent();
   const { hero, proof, transformations, howItWorks, feedback, pattern, contact } = home;
   const moments = dataProvider.getPracticeMoments();
-  const drills = dataProvider.getDrillTeasers();
-  const plans = dataProvider.getPricingPlans();
+    const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
   const signedIn = useStore((s) => !!s.profile?.onboarded) && hydrated;
   const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
@@ -107,7 +106,7 @@ function Landing() {
       {/* HERO */}
       <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-0 md:px-8 md:pt-24 md:pb-0">
         <div className="rise max-w-4xl">
-          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]">{hero.headline} <RotatingWord words={hero.rotatingWords} /> Responses</h1>
+          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]"><span className="block">{hero.headline}</span><span className="block"><RotatingWord words={hero.rotatingWords} /></span><span className="block">Responses</span></h1>
           <p className="mt-6 max-w-[48ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
           <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
           <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
@@ -117,7 +116,7 @@ function Landing() {
       {/* THE REAL PROBLEM */}
       <Section className="!pt-14 md:!pt-20">
         <div className="eyebrow mb-4 !text-primary">The real problem</div>
-        <h2 className={`${H2} max-w-3xl`}>You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
+        <h2 className={`${H2} max-w-3xl`}><span className="md:block">You know what you want to say.</span> <span className="text-muted-foreground md:block">The problem is getting it across.</span></h2>
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
@@ -186,18 +185,6 @@ function Landing() {
           <div><div className="eyebrow">Focus</div><div className="mt-2 font-display text-[22px] font-bold text-primary">{pattern.currentFocus.label.toUpperCase()}</div></div>
           <div><div className="eyebrow">Next move</div><p className="mt-2 font-display text-[18px] font-bold leading-snug">{pattern.nextMove}</p></div>
         </div>
-      </Section>
-
-      {/* DRILLS */}
-      <Section>
-        <h2 className={H2}>Practice the thing <span className="text-primary">holding you back.</span></h2>
-        <p className={SUB}>Turn feedback into practice.</p>
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {drills.slice(0, 3).map((d) => (
-            <div key={d.id} className="glass p-7"><div className="font-display text-[20px] font-bold">{d.title}</div><p className="mt-2 text-[14px] leading-6 text-muted-foreground">{d.description}</p></div>
-          ))}
-        </div>
-        <Link to="/drills" className="mt-8 inline-block text-[14px] text-primary hover:underline">Explore drills →</Link>
       </Section>
 
       {/* PRICING */}
