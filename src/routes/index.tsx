@@ -119,7 +119,6 @@ function Landing() {
       {/* THE REAL PROBLEM */}
       <Section className="!pt-14 md:!pt-20">
         <div className="eyebrow mb-4 text-center !text-primary">The real problem</div>
-        <h2 className="mx-auto max-w-[880px] text-pretty text-center text-[clamp(28px,3.6vw,46px)] font-bold leading-[1.1]">You know what you want to say. <span className="text-muted-foreground">The problem is getting it across.</span></h2>
         <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
       </Section>
 
