@@ -76,7 +76,7 @@ function RespondUI() {
       <div className="mt-8 rounded-2xl bg-background p-6"><Waveform /></div>
       <div className="mt-5 flex items-center justify-center gap-3"><span className="size-2 animate-pulse rounded-full bg-destructive" /><Timer /><Eyebrow>RECORDING</Eyebrow></div>
       <div className="mt-6 rounded-xl border border-dashed border-input px-4 py-3 text-[14px] text-muted-foreground">
-        <span className="mr-1 text-[12px] font-semibold tracking-[0.12em]">YOUR RESPONSE</span> <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-block h-4 w-px translate-y-0.5 bg-foreground" />
+        <span>Your words appear here as you speak</span> <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-block h-4 w-px translate-y-0.5 bg-foreground" />
       </div>
       <div className="mt-6 flex justify-end gap-3">
         <span className="rounded-full border border-input px-5 py-2.5 text-[14px]">Pause</span>
