@@ -2,12 +2,11 @@
 import type { DrillTeaser, FAQItem, HomepageContent, PracticeMoment, PricingPlan } from "./types";
 
 export const FALLBACK_MOMENTS: PracticeMoment[] = [
-  { id: "interview", name: "Interview", description: "Tell me about a difficult project.", category: "interview", icon: "briefcase", common: true, active: true },
-  { id: "career", name: "Career", description: "Why are you ready for the next level?", category: "conversation", icon: "trending", active: true },
-  { id: "high-stakes", name: "High-stakes conversation", description: "Tell your manager you disagree.", category: "conversation", icon: "message", active: true },
-  { id: "presentation", name: "Presentation", description: "Explain your recommendation in 60 seconds.", category: "presentation", icon: "presentation", active: true },
-  { id: "leadership", name: "Leadership", description: "Give an executive update.", category: "everyday", icon: "crown", active: true },
-  { id: "persuasion", name: "Persuasion", description: "Get a skeptical stakeholder to support your idea.", category: "sales", icon: "handshake", active: true },
+  { id: "interview", name: "Interview", description: "Behavioral questions, difficult projects, leadership stories.", category: "interview", icon: "briefcase", common: true, active: true },
+  { id: "high-stakes", name: "High-stakes conversation", description: "Disagree, give feedback, handle sensitive moments.", category: "conversation", icon: "message", active: true },
+  { id: "presentation", name: "Presentation", description: "Recommendations and concise executive explanations.", category: "presentation", icon: "presentation", active: true },
+  { id: "leadership", name: "Leadership", description: "Executive updates, ambiguity, difficult decisions.", category: "everyday", icon: "crown", active: true },
+  { id: "persuasion", name: "Persuasion", description: "Influence stakeholders and get buy-in.", category: "sales", icon: "handshake", active: true },
   { id: "custom", name: "Custom", description: "Practice any situation.", category: "custom", icon: "sparkles", active: true },
 ];
 

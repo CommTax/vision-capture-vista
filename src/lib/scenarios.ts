@@ -68,11 +68,11 @@ export const GOALS: { label: string; hint: string; skill: Dimension }[] = [
 
 export const CATEGORY_BLURB: Partial<Record<ModeId, string>> = {
   interview: "Tell me about yourself, failures, leadership, conflict.",
-  conversation: "Promotion asks, salary, disagreement, difficult conversations.",
+  conversation: "Disagreement, feedback, difficult and sensitive conversations.",
   presentation: "Openings, recommendations, explaining data.",
   group: "Take a position, support it, respond under time pressure.",
-  sales: "Pitches, objections, influencing stakeholders.",
-  everyday: "Status updates, delays, escalations.",
+  sales: "Influencing stakeholders, getting buy-in, making a case.",
+  everyday: "Executive updates, ambiguity, difficult decisions, team leadership.",
   custom: "Describe any situation and unspoken creates the scenario.",
 };
 
