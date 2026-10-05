@@ -4,9 +4,9 @@ import { AppShell, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
-import { LEVELS, MODES, type Dimension, type ModeId } from "@/lib/data";
-import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, GOALS, recommendPractice, scenariosFor, type Scenario } from "@/lib/scenarios";
-import { setState, useStore } from "@/lib/store";
+import { MODES, type Dimension, type ModeId } from "@/lib/data";
+import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
+import { useStore } from "@/lib/store";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 
@@ -16,12 +16,12 @@ export const Route = createFileRoute("/practice/")({
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
-function ScenarioCard({ s, level, focus, recommended }: { s: Scenario; level: string; focus?: Dimension; recommended?: boolean }) {
+function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: Dimension; recommended?: boolean }) {
   return (
     <Link to="/practice/$questionId" params={{ questionId: s.scenario_id }} search={focus ? { f: focus } : {}} className={`glass flex flex-col p-5 transition hover:bg-glass-strong ${recommended ? "border-primary/50" : ""}`}>
       {recommended && <div className="eyebrow mb-2 !text-primary">Recommended for you</div>}
       <div className="font-display text-[17px] font-bold leading-snug">{s.title}</div>
-      <div className="mt-1 text-[13px] text-muted-foreground">{s.context}{level === "Senior / Leadership" && s.experience_level !== "any" ? "" : ""}</div>
+      <div className="mt-1 text-[13px] text-muted-foreground">{s.context}</div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px]">
         <span className="text-muted-foreground">FOCUS: <span className="text-foreground">{s.target_skills.map(cap).join(" + ")}</span></span>
         <span className="text-muted-foreground">{s.difficulty} · {s.time_limit}s <span className="ml-2 text-primary">Start →</span></span>
@@ -37,12 +37,9 @@ function Practice() {
   const rec = recommendPractice(rs, level);
   const all = allScenarios(level);
   const recScenario = rec ? all.find((s) => s.scenario_id === rec.recommended_scenario_id) : undefined;
-  const [goal, setGoal] = useState<Dimension | null>(null);
   const initialMode = Route.useSearch().mode;
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
-  const activeFocus = goal ?? rec?.current_focus ?? null;
-  const adaptive = activeFocus ? scenariosFor(activeFocus, level).filter((s) => s.scenario_id !== recScenario?.scenario_id).slice(0, 4) : [];
   const library = mode && mode !== "custom" ? all.filter((s) => s.category === mode) : [];
   const ent = useEntitlement();
   const preview = custom.trim().length > 8 ? buildCustomScenario(custom, level) : null;
@@ -72,26 +69,6 @@ function Practice() {
         </section>
       )}
 
-      {/* 2. Goal selector */}
-      <section>
-        <h2 className="text-[22px] font-bold">What do you want to work on?</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {GOALS.map((g) => (
-            <button key={g.label} onClick={() => setGoal((c) => (c === g.skill ? null : g.skill))} className={`glass p-4 text-left transition ${goal === g.skill ? "border-primary/60 bg-primary/10" : "hover:bg-glass-strong"}`}>
-              <div className="font-display text-[16px] font-bold">{g.label}</div><div className="text-[13px] text-muted-foreground">{g.hint}</div>
-            </button>
-          ))}
-        </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2"><span className="eyebrow mr-2">Experience level</span>
-          {LEVELS.map((l) => <button key={l} className="chip" data-active={level === l} onClick={() => setState((s) => ({ ...s, profile: s.profile && { ...s.profile, level: l } }))}>{l}</button>)}
-        </div>
-        {activeFocus && adaptive.length > 0 && (
-          <div className="mt-6">
-            <div className="eyebrow mb-3">{goal ? "Scenarios that train" : "Your current focus"}: <span className="!text-primary text-primary">{cap(activeFocus)}</span></div>
-            <div className="grid gap-3 md:grid-cols-2">{adaptive.map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} focus={activeFocus} />)}</div>
-          </div>
-        )}
-      </section>
 
       {/* 3. Categories */}
       <section>
@@ -127,12 +104,12 @@ function Practice() {
         )}
         {library.length > 0 && (
           <div className="mt-5"><div className="eyebrow mb-3">{categoryName(mode!)}</div>
-            <div className="grid gap-3 md:grid-cols-2">{library.map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} recommended={s.scenario_id === recScenario?.scenario_id} />)}</div>
+            <div className="grid gap-3 md:grid-cols-2">{library.map((s) => <ScenarioCard key={s.scenario_id} s={s} recommended={s.scenario_id === recScenario?.scenario_id} />)}</div>
           </div>
         )}
         {!mode && !rec && (
           <div className="mt-5"><div className="eyebrow mb-3">Start anywhere</div>
-            <div className="grid gap-3 md:grid-cols-2">{all.filter((s) => s.category === "interview").map((s) => <ScenarioCard key={s.scenario_id} s={s} level={level} />)}</div>
+            <div className="grid gap-3 md:grid-cols-2">{all.filter((s) => s.category === "interview").map((s) => <ScenarioCard key={s.scenario_id} s={s} />)}</div>
           </div>
         )}
       </section>
