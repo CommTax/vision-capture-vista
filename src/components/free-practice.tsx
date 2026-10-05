@@ -318,7 +318,7 @@ function Reflection() {
   );
 }
 
-function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: string }) {
+export function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: string }) {
   const [card, setCard] = useState(false);
   const p = PATTERNS[a.primary_pattern] ?? PATTERNS.scatterer;
   const setup = useShareSetup();
@@ -334,4 +334,10 @@ function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: st
           {setup.config?.enabled && <ShareRewards setup={setup} inviteUrl={inviteUrl} />}</div>}
     </div>
   );
+}
+
+/** Share card built from any saved analysis — used outside the free flow (e.g. dashboard). */
+export function PatternCardSection({ a }: { a: Analysis }) {
+  const lost = a.main_point_delay > 3 ? `Your main point only arrived after ${a.main_point_delay} seconds.` : (a.what_got_lost.why[0] ?? a.summary);
+  return <ShareSection a={a} lost={lost} focus={LABEL[opportunity(a).main] ?? "Structure"} />;
 }

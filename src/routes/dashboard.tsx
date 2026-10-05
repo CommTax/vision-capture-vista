@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { PatternCardSection } from "@/components/free-practice";
 import { Locked } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
@@ -74,6 +75,9 @@ function Dashboard() {
           </div>
         </div>
       </header>
+
+      {rs[0] && <section id="my-card" className="paper rounded-[24px] px-5 pb-8"><PatternCardSection a={[...rs].sort((x, y) => y.created_at.localeCompare(x.created_at))[0].analysis} /></section>}
+
 
       {free ? (
         <>
