@@ -5,6 +5,7 @@ import { ArrowRight, Keyboard, Mic, X } from "lucide-react";
 import { Recorder } from "@/components/recorder";
 import { LeadCapture } from "@/components/plan-gate";
 import { ShareCard } from "@/components/share-card";
+import { ShareRewards, useShareSetup } from "@/components/share-rewards";
 import { analyzeResponse, type Analysis } from "@/lib/analysis";
 import { PATTERNS, type Dimension, type Question } from "@/lib/data";
 import { FREE_FOCUS } from "@/lib/scenarios";
@@ -320,11 +321,17 @@ function Reflection() {
 function ShareSection({ a, lost, focus }: { a: Analysis; lost: string; focus: string }) {
   const [card, setCard] = useState(false);
   const p = PATTERNS[a.primary_pattern] ?? PATTERNS.scatterer;
+  const setup = useShareSetup();
+  const handle = setup.config?.instagram_handle || undefined;
+  const code = setup.config?.enabled ? setup.mine?.code : undefined;
+  const inviteUrl = code && typeof window !== "undefined" ? `${window.location.origin}/?ref=${code}` : undefined;
   return (
     <div className="border-t border-border pt-10 text-center">
-      <p className="text-[15px] text-muted-foreground">Share your pattern — a square card for LinkedIn, Instagram or WhatsApp.</p>
-      {!card ? <button className="btn btn-ghost btn-sm mt-4" onClick={() => setCard(true)}>Create my card</button>
-        : <div className="mt-6"><ShareCard data={{ title: p.title, line: p.line, lost, focus }} /></div>}
+      <p className="font-display text-[22px] font-semibold">Show people your pattern.</p>
+      <p className="mt-1 text-[15px] text-muted-foreground">Share it on your Instagram Story or WhatsApp Status, and ask your friends what theirs is.</p>
+      {!card ? <button className="btn btn-primary mt-5" onClick={() => setCard(true)}>Create my card</button>
+        : <div className="mt-6 space-y-8"><ShareCard data={{ title: p.title, line: p.line, lost, focus, code, handle }} inviteUrl={inviteUrl} />
+          {setup.config?.enabled && <ShareRewards setup={setup} inviteUrl={inviteUrl} />}</div>}
     </div>
   );
 }
