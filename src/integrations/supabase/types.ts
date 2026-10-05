@@ -14,6 +14,207 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          enabled: boolean
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      content_blocks: {
+        Row: {
+          active: boolean
+          created_at: string
+          data: Json
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          data: Json
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_drills: {
+        Row: {
+          active: boolean
+          created_at: string
+          data: Json
+          id: string
+          skill: string
+          sort: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          id: string
+          skill: string
+          sort?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          id?: string
+          skill?: string
+          sort?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_modes: {
+        Row: {
+          active: boolean
+          created_at: string
+          data: Json
+          description: string | null
+          id: string
+          name: string
+          sort: number
+          tag: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id: string
+          name: string
+          sort?: number
+          tag?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          sort?: number
+          tag?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_patterns: {
+        Row: {
+          active: boolean
+          created_at: string
+          data: Json
+          description: string | null
+          id: string
+          line: string | null
+          name: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id: string
+          line?: string | null
+          name: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          line?: string | null
+          name?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_questions: {
+        Row: {
+          active: boolean
+          context: string | null
+          created_at: string
+          data: Json
+          difficulty: string
+          id: string
+          mode: string
+          prompt: string
+          recommended_when: string[]
+          sort: number
+          target_skills: string[]
+          time_limit: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          context?: string | null
+          created_at?: string
+          data?: Json
+          difficulty?: string
+          id: string
+          mode: string
+          prompt: string
+          recommended_when?: string[]
+          sort?: number
+          target_skills?: string[]
+          time_limit?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          context?: string | null
+          created_at?: string
+          data?: Json
+          difficulty?: string
+          id?: string
+          mode?: string
+          prompt?: string
+          recommended_when?: string[]
+          sort?: number
+          target_skills?: string[]
+          time_limit?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           data: Json | null
@@ -107,6 +308,51 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_redemptions: {
+        Row: {
+          code: string
+          created_at: string
+          friend_id: string
+          id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          friend_id: string
+          id?: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          friend_id?: string
+          id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       responses: {
         Row: {
           created_at: string
@@ -124,6 +370,45 @@ export type Database = {
           created_at?: string
           id?: string
           record?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      share_rewards: {
+        Row: {
+          created_at: string
+          discount_code: string | null
+          discount_pct: number | null
+          id: string
+          instagram_handle: string | null
+          kind: string
+          post_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_code?: string | null
+          discount_pct?: number | null
+          id?: string
+          instagram_handle?: string | null
+          kind: string
+          post_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_code?: string | null
+          discount_pct?: number | null
+          id?: string
+          instagram_handle?: string | null
+          kind?: string
+          post_url?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
