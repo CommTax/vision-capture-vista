@@ -6,3 +6,5 @@
 - [x] Restrict Free views to focused previews and rename customer-facing Cadence branding to Unspoken
 - [x] Rebuild “How Unspoken works” as a premium, product-led journey with minimal copy, informed by Yoodli’s product clarity
 - [x] Replace the homepage feedback block with a premium, image-led Practice Moments section
+- [ ] Backend content tables (questions, patterns, modes, drills, homepage, pricing, FAQ) ready but inactive; frontend keeps local data
+- [ ] Viral share card: Instagram/WhatsApp share, invite code; rewards for tag, follow, friend referrals (backend ready, inactive)
