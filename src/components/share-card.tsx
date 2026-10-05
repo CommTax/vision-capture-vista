@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Instagram, MessageCircle, Share2 } from "lucide-react";
+import qrAsset from "@/assets/instagram-qr.png.asset.json";
 
 export type ShareCardData = { title: string; line: string; lost: string; focus: string; code?: string; handle?: string };
 type Format = "square" | "story";
@@ -14,7 +15,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 }
 
 /** Draws the pattern card (square for feeds, 9:16 for Stories/Status). Never includes contact details. */
-export function drawCard(c: HTMLCanvasElement, d: ShareCardData, format: Format = "square") {
+export function drawCard(c: HTMLCanvasElement, d: ShareCardData, format: Format = "square", qr?: HTMLImageElement | null) {
   const H = format === "story" ? 1920 : 1080;
   const top = format === "story" ? 360 : 0;
   c.width = W; c.height = H;
@@ -51,12 +52,26 @@ export function drawCard(c: HTMLCanvasElement, d: ShareCardData, format: Format 
     ctx.font = "500 30px 'DM Sans', sans-serif"; ctx.fillStyle = "rgba(248,247,243,0.75)";
     ctx.fillText(d.code ? `Find out free · use code ${d.code}` : "Find out free in 90 seconds.", pad + 48, 1570);
     if (d.handle) { ctx.fillStyle = ink; ctx.font = "600 32px 'DM Sans', sans-serif"; ctx.fillText(`Tag ${d.handle}`, pad, 1760); }
+    if (qr) {
+      const s = 190, x = W - pad - s, qy = 1620;
+      ctx.fillStyle = "#FFFFFF"; ctx.beginPath(); ctx.roundRect(x - 14, qy - 14, s + 28, s + 28, 24); ctx.fill();
+      ctx.drawImage(qr, x, qy, s, s);
+      ctx.fillStyle = soft; ctx.font = "500 20px 'JetBrains Mono', monospace";
+      ctx.fillText("SCAN TO FOLLOW", x - 14, qy + s + 44);
+    }
   } else {
     ctx.strokeStyle = "rgba(23,24,28,0.15)"; ctx.beginPath(); ctx.moveTo(pad, 960); ctx.lineTo(W - pad, 960); ctx.stroke();
     ctx.fillStyle = ink; ctx.font = "600 28px 'DM Sans', sans-serif"; ctx.fillText("What's your pattern?", pad, 1012);
     ctx.fillStyle = soft; ctx.font = "500 24px 'DM Sans', sans-serif";
     const right = d.code ? `Code ${d.code}` : d.handle ?? "";
     if (right) { const w = ctx.measureText(right).width; ctx.fillText(right, W - pad - w, 1012); }
+    if (qr) {
+      const s = 120, x = W - pad - s, qy = 700;
+      ctx.fillStyle = "#FFFFFF"; ctx.beginPath(); ctx.roundRect(x - 10, qy - 10, s + 20, s + 20, 18); ctx.fill();
+      ctx.drawImage(qr, x, qy, s, s);
+      ctx.fillStyle = soft; ctx.font = "500 18px 'JetBrains Mono', monospace";
+      ctx.fillText("SCAN TO FOLLOW", x - 10, qy + s + 34);
+    }
   }
 }
 
@@ -65,11 +80,18 @@ export function ShareCard({ data, inviteUrl }: { data: ShareCardData; inviteUrl?
   const [format, setFormat] = useState<Format>("story");
   const [url, setUrl] = useState("");
   const [msg, setMsg] = useState("");
+  const [qr, setQr] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => setQr(img);
+    img.src = qrAsset.url;
+  }, []);
   useEffect(() => {
     let off = false;
-    void document.fonts?.ready.then(() => { if (off || !ref.current) return; drawCard(ref.current, data, format); setUrl(ref.current.toDataURL("image/png")); });
+    void document.fonts?.ready.then(() => { if (off || !ref.current) return; drawCard(ref.current, data, format, qr); setUrl(ref.current.toDataURL("image/png")); });
     return () => { off = true; };
-  }, [data, format]);
+  }, [data, format, qr]);
 
   const link = inviteUrl ?? (typeof window !== "undefined" ? window.location.origin : "");
   const caption = `My communication pattern: ${data.title}. What's yours?${data.handle ? ` ${data.handle}` : ""} ${link}`.trim();
