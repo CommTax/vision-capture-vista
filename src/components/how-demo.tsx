@@ -123,7 +123,7 @@ export function HowItWorksDemo() {
 
         <div className="mt-16 space-y-24 md:mt-24 md:space-y-36">
           {STEPS.map((s, i) => (
-            <div key={s.n} className="grid items-center gap-8 md:grid-cols-[1fr_2fr] md:gap-16">
+            <div key={s.n} className={`grid items-center gap-8 md:gap-16 ${i % 2 === 1 ? "md:grid-cols-[2fr_1fr]" : "md:grid-cols-[1fr_2fr]"}`}>
               <motion.div {...reveal} className={i % 2 === 1 ? "md:order-2" : ""}>
                 <div className="font-mono text-[14px] text-accent">{s.n}</div>
                 <h3 className="mt-3 text-[clamp(26px,3vw,38px)] font-bold leading-tight">{s.t}</h3>
