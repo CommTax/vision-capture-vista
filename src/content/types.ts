@@ -68,7 +68,7 @@ export interface FAQItem { id: string; question: string; answer: string }
 
 export interface ContactInfo { email: string; heading: string; intro: string }
 
-export interface HeroContent { eyebrow: string; headline: string; headlineAccent: string; body: string; mobileHeadline: string; mobileBody: string }
+export interface HeroContent { eyebrow: string; headline: string; headlineAccent: string; body: string; mobileHeadline: string; mobileBody: string; rotatingWords: string[]; audience: string; cta: string; ctaSignedIn: string }
 
 export interface ResponseSegment { label: string; /** Seconds into the response. */ at: number; main?: boolean }
 export interface DemoAttempt { attemptNumber: number; patternLabels: string[]; mainPointDelay: number; structureScore: number; concisenessScore: number; responseSequence: ResponseSegment[] }

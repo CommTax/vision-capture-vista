@@ -51,7 +51,6 @@ function Attempt({ a, on, slow, showTime }: { a: DemoAttempt; on: boolean; slow:
         </div>
         <div className="text-right transition-all duration-500" style={{ opacity: showTime ? 1 : 0, transform: showTime ? "none" : "translateY(4px)" }}>
           <div className={`font-display text-[28px] font-bold leading-none ${slow ? "text-muted-foreground" : "text-primary"}`}>{a.mainPointDelay}s</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">Main point</div>
         </div>
       </div>
       <Flow a={a} on={on} slow={slow} />

@@ -13,9 +13,13 @@ export const FALLBACK_MOMENTS: PracticeMoment[] = [
 export const FALLBACK_HOMEPAGE: HomepageContent = {
   hero: {
     eyebrow: "Practice for moments that matter.",
-    headline: "Say what you mean.",
-    headlineAccent: "Make it land.",
-    body: "Practice important moments. See what gets lost. Try again.",
+    headline: "Stop losing opportunities to",
+    headlineAccent: "rambling",
+    rotatingWords: ["rambling", "scattered", "unclear", "forgettable"],
+    body: "Practice the moment. See what got lost. Say it again.",
+    audience: "For job seekers, managers and students.",
+    cta: "Try Unspoken Free",
+    ctaSignedIn: "Start Practicing",
     mobileHeadline: "Practice for moments that matter.",
     mobileBody: "Practice a real response. See what got lost. Fix one thing. Try again.",
   },
