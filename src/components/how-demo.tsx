@@ -1,15 +1,17 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Mic, RotateCcw } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Check, ChevronDown, Flag, Mic, RotateCcw } from "lucide-react";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
+const AUTO_MS = 6000;
 
 function Waveform() {
   const reducedMotion = useReducedMotion();
   return (
-    <div className="flex h-16 items-center justify-center gap-1.5" aria-hidden="true">
-      {Array.from({ length: 25 }, (_, i) => {
-        const height = 14 + Math.abs(Math.sin(i * 0.72) * 34);
+    <div className="flex h-10 items-center justify-center gap-1.5" aria-hidden="true">
+      {Array.from({ length: 19 }, (_, i) => {
+        const height = 8 + Math.abs(Math.sin(i * 0.72) * 24);
         return (
           <motion.span
             key={i}
@@ -24,34 +26,71 @@ function Waveform() {
   );
 }
 
-function PracticeView() {
+function LogoMark() {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between">
-        <span className="product-kicker">High-stakes conversation</span>
-        <span className="product-status"><span /> Live</span>
+    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent font-display text-[17px] font-bold text-accent-foreground">
+      U
+    </span>
+  );
+}
+
+function ChooseView() {
+  return (
+    <div className="flex h-full flex-col justify-center gap-4 py-4">
+      <div className="how-float">
+        <div className="product-kicker">The moment</div>
+        <p className="mt-1.5 text-[17px] font-semibold leading-snug">Tell your manager you disagree with the proposed approach.</p>
       </div>
-      <h4 className="mt-5 max-w-[25ch] text-[19px] font-medium leading-snug md:text-[22px]">Tell your manager you disagree with the proposed approach.</h4>
-      <div className="my-auto py-6"><Waveform /></div>
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <span className="font-mono text-[12px] text-muted-foreground">00:18</span>
-        <span className="grid size-11 place-items-center rounded-full bg-accent text-accent-foreground"><Mic className="size-4" /></span>
+      <div className="how-float flex items-center justify-between">
+        <div>
+          <div className="product-kicker">What to work on</div>
+          <p className="mt-1 text-[17px] font-semibold">Structure</p>
+        </div>
+        <ChevronDown className="size-4 text-muted-foreground" />
+      </div>
+      <div className="how-float flex items-center justify-between">
+        <div>
+          <div className="product-kicker">Mode</div>
+          <p className="mt-1 text-[17px] font-semibold">High-stakes conversation</p>
+        </div>
+        <ChevronDown className="size-4 text-muted-foreground" />
       </div>
     </div>
   );
 }
 
-function InsightView() {
+function RespondView() {
   return (
-    <div className="flex h-full flex-col">
-      <span className="product-kicker">What got lost</span>
-      <h4 className="mt-5 text-[22px] font-semibold leading-tight md:text-[25px]">Your recommendation came too late.</h4>
-      <div className="my-6 border-l-2 border-accent pl-4 text-[14px] leading-6 text-muted-foreground">
-        The context arrived first.<br />The decision was easy to miss.
+    <div className="flex h-full flex-col justify-center gap-4 py-4">
+      <div className="how-float flex items-start gap-3.5">
+        <LogoMark />
+        <p className="pt-1 text-[16px] font-medium leading-snug">So tell me — how would you handle the deadline slipping?</p>
       </div>
-      <div className="mt-auto rounded-lg border border-accent/30 bg-accent/10 p-4">
-        <div className="product-kicker !text-accent">One thing to fix</div>
-        <p className="mt-2 text-[16px] font-medium">Lead with your recommendation.</p>
+      <div className="how-float flex items-center gap-4 px-5 py-4">
+        <Waveform />
+        <span className="font-mono text-[13px] text-muted-foreground">00:12</span>
+        <span className="ml-auto grid size-9 place-items-center rounded-full bg-accent text-accent-foreground"><Mic className="size-4" /></span>
+      </div>
+      <div className="how-float text-center text-[14px] font-medium text-muted-foreground">Finish response</div>
+    </div>
+  );
+}
+
+function LostView() {
+  return (
+    <div className="flex h-full flex-col justify-center gap-4 py-4">
+      <div className="how-float">
+        <div className="product-kicker !text-accent">Your pattern</div>
+        <p className="mt-1.5 font-display text-[24px] font-bold leading-tight tracking-tight">THE LONG RUNWAY</p>
+        <p className="mt-1 text-[14px] text-muted-foreground">Your main point arrived late.</p>
+      </div>
+      <div className="how-float flex items-center gap-2.5 !border-destructive/35">
+        <Flag className="size-4 shrink-0 text-destructive" />
+        <p className="text-[15px] font-medium">Context first — the decision was easy to miss</p>
+      </div>
+      <div className="how-float flex items-center gap-2.5 !border-accent/35">
+        <Check className="size-4 shrink-0 text-accent" />
+        <p className="text-[15px] font-medium">Lead with the decision</p>
       </div>
     </div>
   );
@@ -59,67 +98,125 @@ function InsightView() {
 
 function RetryView() {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between">
-        <span className="product-kicker">Second take</span>
-        <RotateCcw className="size-4 text-accent" />
+    <div className="flex h-full flex-col justify-center gap-4 py-4">
+      <div className="how-float grid grid-cols-[64px_1fr] items-center gap-3">
+        <span className="text-[13px] text-muted-foreground">Before</span>
+        <span className="rounded-lg bg-secondary px-3 py-2 text-[14px] text-muted-foreground line-through decoration-destructive/70">Context first</span>
       </div>
-      <div className="my-auto space-y-4 py-8">
-        <div className="grid grid-cols-[62px_1fr] items-center gap-3 text-[13px]">
-          <span className="text-muted-foreground">Before</span>
-          <span className="rounded-md bg-secondary px-3 py-2 text-muted-foreground line-through decoration-destructive/70">Context first</span>
-        </div>
-        <div className="grid grid-cols-[62px_1fr] items-center gap-3 text-[13px]">
-          <span className="text-accent">After</span>
-          <span className="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 font-medium">Recommendation first</span>
-        </div>
+      <div className="how-float grid grid-cols-[64px_1fr] items-center gap-3">
+        <span className="text-[13px] text-accent">After</span>
+        <span className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-[14px] font-medium">Recommendation first</span>
       </div>
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <span className="text-[13px] text-muted-foreground">Same moment. Clearer shape.</span>
-        <ArrowRight className="size-4 text-accent" />
+      <div className="how-float flex items-center justify-between">
+        <span className="text-[14px] font-medium">Same question. New shape.</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-semibold text-accent-foreground">
+          <RotateCcw className="size-3.5" /> Try again
+        </span>
       </div>
     </div>
   );
 }
 
 const STEPS = [
-  { n: "01", title: "Respond naturally", label: "Practice", view: <PracticeView /> },
-  { n: "02", title: "See what got lost", label: "Insight", view: <InsightView /> },
-  { n: "03", title: "Say it again", label: "Retry", view: <RetryView /> },
+  { title: "Choose your moment", body: "Pick a real conversation and what you want to improve.", View: ChooseView },
+  { title: "Respond naturally", body: "Speak or type your answer the way you'd say it in the room.", View: RespondView },
+  { title: "See what got lost", body: "Your pattern, what your listener heard, and one thing to fix.", View: LostView },
+  { title: "Say it again", body: "Retry the same moment and watch what changes.", View: RetryView },
 ];
+
+const variants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir * 48 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: dir * -48 }),
+};
 
 export function HowItWorksDemo() {
   const reducedMotion = useReducedMotion();
+  const [step, setStep] = useState(0);
+  const [dir, setDir] = useState(1);
+
+  const go = (n: number) => {
+    setDir(n > step ? 1 : -1);
+    setStep(n);
+  };
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const t = setInterval(() => {
+      setDir(1);
+      setStep((p) => (p + 1) % STEPS.length);
+    }, AUTO_MS);
+    return () => clearInterval(t);
+  }, [reducedMotion, step]);
+
+  const active = STEPS[step]!;
+
   return (
     <div className="product-stage py-20 md:py-28">
       <div className="mx-auto max-w-[1200px] px-5 md:px-8">
-        <div className="mx-auto max-w-[680px] text-center">
-          <div className="product-kicker !text-accent">How Unspoken works</div>
-          <h2 className="mt-4 text-balance text-[clamp(32px,4vw,54px)] font-bold leading-[1.04]">Practice. See it. Change it.</h2>
+        <h2 className="text-center font-display text-[clamp(32px,4vw,54px)] font-bold leading-[1.04]">How Unspoken works</h2>
+
+        <div className="mt-10 grid items-stretch gap-6 md:mt-14 md:grid-cols-[1.4fr_1fr]">
+          {/* Product panel */}
+          <div className="how-panel min-h-[440px] md:min-h-[520px]">
+            <div className="mx-auto flex h-full max-w-[420px] items-center px-6 py-10 md:px-12">
+              <AnimatePresence mode="wait" initial={false} custom={dir}>
+                <motion.div
+                  key={step}
+                  custom={dir}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="w-full"
+                >
+                  <active.View />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Step explanation + dots */}
+          <div className="flex items-center gap-4 md:justify-end">
+            <div className="relative min-h-[150px] flex-1 md:max-w-[360px]">
+              <AnimatePresence mode="wait" initial={false} custom={dir}>
+                <motion.div
+                  key={step}
+                  custom={dir}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="absolute inset-0 flex flex-col justify-center rounded-2xl border border-border bg-card/60 p-7 backdrop-blur-sm md:p-8"
+                >
+                  <span className="font-mono text-[11px] tracking-[0.16em] text-accent">0{step + 1}</span>
+                  <h3 className="mt-2 text-[24px] font-bold leading-tight md:text-[27px]">{active.title}</h3>
+                  <p className="mt-2.5 text-[15px] leading-6 text-muted-foreground">{active.body}</p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            <div className="flex flex-row justify-center gap-2.5 pb-1 md:flex-col md:pb-0" role="tablist" aria-label="Steps">
+              {STEPS.map((s, n) => (
+                <button
+                  key={s.title}
+                  type="button"
+                  role="tab"
+                  aria-selected={n === step}
+                  aria-label={s.title}
+                  onClick={() => go(n)}
+                  className="how-dot"
+                  data-active={n === step}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3">
-          {STEPS.map((step, i) => (
-            <motion.article
-              key={step.n}
-              initial={reducedMotion ? false : { opacity: 0, y: 22 }}
-              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 0.65, delay: i * 0.1, ease: EASE }}
-              className="product-step flex flex-col"
-            >
-              <div className="mb-4 flex items-end justify-between px-1">
-                <div><span className="product-kicker text-accent">{step.n}</span><h3 className="mt-1 text-[18px] font-medium">{step.title}</h3></div>
-                <span className="text-[11px] text-muted-foreground">{step.label}</span>
-              </div>
-              <div className="product-screen flex-1">{step.view}</div>
-            </motion.article>
-          ))}
-        </div>
-
-        <div className="mt-14 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 text-center md:flex-row md:text-left">
-          <h3 className="text-[clamp(24px,3vw,34px)] font-semibold">Practice the moments that matter.</h3>
-          <Link to="/practice" className="btn btn-primary shrink-0 px-7 py-3.5">Start Practising <ArrowRight className="size-4" /></Link>
+        <div className="mt-10 flex flex-col items-center gap-6 md:mt-14">
+          <Link to="/practice" className="btn btn-primary px-8 py-3.5 text-[16px]">Start Practising <ArrowRight className="size-4" /></Link>
+          <h3 className="text-center text-[clamp(22px,2.6vw,30px)] font-semibold">Practice the moments that matter.</h3>
         </div>
       </div>
     </div>
