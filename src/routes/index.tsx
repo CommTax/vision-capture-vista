@@ -8,7 +8,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { HowItWorksDemo } from "@/components/how-demo";
 import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
-import type { IconKey, PracticeMoment } from "@/content/types";
+import type { PracticeMoment } from "@/content/types";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
 import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
 import { MomentArt } from "@/components/moment-art";
