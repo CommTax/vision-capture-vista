@@ -88,9 +88,41 @@
   --shadow-float: 0 40px 120px -40px oklch(0 0 0 / 0.7);
 }
 
+/* Light mode: warm off-white, ink text, same amber accent. Toggled via .light on <html>. */
+.light {
+  --background: oklch(0.975 0.008 90);
+  --foreground: oklch(0.22 0.03 265);
+  --card: oklch(1 0 0 / 72%);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.99 0.005 90);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.62 0.14 55);
+  --primary-foreground: oklch(0.99 0.005 90);
+  --secondary: oklch(0.22 0.03 265 / 6%);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.22 0.03 265 / 6%);
+  --muted-foreground: oklch(0.48 0.03 265);
+  --accent: oklch(0.62 0.14 55);
+  --accent-foreground: oklch(0.99 0.005 90);
+  --destructive: oklch(0.6 0.19 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.6 0.13 160);
+  --cool: oklch(0.55 0.12 255);
+  --border: oklch(0.22 0.03 265 / 12%);
+  --input: oklch(0.22 0.03 265 / 18%);
+  --ring: oklch(0.62 0.14 55 / 55%);
+  --glass: oklch(1 0 0 / 62%);
+  --glass-strong: oklch(1 0 0 / 82%);
+  --sidebar: oklch(0.96 0.01 90);
+  --atmosphere: radial-gradient(60% 40% at 78% 8%, oklch(0.79 0.13 62 / 0.14), transparent 60%),
+    radial-gradient(50% 45% at 12% 70%, oklch(0.62 0.14 260 / 0.1), transparent 60%);
+  --shadow-float: 0 30px 80px -40px oklch(0.22 0.03 265 / 0.35);
+}
+
 @layer base {
   * { border-color: var(--color-border); }
   html { color-scheme: dark; }
+  html.light { color-scheme: light; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
