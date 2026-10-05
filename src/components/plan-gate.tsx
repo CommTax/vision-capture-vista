@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import { ContactDetails } from "@/components/contact-details";
+import { getState } from "@/lib/store";
 import type { Analysis } from "@/lib/analysis";
 import { PATTERNS } from "@/lib/data";
 import { useEntitlement, type Feature } from "@/lib/entitlements";
