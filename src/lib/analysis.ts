@@ -10,6 +10,8 @@ export type Segment = { label: string; start: number; end: number; flag?: string
 
 export type Analysis = {
   primary_pattern: string;
+  /** Raw pattern name from the backend (e.g. "Disjointed Feature Drop"). */
+  pattern_name?: string;
   secondary_pattern: string;
   scores: Record<Dimension, number>;
   overall: number;
@@ -405,11 +407,13 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
           .join("\n")
       : str(rewrite.executive_version);
 
+  const backendPatternName = str(diagnosis.pattern_name);
+  const backendPatternId = str(diagnosis.pattern_id);
+  const primaryKey = resolveLocalPatternKey(backendPatternId, backendPatternName);
+
   return {
-    primary_pattern:
-      str(diagnosis.pattern_name) ||
-      str(b.primary_pattern) ||
-      "structured",
+    primary_pattern: primaryKey,
+    pattern_name: backendPatternName || undefined,
     secondary_pattern: str(b.secondary_pattern) || "",
 
     scores,
