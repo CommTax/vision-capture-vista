@@ -75,17 +75,14 @@ export async function resumeFree(payload: {
   });
 }
 
-
-
-
 // ---------------------------------------------------------------
-// Trial
+// Trial (legacy — kept for reference; the frontend now uses
+// /api/paid/* for everyone, and the backend enforces the cap.)
 // ---------------------------------------------------------------
 
 export type TrialUploadForm = {
   text?: string;
   audio?: Blob;
-  /** Response modality — backend validates this must be "voice" or "text". */
   mode: "voice" | "text";
   question_slot: string;
   question_type: string;
@@ -127,13 +124,13 @@ export async function analyzeTrial(payload: { drill_id: string }) {
 }
 
 // ---------------------------------------------------------------
-// Paid
+// Paid (used by everyone — free users have plan='free' on the row,
+// the backend chooses the cap based on that)
 // ---------------------------------------------------------------
 
 export type PaidUploadForm = {
   text?: string;
   audio?: Blob;
-  /** Response modality — backend validates this must be "voice" or "text". */
   mode: "voice" | "text";
   question_slot: string;
   question_type: string;
@@ -240,6 +237,7 @@ export async function savePaidProfile(payload: {
   career_stage?: string;
   target_industry?: string;
   track?: string;
+  help_needed?: string;
 }) {
   return apiPost<Record<string, unknown>>("/api/paid/profile", payload);
 }
