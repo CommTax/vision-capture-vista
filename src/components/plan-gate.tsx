@@ -74,12 +74,13 @@ export function Conversion() {
  * UI: if the capture call fails, the user still reaches their result.
  *
  * `drill_id` is passed from the practice page — it's the id returned by
- * /api/trial/upload. When absent (e.g. someone lands here outside the normal
- * flow), we skip the backend call and just move the UI forward.
+ * /api/trial/upload. `mode` is the response modality ("voice" | "text"),
+ * which the backend validates.
  */
 export function LeadCapture({
   onDone,
   drill_id,
+  mode = "voice",
   eyebrow = "Your analysis is ready",
   title = "Where should we save your results?",
   body = "So your practice and pattern stay with you.",
@@ -87,6 +88,7 @@ export function LeadCapture({
 }: {
   onDone: () => void;
   drill_id?: string;
+  mode?: "voice" | "text";
   eyebrow?: string;
   title?: string;
   body?: string;
@@ -104,10 +106,7 @@ export function LeadCapture({
         const p = s.profile;
 
         // Fire the capture call in the background. Never block UI.
-        if (
-          drill_id &&
-          p?.email
-        ) {
+        if (drill_id && p?.email) {
           void captureTrial({
             drill_id,
             name: p.name ?? "",
@@ -117,7 +116,7 @@ export function LeadCapture({
                 ? `${p.phone_country_code} ${p.phone}`
                 : (p.phone ?? ""),
             stage: p.level ?? "unknown",
-            mode: "voice",
+            mode,
           })
             .then((res) => {
               const token = (res as { session_token?: string }).session_token;
@@ -175,7 +174,7 @@ export function FreeResult({ a, transcript }: { a: Analysis; transcript: string 
         <div className="eyebrow mb-4">Basic skill indicators</div>
         <div className="space-y-3">{BASIC.filter((d) => typeof a.scores[d] === "number").map((d) => <ScoreBar key={d} label={cap(d)} value={a.scores[d]} />)}</div>
       </div>
-      <Locked title="Detailed response breakdown" body="See how every part of your response landed — and the evidence behind each score." items={["Delivery", "Confidence", "Relevance", "Detailed structure analysis", "Response-level evidence", "Deeper patterns"]} cta="Unlock detailed analysis" />
+      <Locked title="Detailed response breakdown" body="See how every part of this response landed — and the evidence behind each score." items={["Delivery", "Confidence", "Relevance", "Detailed structure analysis", "Response-level evidence", "Deeper patterns"]} cta="Unlock detailed analysis" />
       <details className="glass p-6"><summary className="cursor-pointer text-[14px] text-muted-foreground">Your response</summary><p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed">{transcript}</p></details>
     </div>
   );
