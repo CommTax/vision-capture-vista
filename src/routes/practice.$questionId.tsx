@@ -94,203 +94,168 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
   useEffect(() => { if (phase === "respond" && kind === "text") textRef.current?.focus(); }, [phase, kind]);
 
-  async function analyze(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string) {
+  async function analyze(
+    transcript: string,
+    duration: number,
+    type: "voice" | "text",
+    audioUrl?: string,
+    audioBlob?: Blob | null,
+  ) {
     if (!canSubmit(getState())) return;
+
     setError("");
     setPhase("analyzing");
+
     try {
-      async function analyze(
-  transcript: string,
-  duration: number,
-  type: "voice" | "text",
-  audioUrl?: string,
-) {
-  if (!canSubmit(getState())) return;
+      const currentState = getState();
+      const free = isFree(currentState);
+      const profile = (currentState.profile ?? {}) as {
+        email?: string;
+        name?: string;
+        mobile?: string;
+        phone?: string;
+        level?: string;
+        stage?: string;
+      };
 
-  setError("");
-  setPhase("analyzing");
-
-  try {
-    const currentState = getState();
-    const free = isFree(currentState);
-
-    let a: Analysis;
-
-    if (free) {
-      /*
-       * TRIAL FLOW
-       *
-       * 1. Upload response
-       * 2. Capture trial/session
-       * 3. Ask backend to analyze
-       */
-
-      const form = new FormData();
-
-      if (type === "text") {
-        form.append("text", transcript);
-      }
-
-      form.append("mode", q.mode);
-      form.append(
-        "question_slot",
-        String(attempts.length + 1),
-      );
-      form.append("question_type", q.mode);
-      form.append("question_prompt", q.text);
-      form.append(
-        "duration_seconds",
-        String(duration || 0),
-      );
-
-      const uploaded = await uploadTrialResponse(form);
-
-      const email = currentState.profile?.email;
-
+      const email = profile.email;
       if (!email) {
         throw new Error(
           "Please sign in before submitting your response.",
         );
       }
 
-      const captured = await captureTrial({
-        email,
-        drill_id: uploaded.drill_id,
-        mode: q.mode,
-        question_slot: attempts.length + 1,
-        question_type: q.mode,
-        question_prompt: q.text,
-      });
+      // -------------------------------------------------------------
+      // 1. Upload response → backend returns { drill_id }
+      // -------------------------------------------------------------
 
-      /*
-       * The capture endpoint returns the trial session token.
-       * Store it so subsequent trial API calls are authenticated.
-       */
-      if (captured.session_token) {
-        localStorage.setItem(
-          "unspoken-session-token",
-          captured.session_token,
+      const questionSlot = String(attempts.length + 1);
+
+      let drill_id: string;
+
+      if (free) {
+        const form = buildTrialUploadForm({
+          text: type === "text" ? transcript : undefined,
+          audio: type === "voice" && audioBlob ? audioBlob : undefined,
+          mode: q.mode,
+          question_slot: questionSlot,
+          question_type: q.mode,
+          question_prompt: q.text,
+          duration_seconds: duration || 0,
+        });
+
+        const uploaded = await uploadTrialResponse(form);
+        drill_id = uploaded.drill_id;
+      } else {
+        const form = buildPaidUploadForm({
+          text: type === "text" ? transcript : undefined,
+          audio: type === "voice" && audioBlob ? audioBlob : undefined,
+          mode: q.mode,
+          question_slot: questionSlot,
+          question_type: q.mode,
+          question_prompt: q.text,
+          duration_seconds: duration || 0,
+        });
+
+        const uploaded = await uploadPaidResponse(form);
+        drill_id = uploaded.drill_id;
+      }
+
+      if (!drill_id) {
+        throw new Error(
+          "The server did not return a drill id for this response.",
         );
       }
 
-      const backendAnalysis = await analyzeTrial({
-        drill_id: uploaded.drill_id,
-        question_prompt: q.text,
-        transcript,
-        mode: q.mode,
-        duration_seconds: duration || 0,
-        response_type: type,
-      });
+      // -------------------------------------------------------------
+      // 2. Trial only: capture the lead and receive a session token
+      // -------------------------------------------------------------
+      if (free) {
+        const captured = await captureTrial({
+          drill_id,
+          name: profile.name ?? "",
+          email,
+          mobile: profile.mobile ?? profile.phone ?? "",
+          stage: profile.stage ?? profile.level ?? "unknown",
+          question_type: q.mode,
+          question_slot: questionSlot,
+          mode: q.mode,
+        });
 
-      a = backendAnalysis as Analysis;
-    } else {
-      /*
-       * PAID FLOW
-       */
-
-      const form = new FormData();
-
-      if (type === "text") {
-        form.append("text", transcript);
+        if (captured.session_token) {
+          try {
+            localStorage.setItem(
+              "unspoken-trial-token",
+              captured.session_token,
+            );
+          } catch {
+            /* ignore */
+          }
+        }
       }
 
-      form.append("mode", q.mode);
-      form.append("question_prompt", q.text);
-      form.append(
-        "duration_seconds",
-        String(duration || 0),
-      );
+      // -------------------------------------------------------------
+      // 3. Ask the backend to analyze the stored response
+      // -------------------------------------------------------------
 
-      const uploaded = await uploadPaidResponse(form);
+      const backendRaw = free
+        ? await analyzeTrial({ drill_id })
+        : await analyzePaidResponse({ drill_id });
 
-      const backendAnalysis = await analyzePaidResponse({
-        drill_id: uploaded.drill_id,
-        question_prompt: q.text,
-        transcript,
+      const a: Analysis = normalizeBackendAnalysis(backendRaw);
+
+      // -------------------------------------------------------------
+      // 4. Persist locally for the existing UI (unchanged behaviour)
+      // -------------------------------------------------------------
+
+      const rec: ResponseRecord = {
+        id: uid(),
+        question_id: q.id,
+        question: q.text,
         mode: q.mode,
-        duration_seconds: duration || 0,
         response_type: type,
-      });
+        transcript,
+        audio_url: audioUrl,
+        duration: a.duration || duration,
+        created_at: new Date().toISOString(),
+        attempt: attempts.length + 1,
+        parent_id: attempts[0]?.id,
+        analysis: a,
+      };
 
-      a = backendAnalysis as Analysis;
-    }
-
-    const rec: ResponseRecord = {
-      id: uid(),
-      question_id: q.id,
-      question: q.text,
-      mode: q.mode,
-      response_type: type,
-      transcript,
-      audio_url: audioUrl,
-      duration: a.duration,
-      created_at: new Date().toISOString(),
-      attempt: attempts.length + 1,
-      parent_id: attempts[0]?.id,
-      analysis: a,
-    };
-
-    const wasFree = isFree(getState());
-
-    addResponse(rec);
-    recordSubmission();
-
-    if (wasFree) {
-      setState((s) => ({
-        ...s,
-        freeResponseIds: [
-          ...(s.freeResponseIds ?? []),
-          rec.id,
-        ],
-      }));
-    }
-
-    const next = [...attempts, rec];
-
-    setAttempts(next);
-    setView(next.length - 1);
-    setCompareWith(Math.max(0, next.length - 2));
-
-    setText("");
-    setStartedAt(null);
-    setElapsed(0);
-
-    setPhase(
-      isFree(getState()) && !hasLead()
-        ? "lead"
-        : "result",
-    );
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  } catch (error) {
-    console.error("Response analysis failed:", error);
-
-    setError(
-      error instanceof Error
-        ? error.message
-        : "We couldn't analyze that response. Please try again.",
-    );
-
-    setPhase("respond");
-  }
-}
-      const rec: ResponseRecord = { id: uid(), question_id: q.id, question: q.text, mode: q.mode, response_type: type, transcript, audio_url: audioUrl, duration: a.duration, created_at: new Date().toISOString(), attempt: attempts.length + 1, parent_id: attempts[0]?.id, analysis: a };
       const wasFree = isFree(getState());
+
       addResponse(rec);
       recordSubmission();
-      if (wasFree) setState((s) => ({ ...s, freeResponseIds: [...(s.freeResponseIds ?? []), rec.id] }));
+
+      if (wasFree) {
+        setState((s) => ({
+          ...s,
+          freeResponseIds: [...(s.freeResponseIds ?? []), rec.id],
+        }));
+      }
+
       const next = [...attempts, rec];
       setAttempts(next);
       setView(next.length - 1);
       setCompareWith(Math.max(0, next.length - 2));
-      setText(""); setStartedAt(null); setElapsed(0);
-      setPhase(isFree(getState()) && !hasLead() ? "lead" : "result");
+
+      setText("");
+      setStartedAt(null);
+      setElapsed(0);
+
+      setPhase(
+        isFree(getState()) && !hasLead() ? "lead" : "result",
+      );
+
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setError("We couldn't analyze that response. Please try again.");
+    } catch (error) {
+      console.error("[practice] response analysis failed:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "We couldn't analyze that response. Please try again.",
+      );
       setPhase("respond");
     }
   }
@@ -359,7 +324,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
               </div>
               <div className="mt-6">
                 {kind === "voice" ? (
-                  <Recorder key={attempts.length} max={Math.max(60, q.seconds + 30)} onDone={(r) => analyze(r.transcript, r.duration, "voice", r.audioUrl)} />
+                  <Recorder key={attempts.length} max={Math.max(60, q.seconds + 30)} onDone={(r) => analyze(r.transcript, r.duration, "voice", r.audioUrl, r.audioBlob)} />
                 ) : (
                   <div className="space-y-3">
                     <textarea ref={textRef} className="field min-h-56 text-[16px] leading-relaxed" value={text} placeholder="Start with your main point…"
