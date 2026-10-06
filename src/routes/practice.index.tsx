@@ -76,7 +76,23 @@ function Practice() {
               stage: p.level ?? undefined,
             }).then((res) => {
               if (res.session_token) setFreeSession(res.session_token);
-              setHasToken(true);
+    // Populate the local profile so the header shows the name.
+    setState((s) => ({
+      ...s,
+      profile: {
+        name: p.name ?? "Friend",
+        email: p.email ?? "",
+        phone: p.phone,
+        phone_country_code: p.phone_country_code,
+        goal: "",
+        struggle: "",
+        experience: "",
+        level: p.level ?? "Mid career",
+        onboarded: false,
+        plan: "free",
+      },
+    }));            
+        setHasToken(true);
             }).catch((err) => {
               console.warn("[practice] signupFree failed:", err);
               setHasToken(true);
