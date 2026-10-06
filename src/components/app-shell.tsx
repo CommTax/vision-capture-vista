@@ -7,7 +7,6 @@ import { streak, useStore } from "@/lib/store";
 import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
 import logoImg from "@/assets/logo.png";
 import { logoutBackend } from "@/lib/backend-auth";
-import { LogOut } from "lucide-react";  // add to the existing lucide import
 
 export function useHydrated() {
   return useSyncExternalStore(() => () => {}, () => true, () => false);
