@@ -31,6 +31,7 @@ export type Analysis = {
   improvements: string[];
   what_got_lost: { intended: string; heard: string; why: string[]; makeItLand: string[] };
   example_structure: string;
+  rework: string; 
   segments: Segment[];
   recommended_drill: string;
   retry_instruction: string;
