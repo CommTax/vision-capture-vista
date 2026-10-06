@@ -141,3 +141,12 @@ export async function getBackendSession() {
 export function logoutBackend() {
   clearSessionToken();
 }
+
+/**
+ * Store a free-user session. Same slot as a paid session — the token
+ * identifies the user; the plan on the server decides their cap.
+ */
+export function setFreeSession(token: string) {
+  setSessionToken(token);
+  setPlanHint({ is_paid: false, plan: "free" });
+}
