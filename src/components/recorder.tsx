@@ -3,7 +3,7 @@ import { Mic, Pause, Play, Square } from "lucide-react";
 
 type SR = { start(): void; stop(): void; continuous: boolean; interimResults: boolean; lang: string; onresult: ((e: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void) | null };
 
-export function Recorder({ max, onDone, submitLabel = "Analyze my response", stopLabel = "Stop" }: { max: number; submitLabel?: string; stopLabel?: string; onDone: (r: { transcript: string; duration: number; audioUrl: string }) => void }) {
+export function Recorder({ max, onDone, submitLabel = "Analyze my response", stopLabel = "Stop" }: { max: number; submitLabel?: string; stopLabel?: string; onDone: (r: { transcript: string; duration: number; audioUrl: string; audioBlob: Blob | null }) => void }) {
   const [state, setState] = useState<"idle" | "rec" | "paused" | "done">("idle");
   const [sec, setSec] = useState(0);
   const [levels, setLevels] = useState<number[]>(Array(32).fill(0.08));
@@ -12,6 +12,7 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response", sto
   const [err, setErr] = useState("");
   const mr = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
+  const audioBlob = useRef<Blob | null>(null);
   const raf = useRef(0);
   const sr = useRef<SR | null>(null);
   const finalText = useRef("");
@@ -73,7 +74,7 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response", sto
           <button className="btn btn-ghost" onClick={pause}>{state === "rec" ? <><Pause className="size-4" />Pause</> : <><Play className="size-4" />Resume</>}</button>
           <button className="btn btn-primary" onClick={stop}><Square className="size-4" />{stopLabel}</button>
         </>}
-        {state === "done" && <button className="btn btn-ghost" onClick={() => { setState("idle"); setSec(0); setTranscript(""); finalText.current = ""; setAudioUrl(""); }}>Re-record</button>}
+        {state === "done" && <button className="btn btn-ghost" onClick={() => { setState("idle"); setSec(0); setTranscript(""); finalText.current = ""; setAudioUrl(""); audioBlob.current = null; }}
       </div>
       {err && <p className="text-center text-[13px] text-destructive">{err}</p>}
       {state === "done" && (
@@ -81,7 +82,7 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response", sto
           {audioUrl && <audio controls src={audioUrl} className="w-full" />}
           <div className="text-[12px] text-muted-foreground">{supportsSR ? "Transcript — correct anything we misheard." : "Live transcription isn't supported in this browser. Type what you said so we can analyze it."}</div>
           <textarea className="field min-h-32" value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Your words…" />
-          <button className="btn btn-primary w-full" disabled={transcript.trim().split(/\s+/).length < 5} onClick={() => onDone({ transcript, duration: sec, audioUrl })}>{submitLabel}</button>
+          <button className="btn btn-primary w-full" disabled={transcript.trim().split(/\s+/).length < 5} onClick={() => onDone({ transcript, duration: sec, audioUrl, audioBlob: audioBlob.current })}>{submitLabel}</button>
         </div>
       )}
     </div>
