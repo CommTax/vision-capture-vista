@@ -12,6 +12,7 @@ export type AuthSession = {
   expires_in?: number;
 };
 
+
 export type BackendUserSession = {
   user_id: string;
   email?: string;
