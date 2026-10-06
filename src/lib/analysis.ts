@@ -369,10 +369,10 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
   const repeated_words: { word: string; count: number }[] = [];
 
   // ---------- what got lost ----------
-  const whyList = [
-    str(diagnosis.why_this_matters),
-    str(gap.what_got_lost),
-  ].filter(Boolean);
+const whyList = [
+  str(diagnosis.why_this_matters),
+  str(gap.what_got_lost),
+].filter(Boolean);
 
   const what_got_lost = {
     intended: str(diagnosis.intent),
@@ -407,15 +407,17 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
           .join("\n")
       : str(rewrite.executive_version);
 
-  const backendPatternName = str(diagnosis.pattern_name);
-  const backendPatternId = str(diagnosis.pattern_id);
-  const primaryKey = resolveLocalPatternKey(backendPatternId, backendPatternName);
+const backendSecondaryName = str(diagnosis.secondary_pattern_name);
+const backendSecondaryId = str(diagnosis.secondary_pattern_id);
+const secondaryKey = backendSecondaryId
+  ? resolveLocalPatternKey(backendSecondaryId, backendSecondaryName)
+  : "";
 
   return {
     primary_pattern: primaryKey,
     pattern_name: backendPatternName || undefined,
-    secondary_pattern: str(b.secondary_pattern) || "",
-
+    secondary_pattern: secondaryKey || backendSecondaryName || "",
+    
     scores,
     overall,
     dimensions,
