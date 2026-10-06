@@ -124,7 +124,7 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
                   <div className="mt-3 space-y-2 text-[13px]">
                     <p><span className="text-muted-foreground">What happened: </span>{r.happened}</p>
                     <p><span className="text-muted-foreground">Evidence: </span>{r.evidence}</p>
-                    <p><span className="text-primary">Try: </span>{r.tryThis}</p>
+                    <p><span className="text-primary">What it means: </span>{r.tryThis}</p>
                   </div>
                 )}
               </div>
