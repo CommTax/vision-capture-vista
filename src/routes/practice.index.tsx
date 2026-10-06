@@ -7,6 +7,11 @@ import { cap } from "@/components/analysis-view";
 import { MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
+import { useEffect, useState } from "react";
+import { ContactDetails } from "@/components/contact-details";
+import { signupFree } from "@/lib/backend-api";
+import { setFreeSession } from "@/lib/backend-auth";
+import { getState } from "@/lib/store";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 
