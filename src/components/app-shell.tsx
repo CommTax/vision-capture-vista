@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
-import { Flame } from "lucide-react";
+import { Flame, LogOut } from "lucide-react";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { streak, useStore } from "@/lib/store";
 import { STATE_LABEL, useEntitlement } from "@/lib/entitlements";
 import logoImg from "@/assets/logo.png";
+import { logoutBackend } from "@/lib/backend-auth";
+import { LogOut } from "lucide-react";  // add to the existing lucide import
 
 export function useHydrated() {
   return useSyncExternalStore(() => () => {}, () => true, () => false);
@@ -36,6 +38,9 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
   const profile = useStore((s) => s.profile);
   const days = useStore((s) => s.practiceDays);
   const navigate = useNavigate();
+  // A user is "signed in" if they have a profile with an email.
+// The token is checked by the backend; the local header uses the profile.
+const signedIn = !!(profile && profile.email);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -58,10 +63,24 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link to="/plans" className="hidden rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground sm:inline">{STATE_LABEL[state]}</Link>
-            {profile ? <>
-              <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>
-              <Link to="/profile" className="grid size-8 place-items-center rounded-full bg-secondary font-display text-[13px] font-bold">{profile.name.slice(0, 1).toUpperCase()}</Link>
-            </> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}
+{signedIn ? <>
+  <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 font-mono text-[12px]"><Flame className="size-3.5 text-primary" />{streak(days)}</span>
+  <Link to="/profile" className="grid size-8 place-items-center rounded-full bg-secondary font-display text-[13px] font-bold">{(profile?.name ?? "F").slice(0, 1).toUpperCase()}</Link>
+  <button
+    type="button"
+    aria-label="Log out"
+    title="Log out"
+    className="grid size-8 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+    onClick={() => {
+      logoutBackend();
+      // Force a full reload so every hook and cached state re-reads
+      // from a clean localStorage.
+      window.location.href = "/";
+    }}
+  >
+    <LogOut className="size-4" />
+  </button>
+</> : <Link to="/signup" search={{ mode: "signin" }} className="text-[13px] text-muted-foreground hover:text-foreground">Sign in</Link>}
           </div>
         </div>
       </header>
