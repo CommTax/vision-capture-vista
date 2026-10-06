@@ -14,13 +14,14 @@ export const PLAN_CONFIG = {
     /** Configure when annual pricing is decided. null = not configured, no % shown. */
     annualDiscountPct: null as number | null,
   },
-sprint: {
-  trialDays: 3,
-  durations: [
-    { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1,499" },
-  ],
-  price: "₹1,499",
-},
+  sprint: {
+    trialDays: 3,
+    durations: [
+      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1,499" },
+    ],
+    price: "₹1,499",
+  },
+};
 
 export type SprintDurationId = (typeof PLAN_CONFIG.sprint.durations)[number]["id"];
 export type SprintGoal = { id: string; label: string; goal: string; focus: Dimension[] };
