@@ -6,10 +6,15 @@ import { Recorder } from "@/components/recorder";
 import { LeadCapture } from "@/components/plan-gate";
 import { ShareCard } from "@/components/share-card";
 import { ShareRewards, useShareSetup } from "@/components/share-rewards";
-import { analyzeResponse, type Analysis } from "@/lib/analysis";
+import { type Analysis, normalizeBackendAnalysis } from "@/lib/analysis";
+import {
+  buildTrialUploadForm,
+  uploadTrialResponse,
+  analyzeTrial,
+} from "@/lib/backend-api";
 import { PATTERNS, type Dimension, type Question } from "@/lib/data";
 import { FREE_FOCUS } from "@/lib/scenarios";
-import { canSubmit, hasLead, recordSubmission, useEntitlement } from "@/lib/entitlements";
+import { canSubmit, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, type ResponseRecord } from "@/lib/store";
 
 /* Free Practice Trial experience: start → respond → (contact) → pattern → what got lost → new shape → retry → compare → keep practising. */
@@ -38,31 +43,81 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
   const [kind, setKind] = useState<"voice" | "text">("voice");
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [drillId, setDrillId] = useState<string | null>(null);
   const last = attempts[attempts.length - 1];
   const prev = attempts.length > 1 ? attempts[attempts.length - 2] : undefined;
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  async function submit(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string) {
+  async function submit(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string, audioBlob?: Blob | null) {
     if (!canSubmit(getState())) return;
-    setError(""); setPhase("listening"); top();
+    setError("");
+    setPhase("listening");
+    top();
     const started = Date.now();
     try {
-      const a: Analysis = await analyzeResponse({ question: q.text, transcript, mode: q.mode, level, durationSec: duration || undefined, responseType: type });
-      const rec: ResponseRecord = { id: uid(), question_id: q.id, question: q.text, mode: q.mode, response_type: type, transcript, audio_url: audioUrl, duration: a.duration, created_at: new Date().toISOString(), attempt: attempts.length + 1, parent_id: attempts[0]?.id, analysis: a };
+      const questionSlot = String(attempts.length + 1);
+
+      // 1. Upload response → backend returns { drill_id }
+      const form = buildTrialUploadForm({
+        text: type === "text" ? transcript : undefined,
+        audio: type === "voice" && audioBlob ? audioBlob : undefined,
+        mode: q.mode,
+        question_slot: questionSlot,
+        question_type: q.mode,
+        question_prompt: q.text,
+        duration_seconds: duration || 0,
+      });
+
+      const uploaded = await uploadTrialResponse(form);
+      const drill_id = uploaded.drill_id;
+      if (!drill_id) {
+        throw new Error("The server did not return a drill id for this response.");
+      }
+
+      // 2. Ask the backend to analyze the stored response
+      const backendRaw = await analyzeTrial({ drill_id });
+      const a: Analysis = normalizeBackendAnalysis(backendRaw);
+
+      // 3. Persist locally (unchanged behaviour)
+      const rec: ResponseRecord = {
+        id: uid(),
+        question_id: q.id,
+        question: q.text,
+        mode: q.mode,
+        response_type: type,
+        transcript,
+        audio_url: audioUrl,
+        duration: a.duration || duration,
+        created_at: new Date().toISOString(),
+        attempt: attempts.length + 1,
+        parent_id: attempts[0]?.id,
+        analysis: a,
+      };
+
       addResponse(rec);
-      recordSubmission(); // only a successfully analysed submission consumes a free attempt
+      recordSubmission();
       setState((s) => ({ ...s, freeResponseIds: [...(s.freeResponseIds ?? []), rec.id] }));
-      setAttempts((xs) => [...xs, rec]); setText("");
+      setAttempts((xs) => [...xs, rec]);
+      setDrillId(drill_id);
+      setText("");
+
       await new Promise((r) => setTimeout(r, Math.max(0, 1600 - (Date.now() - started))));
-      setPhase(hasLead() ? "result" : "contact");
-    } catch {
-      setError("We couldn't read that response. Please try again."); setPhase("respond");
+      setPhase("contact");
+    } catch (err) {
+      console.error("[free-practice] response analysis failed:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn't read that response. Please try again.",
+      );
+      setPhase("respond");
     }
   }
 
   function retry() {
     if (last) setFocus(opportunity(last.analysis).main);
-    setPhase("start"); top();
+    setPhase("start");
+    top();
   }
 
   return (
@@ -104,7 +159,14 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
 
           {phase === "contact" && (
             <motion.div key="contact" {...fade} className="mx-auto max-w-[480px]">
-              <LeadCapture eyebrow="Your response is in" title="One moment. Let's show you what got through." body="We'll use your response to show the communication pattern behind it." submit="Show my pattern" onDone={() => { setPhase("result"); window.scrollTo({ top: 0 }); }} />
+              <LeadCapture
+                drill_id={drillId ?? undefined}
+                eyebrow="Your response is in"
+                title="One moment. Let's show you what got through."
+                body="We'll use your response to show the communication pattern behind it."
+                submit="Show my pattern"
+                onDone={() => { setPhase("result"); window.scrollTo({ top: 0 }); }}
+              />
             </motion.div>
           )}
 
@@ -153,7 +215,7 @@ function FreePracticeStart({ q, focus, setFocus, retryOf, onStart }: { q: Questi
   );
 }
 
-function FreePracticeRespond({ q, kind, setKind, text, setText, error, attemptKey, onBack, onSubmit }: { q: Question; kind: "voice" | "text"; setKind: (k: "voice" | "text") => void; text: string; setText: (s: string) => void; error: string; attemptKey: number; onBack: () => void; onSubmit: (t: string, d: number, type: "voice" | "text", url?: string) => void }) {
+function FreePracticeRespond({ q, kind, setKind, text, setText, error, attemptKey, onBack, onSubmit }: { q: Question; kind: "voice" | "text"; setKind: (k: "voice" | "text") => void; text: string; setText: (s: string) => void; error: string; attemptKey: number; onBack: () => void; onSubmit: (t: string, d: number, type: "voice" | "text", url?: string, blob?: Blob | null) => void }) {
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   return (
     <div className="space-y-8">
@@ -169,7 +231,7 @@ function FreePracticeRespond({ q, kind, setKind, text, setText, error, attemptKe
           <button className="chip !border-0 flex items-center gap-2" data-active={kind === "text"} onClick={() => setKind("text")}><Keyboard className="size-4" />Type</button>
         </div>
         {kind === "voice" ? (
-          <Recorder key={attemptKey} max={Math.max(60, q.seconds)} stopLabel="Finish response" submitLabel="Submit response" onDone={(r) => onSubmit(r.transcript, r.duration, "voice", r.audioUrl)} />
+          <Recorder key={attemptKey} max={Math.max(60, q.seconds)} stopLabel="Finish response" submitLabel="Submit response" onDone={(r) => onSubmit(r.transcript, r.duration, "voice", r.audioUrl, r.audioBlob)} />
         ) : (
           <div className="space-y-3">
             <textarea autoFocus className="field min-h-52 text-[16px] leading-relaxed" value={text} onChange={(e) => setText(e.target.value)} placeholder="Write it the way you would say it out loud…" />
