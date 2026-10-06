@@ -25,6 +25,7 @@ export const Route = createFileRoute("/practice/$questionId")({
   component: SessionRoute,
 });
 
+
 /**
  * Reads the authenticated email from the stored JWT.
  * verifyOtp/signupFree store the token but do NOT populate profile.email,
