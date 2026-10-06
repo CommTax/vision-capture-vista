@@ -103,6 +103,14 @@ function readPlanHint(): PlanHint | null {
  * Returns null when there is no usable hint.
  */
 export function backendEntitlementState(): EntitlementState | null {
+  // If there's no live session token, the plan hint is meaningless —
+  // it's a cache of a paid login that no longer applies. This stops a
+  // stale `is_paid: true` from routing anonymous users into the paid flow.
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("unspoken-session-token");
+    if (!token) return null;
+  }
+
   const hint = readPlanHint();
   if (!hint) return null;
 
