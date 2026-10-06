@@ -41,20 +41,20 @@ function SignIn() {
   const navigate = useNavigate();
   const hydrated = useHydrated();
 
-const [email, setEmail] = useState(() =>
-  typeof window !== "undefined"
-    ? sessionStorage.getItem("unspoken-login-email") || ""
-    : "",
-);
+  const [email, setEmail] = useState(() =>
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("unspoken-login-email") || ""
+      : "",
+  );
 
-const [code, setCode] = useState("");
+  const [code, setCode] = useState("");
 
-const [step, setStep] = useState<"email" | "code">(() =>
-  typeof window !== "undefined" &&
-  sessionStorage.getItem("unspoken-login-step") === "code"
-    ? "code"
-    : "email",
-);
+  const [step, setStep] = useState<"email" | "code">(() =>
+    typeof window !== "undefined" &&
+    sessionStorage.getItem("unspoken-login-step") === "code"
+      ? "code"
+      : "email",
+  );
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cool, setCool] = useState(0);
@@ -76,24 +76,16 @@ const [step, setStep] = useState<"email" | "code">(() =>
         return;
       }
 
-      const plan = String(session.plan ?? "").toUpperCase();
-
-      if (plan.startsWith("SPRINT")) {
-        navigate({
-          to: "/sprint",
-          replace: true,
-        });
-      } else if (plan.startsWith("PRACTICE")) {
-        navigate({
-          to: "/dashboard",
-          replace: true,
-        });
-      } else {
-        navigate({
-          to: "/practice",
-          replace: true,
-        });
-      }
+      // Plan-based routing (/sprint, /dashboard) will be reintroduced once
+      // those routes exist in the TanStack file-based router.
+      // For now, everyone lands on the practice hub.
+      //
+      // Future:
+      //   const plan = String(session.plan ?? "").toUpperCase();
+      //   if (plan.startsWith("SPRINT"))        navigate({ to: "/sprint",    replace: true });
+      //   else if (plan.startsWith("PRACTICE")) navigate({ to: "/dashboard", replace: true });
+      //   else                                  navigate({ to: "/practice",  replace: true });
+      navigate({ to: "/practice", replace: true });
     } catch {
       setErr("We couldn't load your account. Please try again.");
     }
@@ -113,17 +105,16 @@ const [step, setStep] = useState<"email" | "code">(() =>
     setBusy(true);
 
     try {
-await requestOtp(normalizedEmail);
+      await requestOtp(normalizedEmail);
 
-sessionStorage.setItem("unspoken-login-email", normalizedEmail);
-sessionStorage.setItem("unspoken-login-step", "code");
+      sessionStorage.setItem("unspoken-login-email", normalizedEmail);
+      sessionStorage.setItem("unspoken-login-step", "code");
 
-setEmail(normalizedEmail);
-setStep("code");
-setCool(60);
+      setEmail(normalizedEmail);
+      setStep("code");
+      setCool(60);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "";
+      const message = error instanceof Error ? error.message : "";
 
       setErr(
         /not found|inactive|not allowed|account/i.test(message)
@@ -135,24 +126,19 @@ setCool(60);
     }
   }
 
-async function verify(e: React.FormEvent) {
-  e.preventDefault();
+  async function verify(e: React.FormEvent) {
+    e.preventDefault();
 
-  console.log("VERIFY BUTTON FIRED", {
-    email,
-    codeLength: code.length,
-  });
-
-  setErr("");
-  setBusy(true);
+    setErr("");
+    setBusy(true);
 
     try {
-await verifyOtp(email.trim().toLowerCase(), code.trim());
+      await verifyOtp(email.trim().toLowerCase(), code.trim());
 
-sessionStorage.removeItem("unspoken-login-step");
-sessionStorage.removeItem("unspoken-login-email");
+      sessionStorage.removeItem("unspoken-login-step");
+      sessionStorage.removeItem("unspoken-login-email");
 
-await route();
+      await route();
     } catch {
       setBusy(false);
       setErr("That code didn't work. Check it, or send a new one.");
@@ -251,13 +237,13 @@ await route();
             <div className="flex justify-between text-[13px] text-muted-foreground">
               <button
                 type="button"
-onClick={() => {
-  sessionStorage.removeItem("unspoken-login-step");
-  sessionStorage.removeItem("unspoken-login-email");
-  setStep("email");
-  setCode("");
-  setErr("");
-}}
+                onClick={() => {
+                  sessionStorage.removeItem("unspoken-login-step");
+                  sessionStorage.removeItem("unspoken-login-email");
+                  setStep("email");
+                  setCode("");
+                  setErr("");
+                }}
                 className="hover:text-foreground"
               >
                 Change email
