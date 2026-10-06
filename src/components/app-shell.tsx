@@ -41,11 +41,22 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
 // The token is checked by the backend; the local header uses the profile.
 const signedIn = !!(profile && profile.email);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    if (!profile) { if (!allowGuest) navigate({ to: "/signup" }); }
-    else if (!profile.onboarded && !allowGuest) navigate({ to: "/onboarding" });
-  }, [hydrated, profile, navigate, allowGuest]);
+useEffect(() => {
+  if (!hydrated) return;
+
+  if (profile) {
+    if (!profile.onboarded && !allowGuest) navigate({ to: "/onboarding" });
+    return;
+  }
+
+  // No profile yet. If there's a token, the user is probably just
+  // waiting on the session fetch — don't bounce them to signup.
+  const hasToken =
+    typeof window !== "undefined" &&
+    !!localStorage.getItem("unspoken-session-token");
+
+  if (!hasToken && !allowGuest) navigate({ to: "/signup" });
+}, [hydrated, profile, navigate, allowGuest]);
 
   if (!hydrated || (!allowGuest && !profile?.onboarded)) return <div className="min-h-screen" />;
 
