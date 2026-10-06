@@ -36,7 +36,15 @@ function SessionRoute() {
   const hydrated = useHydrated();
   const level = useStore((st) => st.profile?.level ?? "Mid career");
   if (!hydrated) return <div className="min-h-screen" />;
-  if (ent.free && questionId !== "custom") {
+
+  // Anonymous visitors always see the free experience — the paid path
+  // requires a live session token. This stops a stale plan hint from
+  // routing a logged-out user into the paid flow.
+  const hasToken =
+    typeof window !== "undefined" &&
+    !!localStorage.getItem("unspoken-session-token");
+
+  if (!hasToken || (ent.free && questionId !== "custom")) {
     const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
     const sc = toScenario(base, level);
     const q: Question = { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
