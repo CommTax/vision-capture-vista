@@ -14,11 +14,9 @@ function getToken() {
 function authHeaders() {
   const token = getToken();
 
-  return token
-    ? {
-        Authorization: `Bearer ${token}`,
-      }
-    : {};
+  // The Render backend expects a raw JWT in the lowercase `authorization`
+  // header. It does NOT accept a "Bearer " prefix.
+  return token ? { authorization: token } : {};
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
@@ -67,6 +65,7 @@ export async function apiPostForm<T>(
     headers: {
       ...authHeaders(),
       Accept: "application/json",
+      // Do NOT set Content-Type — the browser sets the multipart boundary.
     },
     body: form,
   });
@@ -81,11 +80,25 @@ export async function apiPostForm<T>(
 async function readApiError(res: Response): Promise<string> {
   try {
     const data = (await res.json()) as {
-      detail?: string;
+      detail?: string | Array<{ loc?: unknown[]; msg?: string; type?: string }>;
       message?: string;
     };
 
-    return data.detail || data.message || `Request failed (${res.status})`;
+    if (typeof data.detail === "string") return data.detail;
+
+    if (Array.isArray(data.detail) && data.detail.length > 0) {
+      return data.detail
+        .map((d) => {
+          const where = Array.isArray(d.loc) ? d.loc.join(".") : "";
+          return where
+            ? `${where}: ${d.msg ?? d.type ?? "invalid"}`
+            : d.msg ?? "invalid";
+        })
+        .join("; ");
+    }
+
+    if (data.message) return data.message;
+    return `Request failed (${res.status})`;
   } catch {
     return `Request failed (${res.status})`;
   }
