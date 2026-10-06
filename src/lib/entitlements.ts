@@ -1,6 +1,6 @@
 // Product entitlements: one practice system, three access layers (Free, Practice, Sprint).
 // Identity (profile), entitlement and marketing consent are stored separately.
-// Paid status is never set from the client — only a future payment integration may write PAID.
+// Paid status is never set from the client — the backend's plan hint is the source of truth.
 import type { Dimension } from "./data";
 import { getState, setState, today, useStore, type State } from "./store";
 
@@ -71,15 +71,85 @@ export function currentEntitlement(s: State): Entitlement | null {
   return e;
 }
 
+// ───────────────────────────────────────────────────────────────
+// Backend plan hint
+//
+// `backend-auth.ts` caches `{ is_paid, plan }` in localStorage after
+// a successful OTP login and refreshes it every time /api/auth/session
+// returns. It is a *hint*, not the source of truth — the backend is.
+// But it lets the UI know a user is paid even before session fetch
+// resolves, and it survives a page reload.
+// ───────────────────────────────────────────────────────────────
+
+type PlanHint = { is_paid: boolean; plan: string | null };
+
+function readPlanHint(): PlanHint | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("unspoken-plan-hint");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PlanHint>;
+    return {
+      is_paid: Boolean(parsed.is_paid),
+      plan: typeof parsed.plan === "string" ? parsed.plan : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Maps the backend's `plan` string to a local EntitlementState.
+ * Returns null when there is no usable hint.
+ */
+export function backendEntitlementState(): EntitlementState | null {
+  const hint = readPlanHint();
+  if (!hint) return null;
+
+  const plan = (hint.plan ?? "").toLowerCase();
+
+  if (hint.is_paid) {
+    if (plan.includes("sprint")) return "SPRINT_PAID";
+    if (plan.includes("practice") || plan.includes("pass")) return "PRACTICE_PAID";
+    // is_paid true but unknown plan — treat as practice to unlock features.
+    return "PRACTICE_PAID";
+  }
+
+  // Not paid: could still be a local trial (see entitlementState below).
+  return null;
+}
+
+/** Public helper — useful for pages that need the raw backend plan name. */
+export function getBackendPlan(): string | null {
+  const hint = readPlanHint();
+  return hint?.plan ?? null;
+}
+
+/**
+ * The current entitlement state.
+ *
+ * Priority:
+ *   1. Backend plan hint (is_paid + plan) — the authoritative paid signal.
+ *   2. Local entitlement record — used for trial windows and offline demo.
+ *   3. FREE.
+ */
 export function entitlementState(s: State): EntitlementState {
+  // 1. Backend paid status wins.
+  const backend = backendEntitlementState();
+  if (backend) return backend;
+
+  // 2. Local entitlement (trials, offline demo, dev).
   const e = currentEntitlement(s);
-  if (!e || e.status === "expired" || e.status === "cancelled" || e.product_type === "free") return "FREE";
+  if (!e || e.status === "expired" || e.status === "cancelled" || e.product_type === "free") {
+    return "FREE";
+  }
   const paid = e.status === "active";
   if (e.product_type === "practice") return paid ? "PRACTICE_PAID" : "PRACTICE_TRIAL";
   return paid ? "SPRINT_PAID" : "SPRINT_TRIAL";
 }
 
 export const isFree = (s: State) => entitlementState(s) === "FREE";
+
 /** Today's date in India time (YYYY-MM-DD) — the free limit resets at IST midnight. */
 export const istDay = (d = new Date()) => new Date(d.getTime() + 330 * 60000).toISOString().slice(0, 10);
 export const freeUsed = (s: State) => (s.freeDay === istDay() ? s.freeAttemptsUsed ?? 0 : 0);
@@ -119,7 +189,8 @@ export function startPracticeTrial(billing: "monthly" | "annual") {
     user_id: userId(s), product_type: "practice", plan_type: "practice", billing_frequency: billing, status: "trialing",
     started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.practice.trialDays), expires_at: null, cancelled_at: null,
   } }));
-  void import("./cloud-sync").then((m) => m.pushTrial());
+  // TODO: POST /api/checkout/create-order → start a real trial on the backend.
+  // Legacy `cloud-sync.pushTrial()` call removed during the Render migration.
 }
 
 export function sprintDuration(id: SprintDurationId) { return PLAN_CONFIG.sprint.durations.find((d) => d.id === id)!; }
@@ -133,7 +204,8 @@ export function startSprintTrial(goalId: string, duration: SprintDurationId, goa
     started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.sprint.trialDays), expires_at: null, cancelled_at: null,
     sprint: { duration, goal: goalId, goal_text: goalText, start_date: today(), end_date: addDays(d.days).slice(0, 10), status: "active" },
   } }));
-  void import("./cloud-sync").then((m) => m.pushTrial());
+  // TODO: POST /api/checkout/create-order → start a real sprint on the backend.
+  // Legacy `cloud-sync.pushTrial()` call removed during the Render migration.
 }
 
 export function cancelEntitlement() {
