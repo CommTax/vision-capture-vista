@@ -14,7 +14,6 @@ import {
 } from "@/lib/backend-api";
 import { PATTERNS, type Dimension, type Question } from "@/lib/data";
 import { FREE_FOCUS } from "@/lib/scenarios";
-import { canSubmit, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, type ResponseRecord } from "@/lib/store";
 import { canSubmit, hasLead, recordSubmission, useEntitlement } from "@/lib/entitlements";
 
