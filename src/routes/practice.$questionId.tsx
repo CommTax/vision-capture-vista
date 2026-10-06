@@ -7,7 +7,14 @@ import { FreePractice } from "@/components/free-practice";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
 import { AICoach } from "@/components/ai-coach";
-import { analyzeResponse, type Analysis } from "@/lib/analysis";
+import { type Analysis } from "@/lib/analysis";
+import {
+  uploadTrialResponse,
+  captureTrial,
+  analyzeTrial,
+  uploadPaidResponse,
+  analyzePaidResponse,
+} from "@/lib/backend-api";
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
@@ -90,7 +97,184 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     setError("");
     setPhase("analyzing");
     try {
-      const a: Analysis = await analyzeResponse({ question: q.text, transcript, mode: q.mode, level, durationSec: duration || undefined, responseType: type });
+      async function analyze(
+  transcript: string,
+  duration: number,
+  type: "voice" | "text",
+  audioUrl?: string,
+) {
+  if (!canSubmit(getState())) return;
+
+  setError("");
+  setPhase("analyzing");
+
+  try {
+    const currentState = getState();
+    const free = isFree(currentState);
+
+    let a: Analysis;
+
+    if (free) {
+      /*
+       * TRIAL FLOW
+       *
+       * 1. Upload response
+       * 2. Capture trial/session
+       * 3. Ask backend to analyze
+       */
+
+      const form = new FormData();
+
+      if (type === "text") {
+        form.append("text", transcript);
+      }
+
+      form.append("mode", q.mode);
+      form.append(
+        "question_slot",
+        String(attempts.length + 1),
+      );
+      form.append("question_type", q.mode);
+      form.append("question_prompt", q.text);
+      form.append(
+        "duration_seconds",
+        String(duration || 0),
+      );
+
+      const uploaded = await uploadTrialResponse(form);
+
+      const email = currentState.profile?.email;
+
+      if (!email) {
+        throw new Error(
+          "Please sign in before submitting your response.",
+        );
+      }
+
+      const captured = await captureTrial({
+        email,
+        drill_id: uploaded.drill_id,
+        mode: q.mode,
+        question_slot: attempts.length + 1,
+        question_type: q.mode,
+        question_prompt: q.text,
+      });
+
+      /*
+       * The capture endpoint returns the trial session token.
+       * Store it so subsequent trial API calls are authenticated.
+       */
+      if (captured.session_token) {
+        localStorage.setItem(
+          "unspoken-session-token",
+          captured.session_token,
+        );
+      }
+
+      const backendAnalysis = await analyzeTrial({
+        drill_id: uploaded.drill_id,
+        question_prompt: q.text,
+        transcript,
+        mode: q.mode,
+        duration_seconds: duration || 0,
+        response_type: type,
+      });
+
+      a = backendAnalysis as Analysis;
+    } else {
+      /*
+       * PAID FLOW
+       */
+
+      const form = new FormData();
+
+      if (type === "text") {
+        form.append("text", transcript);
+      }
+
+      form.append("mode", q.mode);
+      form.append("question_prompt", q.text);
+      form.append(
+        "duration_seconds",
+        String(duration || 0),
+      );
+
+      const uploaded = await uploadPaidResponse(form);
+
+      const backendAnalysis = await analyzePaidResponse({
+        drill_id: uploaded.drill_id,
+        question_prompt: q.text,
+        transcript,
+        mode: q.mode,
+        duration_seconds: duration || 0,
+        response_type: type,
+      });
+
+      a = backendAnalysis as Analysis;
+    }
+
+    const rec: ResponseRecord = {
+      id: uid(),
+      question_id: q.id,
+      question: q.text,
+      mode: q.mode,
+      response_type: type,
+      transcript,
+      audio_url: audioUrl,
+      duration: a.duration,
+      created_at: new Date().toISOString(),
+      attempt: attempts.length + 1,
+      parent_id: attempts[0]?.id,
+      analysis: a,
+    };
+
+    const wasFree = isFree(getState());
+
+    addResponse(rec);
+    recordSubmission();
+
+    if (wasFree) {
+      setState((s) => ({
+        ...s,
+        freeResponseIds: [
+          ...(s.freeResponseIds ?? []),
+          rec.id,
+        ],
+      }));
+    }
+
+    const next = [...attempts, rec];
+
+    setAttempts(next);
+    setView(next.length - 1);
+    setCompareWith(Math.max(0, next.length - 2));
+
+    setText("");
+    setStartedAt(null);
+    setElapsed(0);
+
+    setPhase(
+      isFree(getState()) && !hasLead()
+        ? "lead"
+        : "result",
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  } catch (error) {
+    console.error("Response analysis failed:", error);
+
+    setError(
+      error instanceof Error
+        ? error.message
+        : "We couldn't analyze that response. Please try again.",
+    );
+
+    setPhase("respond");
+  }
+}
       const rec: ResponseRecord = { id: uid(), question_id: q.id, question: q.text, mode: q.mode, response_type: type, transcript, audio_url: audioUrl, duration: a.duration, created_at: new Date().toISOString(), attempt: attempts.length + 1, parent_id: attempts[0]?.id, analysis: a };
       const wasFree = isFree(getState());
       addResponse(rec);
