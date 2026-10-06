@@ -371,7 +371,7 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
   // ---------- what got lost ----------
   const whyList = [
     str(diagnosis.why_this_matters),
-    str(gap.unspoken_gap),
+    str(gap.what_got_lost),
   ].filter(Boolean);
 
   const what_got_lost = {
