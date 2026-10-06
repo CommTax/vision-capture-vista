@@ -137,7 +137,8 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         const form = buildTrialUploadForm({
           text: type === "text" ? transcript : undefined,
           audio: type === "voice" && audioBlob ? audioBlob : undefined,
-          mode: q.mode,
+          // `mode` = response modality (voice/text) — backend validates.
+          mode: type,
           question_slot: questionSlot,
           question_type: q.mode,
           question_prompt: q.text,
@@ -150,7 +151,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         const form = buildPaidUploadForm({
           text: type === "text" ? transcript : undefined,
           audio: type === "voice" && audioBlob ? audioBlob : undefined,
-          mode: q.mode,
+          mode: type,
           question_slot: questionSlot,
           question_type: q.mode,
           question_prompt: q.text,
