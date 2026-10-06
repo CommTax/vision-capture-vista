@@ -63,3 +63,18 @@ export function streak(days: string[]) {
 }
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
+
+/**
+ * Clear the current user's local state.
+ * Used on logout and before a new user signs in on a shared browser,
+ * so the previous user's profile, responses and practice history
+ * don't leak into the next session.
+ */
+export function clearUserState() {
+  setState(() => ({
+    profile: null,
+    responses: [],
+    drillsDone: [],
+    practiceDays: [],
+  }));
+}
