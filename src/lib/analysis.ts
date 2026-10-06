@@ -179,3 +179,123 @@ function truncate(s: string, n: number) { return s.length > n ? s.slice(0, n - 1
 function strengthLine(d: Dimension) {
   return ({ structure: "Clear order — the listener can follow your path", clarity: "Easy-to-follow sentences", conciseness: "Economical with words", relevance: "Stayed on the question asked", impact: "Concrete, measurable specifics", delivery: "Comfortable rhythm", confidence: "Direct, unhedged language", memorability: "A close that sticks" } as const)[d];
 }
+
+// ---------------------------------------------------------------
+// Backend → local Analysis adapter
+//
+// The Render backend's /api/trial/analyze and /api/paid/analyze
+// return a JSON object whose exact shape is not fully documented yet.
+// This function maps whatever it returns onto our local Analysis type,
+// falling back to placeholders when a field is missing so the report UI
+// never renders `undefined`.
+//
+// Once we see a real response, tighten the mappings — but this should
+// already be correct for the common fields (overall, scores, dimensions,
+// main_point_delay, primary_pattern, etc.).
+// ---------------------------------------------------------------
+export function normalizeBackendAnalysis(raw: unknown): Analysis {
+  const b = (raw ?? {}) as Record<string, any>;
+
+  // Dimension list — fall back to our known DIMENSIONS if backend omits.
+  const dims: Dimension[] = DIMENSIONS;
+
+  const scoresIn = (b.scores ?? {}) as Record<string, unknown>;
+  const scores = Object.fromEntries(
+    dims.map((d) => {
+      const v = scoresIn[d];
+      return [d, typeof v === "number" ? v : Number(v) || 0];
+    }),
+  ) as Record<Dimension, number>;
+
+  const overall =
+    typeof b.overall === "number"
+      ? b.overall
+      : Math.round(dims.reduce((sum, d) => sum + (scores[d] ?? 0), 0) / dims.length);
+
+  const dimsIn = (b.dimensions ?? {}) as Record<string, any>;
+  const dimensions = Object.fromEntries(
+    dims.map((d) => {
+      const src = dimsIn[d] ?? {};
+      return [
+        d,
+        {
+          score: typeof src.score === "number" ? src.score : scores[d] ?? 0,
+          happened: String(src.happened ?? src.summary ?? ""),
+          evidence: String(src.evidence ?? ""),
+          tryThis: String(src.tryThis ?? src.try_this ?? src.advice ?? ""),
+        } satisfies DimensionResult,
+      ];
+    }),
+  ) as Record<Dimension, DimensionResult>;
+
+  const filler_words = Array.isArray(b.filler_words)
+    ? (b.filler_words as Array<Record<string, any>>).map((f) => ({
+        word: String(f.word ?? f.text ?? ""),
+        count: Number(f.count ?? 0),
+      }))
+    : [];
+
+  const repeated_words = Array.isArray(b.repeated_words)
+    ? (b.repeated_words as Array<Record<string, any>>).map((f) => ({
+        word: String(f.word ?? f.text ?? ""),
+        count: Number(f.count ?? 0),
+      }))
+    : [];
+
+  const segments: Segment[] = Array.isArray(b.segments)
+    ? (b.segments as Array<Record<string, any>>).map((s) => ({
+        label: String(s.label ?? ""),
+        start: Number(s.start ?? 0),
+        end: Number(s.end ?? 0),
+        flag: s.flag ? String(s.flag) : undefined,
+      }))
+    : [];
+
+  const whatGotLost = (b.what_got_lost ?? {}) as Record<string, any>;
+
+  // Backend may return either an object or a plain string for these.
+  const asStringArray = (x: unknown): string[] =>
+    Array.isArray(x)
+      ? x.map((v) => String(v))
+      : typeof x === "string" && x.length > 0
+        ? [x]
+        : [];
+
+  return {
+    primary_pattern: String(b.primary_pattern ?? b.pattern ?? "structured"),
+    secondary_pattern: String(b.secondary_pattern ?? ""),
+    scores,
+    overall,
+    dimensions,
+    summary: String(b.summary ?? ""),
+    main_point_delay: Number(b.main_point_delay ?? b.mainPointDelay ?? 0),
+    word_count: Number(b.word_count ?? 0),
+    sentence_count: Number(b.sentence_count ?? 0),
+    avg_sentence_length: Number(b.avg_sentence_length ?? 0),
+    wpm: Number(b.wpm ?? 0),
+    duration: Number(b.duration ?? b.duration_seconds ?? 0),
+    filler_words,
+    repeated_words,
+    pauses: typeof b.pauses === "number" ? b.pauses : undefined,
+    long_pauses: typeof b.long_pauses === "number" ? b.long_pauses : undefined,
+    strengths: asStringArray(b.strengths),
+    improvements: asStringArray(b.improvements),
+    what_got_lost: {
+      intended: String(whatGotLost.intended ?? ""),
+      heard: String(whatGotLost.heard ?? ""),
+      why: asStringArray(whatGotLost.why),
+      makeItLand: asStringArray(
+        whatGotLost.makeItLand ?? whatGotLost.make_it_land,
+      ),
+    },
+    example_structure: String(b.example_structure ?? ""),
+    segments,
+    recommended_drill: String(b.recommended_drill ?? ""),
+    retry_instruction: String(
+      b.retry_instruction ??
+        b.retryInstruction ??
+        "Try again — focus on structure.",
+    ),
+  };
+}
+
