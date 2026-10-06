@@ -3,12 +3,10 @@ import { useEffect, useState } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
 import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/app-shell";
-import { getState } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { HowItWorksDemo } from "@/components/how-demo";
-import { seedDemo } from "@/lib/demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import type { PracticeMoment } from "@/content/types";
 import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
@@ -101,8 +99,12 @@ useEffect(() => {
     setSignedIn(!!session);
   });
 }, [hydrated]);
-  const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
+
+  // Guest → land on /practice → its inline gate collects name/email/phone.
+  // Signed-in → straight to the hub.
+  const tryFree = () => navigate({ to: "/practice" });
   const primaryCta = () => (signedIn ? navigate({ to: "/practice" }) : tryFree());
+
   return (
     <div className="overflow-x-clip pb-20 md:pb-0">
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
