@@ -44,6 +44,7 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [drillId, setDrillId] = useState<string | null>(null);
+  const [lastMode, setLastMode] = useState<"voice" | "text">("text");
   const last = attempts[attempts.length - 1];
   const prev = attempts.length > 1 ? attempts[attempts.length - 2] : undefined;
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -101,6 +102,7 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
       setState((s) => ({ ...s, freeResponseIds: [...(s.freeResponseIds ?? []), rec.id] }));
       setAttempts((xs) => [...xs, rec]);
       setDrillId(drill_id);
+      setLastMode(type);
       setText("");
 
       await new Promise((r) => setTimeout(r, Math.max(0, 1600 - (Date.now() - started))));
@@ -161,14 +163,15 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
 
           {phase === "contact" && (
             <motion.div key="contact" {...fade} className="mx-auto max-w-[480px]">
-              <LeadCapture
-                drill_id={drillId ?? undefined}
-                eyebrow="Your response is in"
-                title="One moment. Let's show you what got through."
-                body="We'll use your response to show the communication pattern behind it."
-                submit="Show my pattern"
-                onDone={() => { setPhase("result"); window.scrollTo({ top: 0 }); }}
-              />
+<LeadCapture
+  drill_id={drillId ?? undefined}
+  mode={lastMode}
+  eyebrow="Your response is in"
+  title="One moment. Let's show you what got through."
+  body="We'll use your response to show the communication pattern behind it."
+  submit="Show my pattern"
+  onDone={() => { setPhase("result"); window.scrollTo({ top: 0 }); }}
+/>
             </motion.div>
           )}
 
