@@ -20,7 +20,7 @@ import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
 import { FreeCounter, FreeResult, Conversion, LeadCapture } from "@/components/plan-gate";
-import { canSubmit, hasLead, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
+import { canSubmit, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/practice/$questionId")({
@@ -223,9 +223,16 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       setStartedAt(null);
       setElapsed(0);
 
-      setPhase(
-        isFree(getState()) && !hasLead() ? "lead" : "result",
-      );
+      if (free) {
+        // Free user: collect contact details before showing the result.
+        // `recordSubmission` has already counted this attempt, and the
+        // backend has already produced the analysis — the result will be
+        // ready the moment LeadCapture calls onDone.
+        setLastDrillId(drill_id);
+        setPhase("lead");
+      } else {
+        setPhase("result");
+      }
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
