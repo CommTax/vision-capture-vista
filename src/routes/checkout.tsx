@@ -14,6 +14,7 @@ import {
 } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
 
+
 const SPRINT_OPTIONS: SprintDurationId[] = ["7d", "14d", "3m"];
 
 export const Route = createFileRoute("/checkout")({
