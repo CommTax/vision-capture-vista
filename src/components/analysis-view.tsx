@@ -42,7 +42,7 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
             <PatternShift pattern={a.primary_pattern} />
             <p className="mt-4 text-[16px] leading-relaxed text-muted-foreground">{a.summary}</p>
             <div className="mt-4 flex flex-wrap gap-2 text-[12px]">
-              <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">{P.name}</span>
+              <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">{P?.name ?? a.primary_pattern}</span>
               <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">Secondary: {PATTERNS[a.secondary_pattern]?.name}</span>
             </div>
           </div>
