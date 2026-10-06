@@ -76,6 +76,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
   const [lastDrillId, setLastDrillId] = useState<string | null>(null);
+  const [lastMode, setLastMode] = useState<"voice" | "text">("text");
   const ent = useEntitlement();
   const textRef = useRef<HTMLTextAreaElement>(null);
 
@@ -137,7 +138,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         const form = buildTrialUploadForm({
           text: type === "text" ? transcript : undefined,
           audio: type === "voice" && audioBlob ? audioBlob : undefined,
-          // `mode` = response modality (voice/text) — backend validates.
           mode: type,
           question_slot: questionSlot,
           question_type: q.mode,
@@ -225,11 +225,8 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       setElapsed(0);
 
       if (free) {
-        // Free user: collect contact details before showing the result.
-        // `recordSubmission` has already counted this attempt, and the
-        // backend has already produced the analysis — the result will be
-        // ready the moment LeadCapture calls onDone.
         setLastDrillId(drill_id);
+        setLastMode(type);
         setPhase("lead");
       } else {
         setPhase("result");
@@ -284,7 +281,13 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         <span className="ml-auto"><FreeCounter /></span>
       </div>
 
-     {phase === "lead" && <LeadCapture drill_id={lastDrillId ?? undefined} onDone={() => setPhase("result")} />}
+    {phase === "lead" && (
+  <LeadCapture
+    drill_id={lastDrillId ?? undefined}
+    mode={lastMode}
+    onDone={() => setPhase("result")}
+  />
+)}
 
       {phase === "respond" && !ent.canSubmit && <Conversion />}
 
