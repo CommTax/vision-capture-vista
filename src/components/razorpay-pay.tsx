@@ -1,57 +1,165 @@
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { createRazorpayOrder, createRazorpaySubscription, getPaymentsStatus, verifyRazorpayPayment, verifyRazorpaySubscription } from "@/lib/payments.functions";
-import type { PlanKey } from "@/lib/prices";
+import { createCheckoutOrder, verifyPayment } from "@/lib/backend-api";
+import { setSessionToken, setPlanHint } from "@/lib/backend-auth";
 
-declare global { interface Window { Razorpay?: new (o: Record<string, unknown>) => { open: () => void } } }
+declare global {
+  interface Window {
+    Razorpay?: new (o: Record<string, unknown>) => { open: () => void };
+  }
+}
 
 function loadCheckout() {
   return new Promise<void>((ok, fail) => {
     if (window.Razorpay) return ok();
     const s = document.createElement("script");
     s.src = "https://checkout.razorpay.com/v1/checkout.js";
-    s.onload = () => ok(); s.onerror = () => fail(new Error("Could not load checkout"));
+    s.onload = () => ok();
+    s.onerror = () => fail(new Error("Could not load Razorpay checkout"));
     document.body.appendChild(s);
   });
 }
 
-/** Pay button. Shows "Payments coming soon" until Razorpay keys are added. */
-export function PayButton({ plan, label, goal, goalText, onPaid, beforePay, recurring, prefill }: { plan: PlanKey; label: string; goal?: string; goalText?: string; onPaid: () => void; beforePay?: () => boolean; recurring?: boolean; prefill?: { name?: string; email?: string; contact?: string } }) {
-  const status = useQuery({ queryKey: ["payments-status"], queryFn: () => getPaymentsStatus(), staleTime: 60_000 });
-  const create = useServerFn(createRazorpayOrder);
-  const verify = useServerFn(verifyRazorpayPayment);
-  const createSub = useServerFn(createRazorpaySubscription);
-  const verifySub = useServerFn(verifyRazorpaySubscription);
+type PayArgs = {
+  /** "pass" → Practice Pass (monthly recurring). "sprint" → one-off Sprint. */
+  plan: "pass" | "sprint";
+  /** Sprint variant, e.g. "interview" | "gd". Ignored for pass. */
+  sprint?: string;
+  /** Sprint length bucket, e.g. "7d" | "14d" | "3m". Ignored for pass. */
+  duration?: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  billing?: "monthly" | "annual";
+  /** Copy for the button. */
+  label: string;
+  /** Where to navigate after a successful payment. */
+  onPaid: (info: { plan: string }) => void;
+  /** Optional preflight — return false to abort payment. */
+  beforePay?: () => boolean;
+};
+
+export function PayButton({
+  plan,
+  sprint,
+  duration,
+  email,
+  name,
+  phone,
+  billing,
+  label,
+  onPaid,
+  beforePay,
+}: PayArgs) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  if (!status.data?.live) return <button className="btn btn-ghost mt-3 w-full" disabled>Payments coming soon</button>;
+
   const pay = async () => {
     if (beforePay && !beforePay()) return;
-    setBusy(true); setErr("");
+    setBusy(true);
+    setErr("");
+
     try {
       await loadCheckout();
-      const done = async (fn: () => Promise<unknown>) => {
-        try { await fn(); const { syncNow } = await import("@/lib/cloud-sync"); await syncNow(); onPaid(); }
-        catch (e) { setErr((e as Error).message); setBusy(false); }
+
+      // 1. Create the order on the backend.
+      const order = (await createCheckoutOrder({
+        email,
+        plan,
+        sprint: plan === "sprint" ? sprint : undefined,
+        name,
+        phone,
+        billing: plan === "pass" ? (billing ?? "monthly") : undefined,
+      })) as {
+        order_id?: string;
+        orderId?: string;
+        key_id?: string;
+        keyId?: string;
+        amount?: number;
+        currency?: string;
+        label?: string;
       };
-      type R = { razorpay_order_id?: string; razorpay_subscription_id?: string; razorpay_payment_id: string; razorpay_signature: string };
-      const base = { currency: "INR", name: "TheUnspoken", prefill: prefill ?? {}, theme: { color: "#F3A34A" } };
-      const opts = recurring
-        ? await createSub().then((o) => ({ ...base, key: o.keyId, subscription_id: o.subscriptionId, description: o.label,
-            handler: (r: R) => done(() => verifySub({ data: { subscription_id: r.razorpay_subscription_id!, payment_id: r.razorpay_payment_id, signature: r.razorpay_signature } })) }))
-        : await create({ data: { plan, goal, goal_text: goalText } }).then((o) => ({ ...base, key: o.keyId, order_id: o.orderId, amount: o.amount, description: o.label,
-            prefill: { email: o.email, ...prefill },
-            handler: (r: R) => done(() => verify({ data: { order_id: r.razorpay_order_id!, payment_id: r.razorpay_payment_id, signature: r.razorpay_signature } })) }));
-      new window.Razorpay!({
-        ...opts,
-        modal: { ondismiss: () => setBusy(false) },
-      }).open();
-    } catch (e) { setErr((e as Error).message); setBusy(false); }
+
+      const orderId = order.order_id ?? order.orderId;
+      const keyId = order.key_id ?? order.keyId;
+
+      if (!orderId || !keyId) {
+        throw new Error("Payment could not be started. Please try again.");
+      }
+
+      // 2. Open the Razorpay modal.
+      await new Promise<void>((resolve, reject) => {
+        const rzp = new window.Razorpay!({
+          key: keyId,
+          order_id: orderId,
+          amount: order.amount,
+          currency: order.currency ?? "INR",
+          name: "TheUnspoken",
+          description:
+            order.label ?? (plan === "pass" ? "Practice Pass" : "Sprint"),
+          prefill: { email, name, contact: phone },
+          theme: { color: "#F3A34A" },
+          handler: async (r: {
+            razorpay_payment_id: string;
+            razorpay_order_id: string;
+            razorpay_signature: string;
+          }) => {
+            try {
+              // 3. Verify on the backend.
+              const result = (await verifyPayment({
+                razorpay_payment_id: r.razorpay_payment_id,
+                razorpay_order_id: r.razorpay_order_id,
+                razorpay_signature: r.razorpay_signature,
+                email,
+                plan,
+                sprint: plan === "sprint" ? sprint : undefined,
+                name,
+                phone,
+                billing: plan === "pass" ? (billing ?? "monthly") : undefined,
+              })) as {
+                status?: string;
+                session_token?: string;
+                is_paid?: boolean;
+                plan?: string;
+              };
+
+              // 4. Store the returned session so the user is signed in.
+              if (result.session_token) {
+                setSessionToken(result.session_token);
+                setPlanHint({
+                  is_paid: true,
+                  plan: result.plan ?? (plan === "pass" ? "pass" : "sprint"),
+                });
+              }
+
+              resolve();
+              onPaid({ plan: result.plan ?? plan });
+            } catch (e) {
+              reject(e);
+            }
+          },
+          modal: {
+            ondismiss: () => reject(new Error("Payment cancelled")),
+          },
+        });
+        rzp.open();
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Payment failed";
+      if (!/cancelled/i.test(msg)) setErr(msg);
+    } finally {
+      setBusy(false);
+    }
   };
+
   return (
     <>
-      <button className="btn btn-primary mt-3 w-full" disabled={busy} onClick={pay}>{busy ? "Opening payment…" : label}</button>
+      <button
+        className="btn btn-primary mt-3 w-full"
+        disabled={busy}
+        onClick={pay}
+      >
+        {busy ? "Opening payment…" : label}
+      </button>
       {err && <p className="mt-2 text-[13px] text-destructive">{err}</p>}
     </>
   );
