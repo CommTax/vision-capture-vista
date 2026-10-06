@@ -10,21 +10,17 @@ export const PLAN_CONFIG = {
   practice: {
     trialDays: 3,
     billing: ["monthly"] as const,
-    monthlyPrice: "₹499/mo",
+    monthlyPrice: "₹3,999/mo",
     /** Configure when annual pricing is decided. null = not configured, no % shown. */
     annualDiscountPct: null as number | null,
   },
-  sprint: {
-    trialDays: 3,
-    durations: [
-      { id: "7d", label: "7 days", days: 7, trial: false, price: "₹499" },
-      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹799" },
-      { id: "28d", label: "28 days", days: 28, trial: true, price: "₹1,499" },
-      { id: "3m", label: "3 months", days: 90, trial: true, price: "₹999/mo · ₹2,997" },
-    ],
-    price: "From ₹499",
-  },
-};
+sprint: {
+  trialDays: 3,
+  durations: [
+    { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1,499" },
+  ],
+  price: "₹1,499",
+},
 
 export type SprintDurationId = (typeof PLAN_CONFIG.sprint.durations)[number]["id"];
 export type SprintGoal = { id: string; label: string; goal: string; focus: Dimension[] };
