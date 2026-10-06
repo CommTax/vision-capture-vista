@@ -11,7 +11,6 @@ import { type Analysis, normalizeBackendAnalysis } from "@/lib/analysis";
 import {
   buildTrialUploadForm,
   uploadTrialResponse,
-  captureTrial,
   analyzeTrial,
   buildPaidUploadForm,
   uploadPaidResponse,
@@ -76,6 +75,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
+  const [lastDrillId, setLastDrillId] = useState<string | null>(null);
   const ent = useEntitlement();
   const textRef = useRef<HTMLTextAreaElement>(null);
 
@@ -168,31 +168,10 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       }
 
       // -------------------------------------------------------------
-      // 2. Trial only: capture the lead and receive a session token
+      // 2. Remember the drill id so LeadCapture can POST it later.
+      //    Actual capture happens after the user fills in name/email/phone.
       // -------------------------------------------------------------
-      if (free) {
-        const captured = await captureTrial({
-          drill_id,
-          name: profile.name ?? "",
-          email,
-          mobile: profile.mobile ?? profile.phone ?? "",
-          stage: profile.stage ?? profile.level ?? "unknown",
-          question_type: q.mode,
-          question_slot: questionSlot,
-          mode: q.mode,
-        });
-
-        if (captured.session_token) {
-          try {
-            localStorage.setItem(
-              "unspoken-trial-token",
-              captured.session_token,
-            );
-          } catch {
-            /* ignore */
-          }
-        }
-      }
+      setLastDrillId(drill_id);
 
       // -------------------------------------------------------------
       // 3. Ask the backend to analyze the stored response
@@ -297,7 +276,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         <span className="ml-auto"><FreeCounter /></span>
       </div>
 
-      {phase === "lead" && <LeadCapture onDone={() => setPhase("result")} />}
+     {phase === "lead" && <LeadCapture drill_id={lastDrillId ?? undefined} onDone={() => setPhase("result")} />}
 
       {phase === "respond" && !ent.canSubmit && <Conversion />}
 
