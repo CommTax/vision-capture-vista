@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Keyboard, Mic } from "lucide-react";
@@ -51,6 +51,14 @@ function SessionRoute() {
   const { s, retry, f, ctx } = Route.useSearch();
   const hydrated = useHydrated();
   if (!hydrated) return <div className="min-h-screen" />;
+
+    const hasToken =
+    typeof window !== "undefined" &&
+    !!localStorage.getItem("unspoken-session-token");
+
+  if (!hasToken) {
+    throw redirect({ to: "/practice", replace: true });
+  }
 
   // Everyone goes through the same Session component.
   // The backend decides the cap based on the user's plan.
