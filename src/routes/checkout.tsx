@@ -4,7 +4,7 @@ import { z } from "zod";
 import { AppShell } from "@/components/app-shell";
 import { ContactDetails } from "@/components/contact-details";
 import { PayButton } from "@/components/razorpay-pay";
-import { PLAN_CONFIG, SPRINT_GOALS, sprintDuration, type SprintDurationId } from "@/lib/entitlements";
+import { PLAN_CONFIG, SPRINT_GOALS, type SprintDurationId } from "@/lib/entitlements";
 import { getState } from "@/lib/store";
 import {
   lookupEmail,
@@ -14,19 +14,16 @@ import {
 } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
 
-
-const SPRINT_OPTIONS: SprintDurationId[] = ["7d", "14d", "3m"];
-
 export const Route = createFileRoute("/checkout")({
   validateSearch: z.object({
     product: z.enum(["practice", "sprint"]).catch("sprint"),
-    d: z.enum(["7d", "14d", "3m"]).optional(),
+    d: z.enum(["14d"]).optional(),
     goal: z.string().optional(),
   }),
   head: () => ({
     meta: [
       { title: "Checkout — TheUnspoken" },
-      { name: "description", content: "Pick your Sprint length or Practice Pass and pay securely with Razorpay." },
+      { name: "description", content: "Pick your Sprint or Practice Pass and pay securely with Razorpay." },
       { property: "og:title", content: "Checkout — TheUnspoken" },
       { property: "og:description", content: "Secure payment for Sprint and Practice Pass." },
       { property: "og:type", content: "website" },
@@ -42,7 +39,6 @@ function Checkout() {
   const s = Route.useSearch();
   const navigate = useNavigate();
   const [product, setProduct] = useState<"practice" | "sprint">(s.product);
-  const [dur, setDur] = useState<SprintDurationId>(s.d ?? "14d");
   const [goal, setGoal] = useState(s.goal ?? SPRINT_GOALS[0].id);
   const [goalText, setGoalText] = useState("");
   const [step, setStep] = useState<Step>("plan");
@@ -50,17 +46,12 @@ function Checkout() {
   const [err, setErr] = useState("");
   const [code, setCode] = useState("");
 
-  const d = sprintDuration(dur);
   const summary =
     product === "practice"
       ? `Practice Pass · ${PLAN_CONFIG.practice.monthlyPrice}, renews monthly`
-      : `Sprint · ${d.label} · ${d.price}`;
+      : `Sprint · 14 days · ₹1,499`;
   const profile = getState().profile;
 
-  // After details: check with the backend what kind of account this email is.
-  //  - new          → sign up free (creates row + session), then pay
-  //  - free         → same (upsert + new session), then pay
-  //  - paid         → OTP step (verify), then pay
   const afterDetails = async () => {
     const p = getState().profile;
     if (!p?.email) return;
@@ -71,14 +62,12 @@ function Checkout() {
       const lookup = await lookupEmail(p.email);
 
       if (lookup.is_paid) {
-        // Existing paid account — send OTP and go to the verify step.
         await requestOtp(p.email);
         setStep("otp");
         setBusy(false);
         return;
       }
 
-      // New or free — sign them in with the details they just gave us.
       const mobile = p.phone_country_code
         ? `${p.phone_country_code} ${p.phone ?? ""}`.trim()
         : (p.phone ?? "");
@@ -166,26 +155,14 @@ function Checkout() {
                   />
                 )}
               </div>
-              <div className="space-y-2">
-                <label className="eyebrow block">Length</label>
-                {SPRINT_OPTIONS.map((id) => {
-                  const o = sprintDuration(id);
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setDur(id)}
-                      className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition ${
-                        dur === id ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <span className="font-semibold">{o.label}</span>
-                      <span className="font-display font-bold">{o.price}</span>
-                    </button>
-                  );
-                })}
-                {dur === "3m" && (
-                  <p className="text-[12px] text-muted-foreground">Charged ₹2,997 once for 3 months.</p>
-                )}
+              <div className="rounded-xl border border-primary bg-primary/10 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">Sprint · 14 days</span>
+                  <span className="font-display font-bold">₹1,499</span>
+                </div>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  Goal-based practice, personalised drills, and a progress report at the end.
+                </p>
               </div>
             </>
           ) : (
@@ -269,7 +246,6 @@ function Checkout() {
           <PayButton
             plan={product === "practice" ? "pass" : "sprint"}
             sprint={product === "sprint" ? goal : undefined}
-            duration={product === "sprint" ? dur : undefined}
             email={profile?.email ?? ""}
             name={profile?.name}
             phone={
@@ -278,11 +254,11 @@ function Checkout() {
                 : profile?.phone
             }
             billing={product === "practice" ? "monthly" : undefined}
-label={
-  product === "practice"
-    ? `Subscribe · ${PLAN_CONFIG.practice.monthlyPrice}`
-    : "Pay ₹1,499"
-}
+            label={
+              product === "practice"
+                ? `Subscribe · ${PLAN_CONFIG.practice.monthlyPrice}`
+                : "Pay ₹1,499"
+            }
             onPaid={() => navigate({ to: product === "practice" ? "/dashboard" : "/sprint" })}
           />
           <p className="text-center text-[12px] text-muted-foreground">Secure payment by Razorpay.</p>
