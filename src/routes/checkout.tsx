@@ -277,11 +277,11 @@ function Checkout() {
                 : profile?.phone
             }
             billing={product === "practice" ? "monthly" : undefined}
-            label={
-              product === "practice"
-                ? `Subscribe · ${PLAN_CONFIG.practice.monthlyPrice}`
-                : `Pay ${dur === "3m" ? "₹2,997" : d.price}`
-            }
+label={
+  product === "practice"
+    ? `Subscribe · ${PLAN_CONFIG.practice.monthlyPrice}`
+    : "Pay ₹1,499"
+}
             onPaid={() => navigate({ to: product === "practice" ? "/dashboard" : "/sprint" })}
           />
           <p className="text-center text-[12px] text-muted-foreground">Secure payment by Razorpay.</p>
