@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { setState } from "@/lib/store";
 import { z } from "zod";
 import { Logo, useHydrated } from "@/components/app-shell";
 import {
