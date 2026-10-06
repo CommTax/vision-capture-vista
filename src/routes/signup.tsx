@@ -135,10 +135,16 @@ setCool(60);
     }
   }
 
-  async function verify(e: React.FormEvent) {
-    e.preventDefault();
-    setErr("");
-    setBusy(true);
+async function verify(e: React.FormEvent) {
+  e.preventDefault();
+
+  console.log("VERIFY BUTTON FIRED", {
+    email,
+    codeLength: code.length,
+  });
+
+  setErr("");
+  setBusy(true);
 
     try {
 await verifyOtp(email.trim().toLowerCase(), code.trim());
