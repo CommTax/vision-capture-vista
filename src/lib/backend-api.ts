@@ -37,6 +37,47 @@ export async function getAuthSession() {
   return apiGet<AuthSessionResponse>("/api/auth/session");
 }
 
+// ─── Free signup / resume (no OTP) ───
+
+export async function lookupEmail(email: string) {
+  return apiPost<{ exists: boolean; is_paid: boolean }>(
+    "/api/auth/lookup",
+    { email: email.trim().toLowerCase() },
+  );
+}
+
+export type FreeSessionResponse = {
+  user_id: string;
+  session_token: string;
+  is_paid: boolean;
+  plan: string;
+};
+
+export async function signupFree(payload: {
+  name: string;
+  email: string;
+  mobile: string;
+  stage?: string;
+}) {
+  return apiPost<FreeSessionResponse>("/api/auth/signup", {
+    ...payload,
+    email: payload.email.trim().toLowerCase(),
+  });
+}
+
+export async function resumeFree(payload: {
+  email: string;
+  mobile: string;
+}) {
+  return apiPost<FreeSessionResponse>("/api/auth/resume", {
+    ...payload,
+    email: payload.email.trim().toLowerCase(),
+  });
+}
+
+
+
+
 // ---------------------------------------------------------------
 // Trial
 // ---------------------------------------------------------------
@@ -152,8 +193,20 @@ export async function getPaidStats() {
   return apiGet<Record<string, unknown>>("/api/paid/stats");
 }
 
+export type PaidLimits = {
+  plan: string;
+  scope: "lifetime" | "daily";
+  used: number;
+  cap: number;
+  remaining: number;
+  warning: boolean;
+  exhausted: boolean;
+  reset_timezone: string | null;
+  resets_at: string | null;
+};
+
 export async function getPaidLimits() {
-  return apiGet<Record<string, unknown>>("/api/paid/limits");
+  return apiGet<PaidLimits>("/api/paid/limits");
 }
 
 export async function getPaidReps(limit = 200) {
