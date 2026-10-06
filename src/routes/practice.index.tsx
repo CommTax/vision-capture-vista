@@ -1,17 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
 import { MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
-import { useStore } from "@/lib/store";
-import { useEffect, useState } from "react";
+import { getState, useStore } from "@/lib/store";
 import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
-import { getState } from "@/lib/store";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 
@@ -36,49 +34,13 @@ function ScenarioCard({ s, focus, recommended }: { s: Scenario; focus?: Dimensio
 }
 
 function Practice() {
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
 
-const [hasToken, setHasToken] = useState<boolean | null>(null);
+  useEffect(() => {
+    const token = typeof window !== "undefined" && !!localStorage.getItem("unspoken-session-token");
+    setHasToken(token);
+  }, []);
 
-useEffect(() => {
-  const token = typeof window !== "undefined" && !!localStorage.getItem("unspoken-session-token");
-  setHasToken(token);
-}, []);
-
-if (hasToken === null) return <div className="min-h-screen" />;
-
-if (!hasToken) {
-  return (
-    <div className="grid min-h-screen place-items-center px-5 py-10">
-      <ContactDetails
-        eyebrow="Try TheUnspoken"
-        title="Let's set up your practice"
-        body="Enter your details — we'll save your responses and pattern as you go."
-        submit="Start practising"
-        consent
-        onDone={() => {
-          const p = getState().profile;
-          if (!p?.email || !p?.phone) return;
-          const mobile = p.phone_country_code ? `${p.phone_country_code} ${p.phone}` : p.phone;
-          void signupFree({
-            name: p.name ?? "",
-            email: p.email,
-            mobile,
-            stage: p.level ?? undefined,
-          }).then((res) => {
-            if (res.session_token) setFreeSession(res.session_token);
-            setHasToken(true);
-          }).catch((err) => {
-            console.warn("[practice] signupFree failed:", err);
-            setHasToken(true);
-          });
-        }}
-      />
-    </div>
-  );
-}
-
-// ... existing hub JSX unchanged
-  
   const rs = useStore((s) => s.responses);
   const level = useStore((s) => s.profile?.level ?? "Mid career");
   const navigate = useNavigate();
@@ -91,6 +53,39 @@ if (!hasToken) {
   const library = mode && mode !== "custom" ? all.filter((s) => s.category === mode) : [];
   const ent = useEntitlement();
   const preview = custom.trim().length > 8 ? buildCustomScenario(custom, level) : null;
+
+  if (hasToken === null) return <div className="min-h-screen" />;
+
+  if (!hasToken) {
+    return (
+      <div className="grid min-h-screen place-items-center px-5 py-10">
+        <ContactDetails
+          eyebrow="Try TheUnspoken"
+          title="Let's set up your practice"
+          body="Enter your details — we'll save your responses and pattern as you go."
+          submit="Start practising"
+          consent
+          onDone={() => {
+            const p = getState().profile;
+            if (!p?.email || !p?.phone) return;
+            const mobile = p.phone_country_code ? `${p.phone_country_code} ${p.phone}` : p.phone;
+            void signupFree({
+              name: p.name ?? "",
+              email: p.email,
+              mobile,
+              stage: p.level ?? undefined,
+            }).then((res) => {
+              if (res.session_token) setFreeSession(res.session_token);
+              setHasToken(true);
+            }).catch((err) => {
+              console.warn("[practice] signupFree failed:", err);
+              setHasToken(true);
+            });
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10">
@@ -116,7 +111,6 @@ if (!hasToken) {
           </div>
         </section>
       )}
-
 
       {/* 3. Categories */}
       <section>
