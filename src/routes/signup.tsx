@@ -41,9 +41,20 @@ function SignIn() {
   const navigate = useNavigate();
   const hydrated = useHydrated();
 
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "code">("email");
+const [email, setEmail] = useState(() =>
+  typeof window !== "undefined"
+    ? sessionStorage.getItem("unspoken-login-email") || ""
+    : "",
+);
+
+const [code, setCode] = useState("");
+
+const [step, setStep] = useState<"email" | "code">(() =>
+  typeof window !== "undefined" &&
+  sessionStorage.getItem("unspoken-login-step") === "code"
+    ? "code"
+    : "email",
+);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cool, setCool] = useState(0);
@@ -102,10 +113,14 @@ function SignIn() {
     setBusy(true);
 
     try {
-      await requestOtp(normalizedEmail);
+await requestOtp(normalizedEmail);
 
-      setStep("code");
-      setCool(60);
+sessionStorage.setItem("unspoken-login-email", normalizedEmail);
+sessionStorage.setItem("unspoken-login-step", "code");
+
+setEmail(normalizedEmail);
+setStep("code");
+setCool(60);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "";
@@ -126,8 +141,12 @@ function SignIn() {
     setBusy(true);
 
     try {
-      await verifyOtp(email.trim().toLowerCase(), code.trim());
-      await route();
+await verifyOtp(email.trim().toLowerCase(), code.trim());
+
+sessionStorage.removeItem("unspoken-login-step");
+sessionStorage.removeItem("unspoken-login-email");
+
+await route();
     } catch {
       setBusy(false);
       setErr("That code didn't work. Check it, or send a new one.");
@@ -226,11 +245,13 @@ function SignIn() {
             <div className="flex justify-between text-[13px] text-muted-foreground">
               <button
                 type="button"
-                onClick={() => {
-                  setStep("email");
-                  setCode("");
-                  setErr("");
-                }}
+onClick={() => {
+  sessionStorage.removeItem("unspoken-login-step");
+  sessionStorage.removeItem("unspoken-login-email");
+  setStep("email");
+  setCode("");
+  setErr("");
+}}
                 className="hover:text-foreground"
               >
                 Change email
