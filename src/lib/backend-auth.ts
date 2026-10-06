@@ -1,4 +1,5 @@
 import { apiGet, apiPost } from "./backend";
+import { clearUserState } from "./store";
 
 const SESSION_KEY = "unspoken-session-token";
 const PLAN_HINT_KEY = "unspoken-plan-hint";
@@ -140,6 +141,17 @@ export async function getBackendSession() {
 
 export function logoutBackend() {
   clearSessionToken();
+  try {
+    // Also wipe any local user state so the next person on this
+    // browser doesn't see the previous user's profile or responses.
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("unspoken-state-v1");
+      localStorage.removeItem("unspoken-trial-token");
+      localStorage.removeItem("unspoken-free-reflection");
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
@@ -147,6 +159,7 @@ export function logoutBackend() {
  * identifies the user; the plan on the server decides their cap.
  */
 export function setFreeSession(token: string) {
-  setSessionToken(token);
+  clearUserState();
+  setSessionToken(result.session_token);
   setPlanHint({ is_paid: false, plan: "free" });
 }
