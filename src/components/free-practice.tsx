@@ -61,7 +61,9 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
       const form = buildTrialUploadForm({
         text: type === "text" ? transcript : undefined,
         audio: type === "voice" && audioBlob ? audioBlob : undefined,
-        mode: q.mode,
+        // `mode` is the response modality (voice/text) — the backend validates this.
+        // The practice mode (interview / presentation / etc.) goes in `question_type`.
+        mode: type,
         question_slot: questionSlot,
         question_type: q.mode,
         question_prompt: q.text,
