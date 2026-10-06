@@ -88,21 +88,6 @@ function SignIn() {
     }
   }
 
-  // Already signed in — go straight in.
-  useEffect(() => {
-    if (!hydrated) return;
-
-    void (async () => {
-      const session = await getBackendSession();
-
-      if (session) {
-        await route();
-      }
-    })();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
-
   async function send(e?: React.FormEvent) {
     e?.preventDefault();
     setErr("");
