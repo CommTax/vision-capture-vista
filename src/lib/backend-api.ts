@@ -26,20 +26,11 @@ export type AuthSessionResponse = {
 // ---------------------------------------------------------------
 
 export async function requestOtp(payload: { email: string }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/auth/request-otp",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/auth/request-otp", payload);
 }
 
-export async function verifyOtp(payload: {
-  email: string;
-  otp: string;
-}) {
-  return apiPost<Record<string, unknown>>(
-    "/api/auth/verify-otp",
-    payload,
-  );
+export async function verifyOtp(payload: { email: string; otp: string }) {
+  return apiPost<Record<string, unknown>>("/api/auth/verify-otp", payload);
 }
 
 export async function getAuthSession() {
@@ -53,7 +44,7 @@ export async function getAuthSession() {
 export type TrialUploadForm = {
   text?: string;
   audio?: Blob;
-  /** Response modality — the backend validates this must be "voice" or "text". */
+  /** Response modality — backend validates this must be "voice" or "text". */
   mode: "voice" | "text";
   question_slot: string;
   question_type: string;
@@ -74,13 +65,9 @@ export function buildTrialUploadForm(f: TrialUploadForm): FormData {
 }
 
 export async function uploadTrialResponse(form: FormData) {
-  return apiPostForm<DrillUploadResponse>(
-    "/api/trial/upload",
-    form,
-  );
+  return apiPostForm<DrillUploadResponse>("/api/trial/upload", form);
 }
 
-// NOTE: capture requires name, email, mobile, stage — all required.
 export async function captureTrial(payload: {
   drill_id: string;
   name: string;
@@ -89,20 +76,13 @@ export async function captureTrial(payload: {
   stage: string;
   question_type?: string;
   question_slot?: string;
-  mode?: string;
+  mode?: "voice" | "text";
 }) {
-  return apiPost<TrialCaptureResponse>(
-    "/api/trial/capture",
-    payload,
-  );
+  return apiPost<TrialCaptureResponse>("/api/trial/capture", payload);
 }
 
-// NOTE: analyze accepts ONLY drill_id.
 export async function analyzeTrial(payload: { drill_id: string }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/trial/analyze",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/trial/analyze", payload);
 }
 
 // ---------------------------------------------------------------
@@ -112,7 +92,7 @@ export async function analyzeTrial(payload: { drill_id: string }) {
 export type PaidUploadForm = {
   text?: string;
   audio?: Blob;
-  /** Response modality — the backend validates this must be "voice" or "text". */
+  /** Response modality — backend validates this must be "voice" or "text". */
   mode: "voice" | "text";
   question_slot: string;
   question_type: string;
@@ -132,26 +112,16 @@ export function buildPaidUploadForm(f: PaidUploadForm): FormData {
   fd.append("question_prompt", f.question_prompt);
   fd.append("duration_seconds", String(f.duration_seconds));
   fd.append("question_source", f.question_source ?? "bank");
-  if (f.bank_question_id)
-    fd.append("bank_question_id", f.bank_question_id);
+  if (f.bank_question_id) fd.append("bank_question_id", f.bank_question_id);
   return fd;
 }
 
 export async function uploadPaidResponse(form: FormData) {
-  return apiPostForm<DrillUploadResponse>(
-    "/api/paid/upload",
-    form,
-  );
+  return apiPostForm<DrillUploadResponse>("/api/paid/upload", form);
 }
 
-// NOTE: analyze accepts ONLY drill_id.
-export async function analyzePaidResponse(payload: {
-  drill_id: string;
-}) {
-  return apiPost<Record<string, unknown>>(
-    "/api/paid/analyze",
-    payload,
-  );
+export async function analyzePaidResponse(payload: { drill_id: string }) {
+  return apiPost<Record<string, unknown>>("/api/paid/analyze", payload);
 }
 
 export async function savePaidRepAnalysis(
@@ -175,10 +145,7 @@ export async function getPaidRepAnalysis(drill_id: string) {
 }
 
 export async function getPaidSession() {
-  return apiPost<Record<string, unknown>>(
-    "/api/paid/session",
-    {},
-  );
+  return apiPost<Record<string, unknown>>("/api/paid/session", {});
 }
 
 export async function getPaidStats() {
@@ -190,42 +157,27 @@ export async function getPaidLimits() {
 }
 
 export async function getPaidReps(limit = 200) {
-  return apiGet<Record<string, unknown>>(
-    `/api/paid/reps?limit=${limit}`,
-  );
+  return apiGet<Record<string, unknown>>(`/api/paid/reps?limit=${limit}`);
 }
 
 export async function getLatestAnalysis() {
-  return apiGet<Record<string, unknown>>(
-    "/api/paid/reps/latest-analysis",
-  );
+  return apiGet<Record<string, unknown>>("/api/paid/reps/latest-analysis");
 }
 
 export async function getPaidQuestions(count = 2) {
-  return apiGet<Record<string, unknown>>(
-    `/api/paid/questions?count=${count}`,
-  );
+  return apiGet<Record<string, unknown>>(`/api/paid/questions?count=${count}`);
 }
 
-export async function getPaidScenarios(
-  activity?: string,
-  count = 12,
-) {
+export async function getPaidScenarios(activity?: string, count = 12) {
   const q = new URLSearchParams();
   if (activity) q.set("activity", activity);
   q.set("count", String(count));
-  return apiGet<Record<string, unknown>>(
-    `/api/paid/scenarios?${q.toString()}`,
-  );
+  return apiGet<Record<string, unknown>>(`/api/paid/scenarios?${q.toString()}`);
 }
 
 export async function getNextQuestion(exclude_id?: string) {
-  const q = exclude_id
-    ? `?exclude_id=${encodeURIComponent(exclude_id)}`
-    : "";
-  return apiGet<Record<string, unknown>>(
-    `/api/paid/questions/next${q}`,
-  );
+  const q = exclude_id ? `?exclude_id=${encodeURIComponent(exclude_id)}` : "";
+  return apiGet<Record<string, unknown>>(`/api/paid/questions/next${q}`);
 }
 
 export async function savePaidProfile(payload: {
@@ -236,10 +188,7 @@ export async function savePaidProfile(payload: {
   target_industry?: string;
   track?: string;
 }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/paid/profile",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/paid/profile", payload);
 }
 
 export async function saveReflection(payload: {
@@ -248,16 +197,11 @@ export async function saveReflection(payload: {
   drill_id?: string;
   metric_snapshot?: Record<string, unknown>;
 }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/paid/reflect",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/paid/reflect", payload);
 }
 
 export async function getReflections(limit = 50) {
-  return apiGet<Record<string, unknown>>(
-    `/api/paid/reflections?limit=${limit}`,
-  );
+  return apiGet<Record<string, unknown>>(`/api/paid/reflections?limit=${limit}`);
 }
 
 // ---------------------------------------------------------------
@@ -272,10 +216,7 @@ export async function createCheckoutOrder(payload: {
   phone?: string;
   billing?: "annual" | "monthly";
 }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/checkout/create-order",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/checkout/create-order", payload);
 }
 
 export async function verifyPayment(payload: {
@@ -289,15 +230,9 @@ export async function verifyPayment(payload: {
   phone?: string;
   billing?: "annual" | "monthly";
 }) {
-  return apiPost<Record<string, unknown>>(
-    "/api/checkout/verify-payment",
-    payload,
-  );
+  return apiPost<Record<string, unknown>>("/api/checkout/verify-payment", payload);
 }
 
 export async function verifyCheckoutSession() {
-  return apiPost<Record<string, unknown>>(
-    "/api/checkout/verify-session",
-    {},
-  );
+  return apiPost<Record<string, unknown>>("/api/checkout/verify-session", {});
 }
