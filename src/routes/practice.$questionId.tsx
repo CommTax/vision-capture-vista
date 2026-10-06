@@ -7,11 +7,13 @@ import { FreePractice } from "@/components/free-practice";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
 import { AICoach } from "@/components/ai-coach";
-import { type Analysis } from "@/lib/analysis";
+import { type Analysis, normalizeBackendAnalysis } from "@/lib/analysis";
 import {
+  buildTrialUploadForm,
   uploadTrialResponse,
   captureTrial,
   analyzeTrial,
+  buildPaidUploadForm,
   uploadPaidResponse,
   analyzePaidResponse,
 } from "@/lib/backend-api";
