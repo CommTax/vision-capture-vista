@@ -187,9 +187,9 @@ function SignIn() {
               version — the same product with a lifetime cap of 5 responses.
             </p>
 
-            <Link to="/plans" className="btn btn-primary w-full">
-              Create a paid account →
-            </Link>
+<Link to="/checkout" search={{ product: "practice" }} className="btn btn-primary w-full">
+  Create a paid account →
+</Link>
 
             <Link to="/practice" className="btn btn-ghost w-full">
               Try TheUnspoken free
