@@ -16,6 +16,7 @@ import { PATTERNS, type Dimension, type Question } from "@/lib/data";
 import { FREE_FOCUS } from "@/lib/scenarios";
 import { canSubmit, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, type ResponseRecord } from "@/lib/store";
+import { canSubmit, hasLead, recordSubmission, useEntitlement } from "@/lib/entitlements";
 
 /* Free Practice Trial experience: start → respond → (contact) → pattern → what got lost → new shape → retry → compare → keep practising. */
 
@@ -49,8 +50,11 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
   const prev = attempts.length > 1 ? attempts[attempts.length - 2] : undefined;
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  async function submit(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string, audioBlob?: Blob | null) {
-    if (!canSubmit(getState())) return;
+async function submit(transcript: string, duration: number, type: "voice" | "text", audioUrl?: string, audioBlob?: Blob | null) {
+    if (!canSubmit(getState())) {
+      setError("You've used today's 5 free responses. Come back tomorrow, or sign in for unlimited practice.");
+      return;
+    }
     setError("");
     setPhase("listening");
     top();
@@ -106,7 +110,7 @@ export function FreePracticeExperience({ q, level, initial }: { q: Question; lev
       setText("");
 
       await new Promise((r) => setTimeout(r, Math.max(0, 1600 - (Date.now() - started))));
-      setPhase("contact");
+      setPhase(hasLead() ? "result" : "contact");
     } catch (err) {
       console.error("[free-practice] response analysis failed:", err);
       setError(
@@ -235,7 +239,16 @@ function FreePracticeRespond({ q, kind, setKind, text, setText, error, attemptKe
           <button className="chip !border-0 flex items-center gap-2" data-active={kind === "voice"} onClick={() => setKind("voice")}><Mic className="size-4" />Speak</button>
           <button className="chip !border-0 flex items-center gap-2" data-active={kind === "text"} onClick={() => setKind("text")}><Keyboard className="size-4" />Type</button>
         </div>
-        {kind === "voice" ? (
+        {!canSubmit(getState()) ? (
+          <div className="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center">
+            <p className="font-display text-[20px] font-bold">You've used today's 5 free responses.</p>
+            <p className="mt-2 text-[14px] text-muted-foreground">
+              Come back tomorrow, or{" "}
+              <Link to="/signup" className="text-primary">sign in</Link>{" "}
+              for unlimited practice.
+            </p>
+          </div>
+        ) : kind === "voice" ? (
           <Recorder key={attemptKey} max={Math.max(60, q.seconds)} stopLabel="Finish response" submitLabel="Submit response" onDone={(r) => onSubmit(r.transcript, r.duration, "voice", r.audioUrl, r.audioBlob)} />
         ) : (
           <div className="space-y-3">
