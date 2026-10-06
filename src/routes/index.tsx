@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getBackendSession } from "@/lib/backend-auth";
 import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/app-shell";
-import { getState, useStore } from "@/lib/store";
+import { getState } from "@/lib/store";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
@@ -91,7 +92,15 @@ function Landing() {
   const moments = dataProvider.getPracticeMoments();
     const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
-  const signedIn = useStore((s) => !!s.profile?.onboarded) && hydrated;
+  const [signedIn, setSignedIn] = useState(false);
+
+useEffect(() => {
+  if (!hydrated) return;
+
+  void getBackendSession().then((session) => {
+    setSignedIn(!!session);
+  });
+}, [hydrated]);
   const tryFree = () => { if (!getState().profile) seedDemo(); navigate({ to: "/practice/$questionId", params: { questionId: "int-3" } }); };
   const primaryCta = () => (signedIn ? navigate({ to: "/practice" }) : tryFree());
   return (
