@@ -220,7 +220,7 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
   const diagnosis = (b.diagnosis ?? {}) as Record<string, any>;
   const gap = (b.gap ?? {}) as Record<string, any>;
   const coaching = (b.coaching ?? {}) as Record<string, any>;
-  const rewrite = (b.before_after_rewrite ?? {}) as Record<string, any>;
+  const rewrite = (b.before_after_rewrite ?? b.before_after ?? {}) as Record<string, any>;
 
   // ---------- safe helpers ----------
   const num = (v: unknown, fallback = 0): number =>
