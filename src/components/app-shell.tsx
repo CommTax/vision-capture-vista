@@ -34,12 +34,16 @@ const NAV = [
 export function AppShell({ children, allowGuest = false }: { children: ReactNode; allowGuest?: boolean }) {
   const { state, has } = useEntitlement();
   const hydrated = useHydrated();
-  const profile = useStore((s) => s.profile);
-  const days = useStore((s) => s.practiceDays);
-  const navigate = useNavigate();
-  // A user is "signed in" if they have a profile with an email.
-// The token is checked by the backend; the local header uses the profile.
-const signedIn = !!(profile && profile.email);
+const profile = useStore((s) => s.profile);
+const days = useStore((s) => s.practiceDays);
+const navigate = useNavigate();
+
+// A user is signed in if they have a live session token OR a populated profile.
+// This keeps the header consistent during the brief window after login
+// while the profile is being written by route() in signup.tsx.
+const signedIn =
+  typeof window !== "undefined" &&
+  (!!localStorage.getItem("unspoken-session-token") || !!profile?.email);
 
 useEffect(() => {
   if (!hydrated) return;
@@ -58,7 +62,7 @@ useEffect(() => {
   if (!hasToken && !allowGuest) navigate({ to: "/signup" });
 }, [hydrated, profile, navigate, allowGuest]);
 
-  if (!hydrated || (!allowGuest && !profile?.onboarded)) return <div className="min-h-screen" />;
+ if (!hydrated) return <div className="min-h-screen" />;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">
