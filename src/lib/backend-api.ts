@@ -53,7 +53,8 @@ export async function getAuthSession() {
 export type TrialUploadForm = {
   text?: string;
   audio?: Blob;
-  mode: string;
+  /** Response modality — the backend validates this must be "voice" or "text". */
+  mode: "voice" | "text";
   question_slot: string;
   question_type: string;
   question_prompt: string;
@@ -111,7 +112,8 @@ export async function analyzeTrial(payload: { drill_id: string }) {
 export type PaidUploadForm = {
   text?: string;
   audio?: Blob;
-  mode: string;
+  /** Response modality — the backend validates this must be "voice" or "text". */
+  mode: "voice" | "text";
   question_slot: string;
   question_type: string;
   question_prompt: string;
