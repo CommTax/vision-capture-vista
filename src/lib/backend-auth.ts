@@ -91,6 +91,10 @@ export async function verifyOtp(email: string, otp: string) {
     throw new Error("The server did not return a session token.");
   }
 
+  // Clear any previous user's local state before writing the new
+  // session — important on shared browsers.
+  clearUserState();
+
   setSessionToken(result.session_token);
 
   // Cache entitlement so the UI has an immediate value while
@@ -159,7 +163,8 @@ export function logoutBackend() {
  * identifies the user; the plan on the server decides their cap.
  */
 export function setFreeSession(token: string) {
+  // Clear any previous user's state first.
   clearUserState();
-  setSessionToken(result.session_token);
+  setSessionToken(token);
   setPlanHint({ is_paid: false, plan: "free" });
 }
