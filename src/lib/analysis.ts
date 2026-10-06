@@ -456,3 +456,44 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
       "Try again — lead with a direct answer.",
   };
 }
+/**
+ * Maps a backend pattern (id + human name) to one of the local PATTERNS keys.
+ *
+ * Backend library: app/services/analysis_paid.py
+ * All 10 backend patterns map 1:1 to a local key here.
+ */
+function resolveLocalPatternKey(id: string, name: string): string {
+  const EXACT: Record<string, string> = {
+    P001: "scatterer",              // Disjointed Feature Drop
+    P002: "buried_point",           // Buried Point
+    P003: "generic_intro",          // Generic Introduction
+    P004: "role_blur",              // Role Blur
+    P005: "experience_dump",        // Experience Dump
+    P006: "context_heavy",          // Context Heavy
+    P007: "underseller",            // Activity List
+    P008: "enthusiast",             // Motivation Without Direction
+    P009: "structured",             // Strong Answer
+    P010: "insufficient_evidence",  // Insufficient Evidence
+  };
+
+  if (id && EXACT[id]) return EXACT[id];
+
+  const n = (name || "").toLowerCase();
+  if (n.includes("disjoint") || n.includes("scatter")) return "scatterer";
+  if (n.includes("insufficient") || n.includes("no evidence")) return "insufficient_evidence";
+  if (n.includes("role blur") || n.includes("team activity")) return "role_blur";
+  if (n.includes("experience dump") || n.includes("listing roles")) return "experience_dump";
+  if (n.includes("buried") || n.includes("late")) return "buried_point";
+  if (n.includes("context heavy") || n.includes("over-explains")) return "context_heavy";
+  if (n.includes("activity list") || n.includes("tasks performed")) return "underseller";
+  if (n.includes("generic") || n.includes("vague")) return "generic_intro";
+  if (n.includes("motivation without") || n.includes("enthusiasm")) return "enthusiast";
+  if (n.includes("strong answer") || n.includes("structured") || n.includes("clear")) return "structured";
+  if (n.includes("ramble")) return "rambler";
+  if (n.includes("data")) return "datadumper";
+  if (n.includes("flat")) return "flat";
+  if (n.includes("safe") || n.includes("forgettable")) return "safe";
+  if (n.includes("over-explain") || n.includes("overexplain")) return "overexplainer";
+
+  return "scatterer";
+}
