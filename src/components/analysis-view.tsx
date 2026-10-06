@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import type { Analysis } from "@/lib/analysis";
 import { DIMENSIONS, DRILLS, PATTERNS } from "@/lib/data";
+import { ChevronDown } from "lucide-react";
 
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -112,26 +113,39 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
       </section>
 
       {/* Dimensions */}
-      <section className="glass p-6 md:p-7">
-        <div className="eyebrow mb-5">Eight dimensions</div>
-        <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
-          {DIMENSIONS.map((d) => {
-            const r = a.dimensions[d];
-            return (
-              <div key={d} className="border-b border-border py-3">
-                <button className="w-full text-left" onClick={() => setOpen(open === d ? null : d)}><ScoreBar label={d.toUpperCase()} value={r.score} /></button>
-                {open === d && (
-                  <div className="mt-3 space-y-2 text-[13px]">
-                    <p><span className="text-muted-foreground">What happened: </span>{r.happened}</p>
-                    <p><span className="text-muted-foreground">Evidence: </span>{r.evidence}</p>
-                    <p><span className="text-primary">What it means: </span>{r.tryThis}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+<section className="glass p-6 md:p-7">
+  <div className="eyebrow mb-1">Eight dimensions</div>
+  <p className="mb-5 text-[13px] text-muted-foreground">
+    Tap any dimension to see what happened, the evidence, and what it means.
+  </p>
+  <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
+    {DIMENSIONS.map((d) => {
+      const r = a.dimensions[d];
+      const isOpen = open === d;
+      return (
+        <div key={d} className="border-b border-border py-3">
+          <button
+            className="flex w-full items-center justify-between gap-3 text-left"
+            onClick={() => setOpen(isOpen ? null : d)}
+            aria-expanded={isOpen}
+          >
+            <ScoreBar label={d.toUpperCase()} value={r.score} />
+            <ChevronDown
+              className={`size-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {isOpen && (
+            <div className="mt-3 space-y-2 text-[13px]">
+              <p><span className="text-muted-foreground">What happened: </span>{r.happened}</p>
+              <p><span className="text-muted-foreground">Evidence: </span>{r.evidence}</p>
+              <p><span className="text-primary">What it means: </span>{r.tryThis}</p>
+            </div>
+          )}
         </div>
-      </section>
+      );
+    })}
+  </div>
+</section>
 
       {/* Original vs example */}
       <section className="grid gap-6 md:grid-cols-2">
