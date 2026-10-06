@@ -3,15 +3,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Keyboard, Mic } from "lucide-react";
 import { AppShell, useHydrated } from "@/components/app-shell";
-import { FreePractice } from "@/components/free-practice";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
 import { AICoach } from "@/components/ai-coach";
 import { type Analysis, normalizeBackendAnalysis } from "@/lib/analysis";
 import {
-  buildTrialUploadForm,
-  uploadTrialResponse,
-  analyzeTrial,
   buildPaidUploadForm,
   uploadPaidResponse,
   analyzePaidResponse,
@@ -19,7 +15,7 @@ import {
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
-import { FreeCounter, FreeResult, Conversion, LeadCapture } from "@/components/plan-gate";
+import { FreeCounter, FreeResult, Conversion } from "@/components/plan-gate";
 import { canSubmit, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
@@ -29,29 +25,46 @@ export const Route = createFileRoute("/practice/$questionId")({
   component: SessionRoute,
 });
 
+/**
+ * Reads the authenticated email from the stored JWT.
+ * verifyOtp/signupFree store the token but do NOT populate profile.email,
+ * so on a fresh device the local store has no email even for a logged-in user.
+ * The token's `sub` claim carries the email.
+ */
+function getEmailFromToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("unspoken-session-token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    return typeof payload?.sub === "string" ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 function SessionRoute() {
   const { questionId } = Route.useParams();
   const { s, retry, f, ctx } = Route.useSearch();
-  const ent = useEntitlement();
   const hydrated = useHydrated();
-  const level = useStore((st) => st.profile?.level ?? "Mid career");
   if (!hydrated) return <div className="min-h-screen" />;
 
-  // Anonymous visitors always see the free experience — the paid path
-  // requires a live session token. This stops a stale plan hint from
-  // routing a logged-out user into the paid flow.
-  const hasToken =
-    typeof window !== "undefined" &&
-    !!localStorage.getItem("unspoken-session-token");
-
-  if (!hasToken || (ent.free && questionId !== "custom")) {
-    const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
-    const sc = toScenario(base, level);
-    const q: Question = { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
-    return <FreePractice key={`${questionId}|${retry ?? ""}`} q={q} level={level} initial={loadChain(retry)} />;
-  }
-  // Remount on question / retry change so session state never leaks between questions.
-  return <AppShell allowGuest><Session key={`${questionId}|${s ?? ""}|${retry ?? ""}`} questionId={questionId} situation={s} retry={retry} focus={f} ctx={ctx} /></AppShell>;
+  // Everyone goes through the same Session component.
+  // The backend decides the cap based on the user's plan.
+  return (
+    <AppShell allowGuest>
+      <Session
+        key={`${questionId}|${s ?? ""}|${retry ?? ""}`}
+        questionId={questionId}
+        situation={s}
+        retry={retry}
+        focus={f}
+        ctx={ctx}
+      />
+    </AppShell>
+  );
 }
 
 function loadChain(id?: string): ResponseRecord[] {
@@ -69,13 +82,13 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const q: Question = useMemo(() => {
     if (questionId === "custom") return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
     const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
-    const sc = toScenario(base, level); // level-aware context, difficulty and time
+    const sc = toScenario(base, level);
     return { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
   }, [questionId, situation, ctx, level]);
 
   const [attempts, setAttempts] = useState<ResponseRecord[]>(() => loadChain(retry));
-  const [phase, setPhase] = useState<"respond" | "analyzing" | "lead" | "result">("respond");
-  const [view, setView] = useState(0); // index of attempt being viewed
+  const [phase, setPhase] = useState<"respond" | "analyzing" | "result">("respond");
+  const [view, setView] = useState(0);
   const [compareWith, setCompareWith] = useState(0);
   const [kind, setKind] = useState<"voice" | "text">("text");
   const [text, setText] = useState("");
@@ -83,8 +96,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
-  const [lastDrillId, setLastDrillId] = useState<string | null>(null);
-  const [lastMode, setLastMode] = useState<"voice" | "text">("text");
   const ent = useEntitlement();
   const textRef = useRef<HTMLTextAreaElement>(null);
 
@@ -117,7 +128,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
     try {
       const currentState = getState();
-      const free = isFree(currentState);
       const profile = (currentState.profile ?? {}) as {
         email?: string;
         name?: string;
@@ -127,74 +137,33 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         stage?: string;
       };
 
-      const email = profile.email;
+      // Prefer local profile, fall back to the JWT subject.
+      const email = profile.email ?? getEmailFromToken();
       if (!email) {
-        throw new Error(
-          "Please sign in before submitting your response.",
-        );
+        throw new Error("Please sign in before submitting your response.");
       }
-
-      // -------------------------------------------------------------
-      // 1. Upload response → backend returns { drill_id }
-      // -------------------------------------------------------------
 
       const questionSlot = String(attempts.length + 1);
 
-      let drill_id: string;
+      const form = buildPaidUploadForm({
+        text: type === "text" ? transcript : undefined,
+        audio: type === "voice" && audioBlob ? audioBlob : undefined,
+        mode: type,
+        question_slot: questionSlot,
+        question_type: q.mode,
+        question_prompt: q.text,
+        duration_seconds: duration || 0,
+      });
 
-      if (free) {
-        const form = buildTrialUploadForm({
-          text: type === "text" ? transcript : undefined,
-          audio: type === "voice" && audioBlob ? audioBlob : undefined,
-          mode: type,
-          question_slot: questionSlot,
-          question_type: q.mode,
-          question_prompt: q.text,
-          duration_seconds: duration || 0,
-        });
-
-        const uploaded = await uploadTrialResponse(form);
-        drill_id = uploaded.drill_id;
-      } else {
-        const form = buildPaidUploadForm({
-          text: type === "text" ? transcript : undefined,
-          audio: type === "voice" && audioBlob ? audioBlob : undefined,
-          mode: type,
-          question_slot: questionSlot,
-          question_type: q.mode,
-          question_prompt: q.text,
-          duration_seconds: duration || 0,
-        });
-
-        const uploaded = await uploadPaidResponse(form);
-        drill_id = uploaded.drill_id;
-      }
+      const uploaded = await uploadPaidResponse(form);
+      const drill_id = uploaded.drill_id;
 
       if (!drill_id) {
-        throw new Error(
-          "The server did not return a drill id for this response.",
-        );
+        throw new Error("The server did not return a drill id for this response.");
       }
 
-      // -------------------------------------------------------------
-      // 2. Remember the drill id so LeadCapture can POST it later.
-      //    Actual capture happens after the user fills in name/email/phone.
-      // -------------------------------------------------------------
-      setLastDrillId(drill_id);
-
-      // -------------------------------------------------------------
-      // 3. Ask the backend to analyze the stored response
-      // -------------------------------------------------------------
-
-      const backendRaw = free
-        ? await analyzeTrial({ drill_id })
-        : await analyzePaidResponse({ drill_id });
-
+      const backendRaw = await analyzePaidResponse({ drill_id });
       const a: Analysis = normalizeBackendAnalysis(backendRaw);
-
-      // -------------------------------------------------------------
-      // 4. Persist locally for the existing UI (unchanged behaviour)
-      // -------------------------------------------------------------
 
       const rec: ResponseRecord = {
         id: uid(),
@@ -232,22 +201,17 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       setStartedAt(null);
       setElapsed(0);
 
-      if (free) {
-        setLastDrillId(drill_id);
-        setLastMode(type);
-        setPhase("lead");
-      } else {
-        setPhase("result");
-      }
-
+      setPhase("result");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error("[practice] response analysis failed:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "We couldn't analyze that response. Please try again.",
-      );
+      const message = error instanceof Error ? error.message : "";
+
+      if (/CAP_REACHED|free responses/i.test(message)) {
+        setError("You've used your free responses. Upgrade to keep practising.");
+      } else {
+        setError(message || "We couldn't analyze that response. Please try again.");
+      }
       setPhase("respond");
     }
   }
@@ -266,7 +230,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     const unseen = all.filter((x) => !seen.has(x.id));
     let n = unseen[Math.floor(Math.random() * unseen.length)];
     if (!n) {
-      // Topic finished: ask AI for a new question (saved to the database), else reuse one.
       const { isSignedIn } = await import("@/lib/cloud-sync");
       if (isSignedIn()) {
         const { generateQuestion } = await import("@/lib/questions.functions");
@@ -285,17 +248,9 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[12px] text-muted-foreground">
         <Link to="/practice" className="hover:text-foreground">← Practice</Link>
         <span className="text-primary">{modeName(q.mode).toUpperCase()}</span><span>{q.context}</span><span>{q.difficulty}</span><span>~{q.seconds}s recommended</span>
-        <span>Attempt {attempts.length + (phase === "result" || phase === "lead" ? 0 : 1)}</span>
+        <span>Attempt {attempts.length + (phase === "result" ? 0 : 1)}</span>
         <span className="ml-auto"><FreeCounter /></span>
       </div>
-
-    {phase === "lead" && (
-  <LeadCapture
-    drill_id={lastDrillId ?? undefined}
-    mode={lastMode}
-    onDone={() => setPhase("result")}
-  />
-)}
 
       {phase === "respond" && !ent.canSubmit && <Conversion />}
 
@@ -361,9 +316,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
             </div>
           )}
 
-          {ent.free && attempts.length > 1 && view > 0 && (
-            <div className="glass p-5 text-[14px]"><span className="eyebrow mr-2">Attempt {view} → {view + 1}</span>Overall {attempts[view - 1].analysis.overall} → {viewed.analysis.overall} · Main point {attempts[view - 1].analysis.main_point_delay}s → {viewed.analysis.main_point_delay}s</div>
-          )}
           {!ent.free && attempts.length > 1 && view > 0 && (
             <>
               {view > 1 && (
