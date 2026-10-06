@@ -31,7 +31,7 @@ export type Analysis = {
   improvements: string[];
   what_got_lost: { intended: string; heard: string; why: string[]; makeItLand: string[] };
   example_structure: string;
-  rework: string; 
+  rework: string;
   segments: Segment[];
   recommended_drill: string;
   retry_instruction: string;
@@ -168,6 +168,7 @@ export function heuristicProvider({ question, transcript, durationSec, responseT
       makeItLand: ["Open with your point in one sentence", "Give the single most relevant reason", "Prove it with one specific example", "Close with the result — and a number"],
     },
     example_structure: `1. Point: ${truncate(mp, 90)}\n2. Why: the one reason that matters most to this listener.\n3. Evidence: one concrete example with a number.\n4. Close: restate the result in a single memorable line.`,
+    rework: "",
     segments: segs,
     recommended_drill: drillMap[weakest],
     retry_instruction: mpRatio > 0.3 ? "Try again — say your main point in the first 5 seconds." : `Try again — focus on ${weakest}: ${dimensions[weakest].tryThis}`,
@@ -185,35 +186,6 @@ function strengthLine(d: Dimension) {
 
 // ---------------------------------------------------------------
 // Backend → local Analysis adapter
-//
-// The Render backend's /api/trial/analyze and /api/paid/analyze return a
-// nested shape:
-//
-//   {
-//     transcribed_text,
-//     signals:  { word_count, words_per_minute, duration_seconds,
-//                 filler_words: { total, percentage, breakdown },
-//                 sentences: { average_length, longest, total },
-//                 main_point_delay_seconds, signal_to_noise_ratio,
-//                 vocabulary: { unique, total, richness } },
-//     metrics:  { filler_discipline, point_first, concreteness,
-//                 overall_score,            // 0–10 scale
-//                 focus_score, focus_note,
-//                 structure_score, structure_note,
-//                 delivery_score, delivery_note },
-//     diagnosis:{ pattern_name, pattern_description, pattern_id,
-//                 confidence, evidence: [{ text, role }],
-//                 intent, listener_question, why_this_matters },
-//     gap:      { what_got_lost, unspoken_gap },
-//     coaching: { one_thing_to_change, recommended_structure[],
-//                 what_worked },
-//     before_after_rewrite: { executive_version },
-//     drill_id, user_id, is_trial
-//   }
-//
-// This maps that onto the frontend's `Analysis` type so the report UI
-// keeps working unchanged. Fields the backend doesn't provide are
-// derived where possible, otherwise defaulted — never `undefined`.
 // ---------------------------------------------------------------
 export function normalizeBackendAnalysis(raw: unknown): Analysis {
   const b = (raw ?? {}) as Record<string, any>;
@@ -236,50 +208,29 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
     Array.isArray(v) ? v.map((x) => str(x)).filter(Boolean) : [];
 
   // ---------- scores ----------
-  // Backend provides:
-  //   metrics.structure_score    0–100  → structure  (fallback: point_first)
-  //   metrics.delivery_score     0–100  → delivery   (fallback: filler_discipline)
-  //   metrics.focus_score        0–100  → relevance
-  //   metrics.concreteness       0–100  → impact
-  // Anything else (clarity, conciseness, confidence, memorability) is
-  // derived from what we do have, so nothing sits at 0.
-  const structureScore =
-    num(metrics.structure_score) || num(metrics.point_first) || 50;
+  const dimScore = (key: string): number =>
+    typeof metrics[`${key}_score`] === "number" ? metrics[`${key}_score`] : 0;
 
-  const deliveryScore =
-    num(metrics.delivery_score) || num(metrics.filler_discipline) || 50;
+  const dimNote = (key: string): string =>
+    typeof metrics[`${key}_note`] === "string" ? metrics[`${key}_note`] : "";
 
-  const relevanceScore = num(metrics.focus_score) || 50;
-  const impactScore = num(metrics.concreteness) || 50;
-
-  const clarityScore = Math.round((structureScore + deliveryScore) / 2);
-
-  const longestSentence = num(signals.sentences?.longest);
-  const concisenessScore = Math.round(
-    Math.max(0, Math.min(100, 100 - Math.max(0, longestSentence - 12) * 3)),
-  );
-
-  const confidenceScore = Math.round(deliveryScore);
-  const memorabilityScore = Math.round(impactScore);
+  const dimMeaning = (key: string): string =>
+    typeof metrics[`${key}_meaning`] === "string" ? metrics[`${key}_meaning`] : "";
 
   const scores: Record<Dimension, number> = {
-    structure: Math.round(structureScore),
-    clarity: clarityScore,
-    conciseness: concisenessScore,
-    relevance: Math.round(relevanceScore),
-    impact: Math.round(impactScore),
-    delivery: Math.round(deliveryScore),
-    confidence: confidenceScore,
-    memorability: memorabilityScore,
+    structure: dimScore("structure"),
+    clarity: dimScore("clarity"),
+    conciseness: dimScore("conciseness"),
+    relevance: dimScore("relevance"),
+    impact: dimScore("impact"),
+    delivery: dimScore("delivery"),
+    confidence: dimScore("confidence"),
+    memorability: dimScore("memorability"),
   };
 
-  // Backend's overall_score is 0–10. Normalize to 0–100.
-  const rawOverall = num(metrics.overall_score);
-  const overall = Math.round(
-    rawOverall <= 10 ? rawOverall * 10 : rawOverall,
-  );
+  const overall = num(metrics.overall_score);
 
-  // ---------- evidence text (shared) ----------
+  // ---------- evidence text (shared across dimensions) ----------
   const evidenceText = Array.isArray(diagnosis.evidence)
     ? diagnosis.evidence
         .map((e: Record<string, any>) => str(e?.text))
@@ -288,71 +239,22 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
     : "";
 
   // ---------- dimensions ----------
-  const dim = (
-    score: number,
-    happened: string,
-    evidence: string,
-    tryThis: string,
-  ): DimensionResult => ({ score, happened, evidence, tryThis });
-
-  const oneThingToChange =
-    str(coaching.one_thing_to_change) ||
-    "Lead with a direct answer, then support it with one concrete example.";
+  const dim = (key: string): DimensionResult => ({
+    score: dimScore(key),
+    happened: dimNote(key),
+    evidence: evidenceText,
+    tryThis: dimMeaning(key),
+  });
 
   const dimensions: Record<Dimension, DimensionResult> = {
-    structure: dim(
-      scores.structure,
-      str(metrics.structure_note) ||
-        "How well the response is organized around the question asked.",
-      evidenceText,
-      oneThingToChange,
-    ),
-    clarity: dim(
-      scores.clarity,
-      "How easy the response is to follow.",
-      evidenceText,
-      "Keep sentences short. One idea per sentence.",
-    ),
-    conciseness: dim(
-      scores.conciseness,
-      `Average sentence: ${num(signals.sentences?.average_length)} words.`,
-      evidenceText,
-      "Cut anything that doesn't change the listener's understanding.",
-    ),
-    relevance: dim(
-      scores.relevance,
-      str(metrics.focus_note) ||
-        "How directly the response addresses the question asked.",
-      evidenceText,
-      "Echo the question's key word in your first sentence.",
-    ),
-    impact: dim(
-      scores.impact,
-      "How concrete and memorable the response is.",
-      evidenceText,
-      "Add one number, name, or measurable outcome.",
-    ),
-    delivery: dim(
-      scores.delivery,
-      str(metrics.delivery_note) ||
-        "Pace, rhythm, and filler-word discipline.",
-      `${num(signals.filler_words?.total)} filler words · ${num(
-        signals.words_per_minute,
-      )} wpm.`,
-      "Pause instead of filling silence.",
-    ),
-    confidence: dim(
-      scores.confidence,
-      "How directly you state your position.",
-      evidenceText,
-      "Replace hedging language with a plain statement.",
-    ),
-    memorability: dim(
-      scores.memorability,
-      "Whether the response gives the listener something to hold on to.",
-      evidenceText,
-      "End with one line the listener could repeat.",
-    ),
+    structure: dim("structure"),
+    clarity: dim("clarity"),
+    conciseness: dim("conciseness"),
+    relevance: dim("relevance"),
+    impact: dim("impact"),
+    delivery: dim("delivery"),
+    confidence: dim("confidence"),
+    memorability: dim("memorability"),
   };
 
   // ---------- filler words ----------
@@ -370,10 +272,10 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
   const repeated_words: { word: string; count: number }[] = [];
 
   // ---------- what got lost ----------
-const whyList = [
-  str(diagnosis.why_this_matters),
-  str(gap.what_got_lost),
-].filter(Boolean);
+  const whyList = [
+    str(diagnosis.why_this_matters),
+    str(gap.what_got_lost),
+  ].filter(Boolean);
 
   const what_got_lost = {
     intended: str(diagnosis.intent),
@@ -388,9 +290,6 @@ const whyList = [
   // ---------- strengths / improvements ----------
   const strengths = [
     str(coaching.what_worked),
-    num(metrics.filler_discipline) > 0
-      ? `Filler discipline: ${num(metrics.filler_discipline)}/100.`
-      : "",
   ].filter(Boolean);
 
   const improvements = [
@@ -408,17 +307,23 @@ const whyList = [
           .join("\n")
       : str(rewrite.executive_version);
 
-const backendSecondaryName = str(diagnosis.secondary_pattern_name);
-const backendSecondaryId = str(diagnosis.secondary_pattern_id);
-const secondaryKey = backendSecondaryId
-  ? resolveLocalPatternKey(backendSecondaryId, backendSecondaryName)
-  : "";
+  // ---------- pattern keys ----------
+  const backendPatternName = str(diagnosis.pattern_name);
+  const backendPatternId = str(diagnosis.pattern_id);
+  const primaryKey = resolveLocalPatternKey(backendPatternId, backendPatternName);
 
+  const backendSecondaryName = str(diagnosis.secondary_pattern_name);
+  const backendSecondaryId = str(diagnosis.secondary_pattern_id);
+  const secondaryKey = backendSecondaryId
+    ? resolveLocalPatternKey(backendSecondaryId, backendSecondaryName)
+    : "";
+
+  // ---------- return ----------
   return {
     primary_pattern: primaryKey,
     pattern_name: backendPatternName || undefined,
     secondary_pattern: secondaryKey || backendSecondaryName || "",
-    
+
     scores,
     overall,
     dimensions,
@@ -450,6 +355,8 @@ const secondaryKey = backendSecondaryId
       str(rewrite.executive_version) ||
       "",
 
+    rework: str(rewrite.executive_version) || "",
+
     segments: [],
 
     recommended_drill: "",
@@ -459,24 +366,22 @@ const secondaryKey = backendSecondaryId
       "Try again — lead with a direct answer.",
   };
 }
+
 /**
  * Maps a backend pattern (id + human name) to one of the local PATTERNS keys.
- *
- * Backend library: app/services/analysis_paid.py
- * All 10 backend patterns map 1:1 to a local key here.
  */
 function resolveLocalPatternKey(id: string, name: string): string {
   const EXACT: Record<string, string> = {
-    P001: "scatterer",              // Disjointed Feature Drop
-    P002: "buried_point",           // Buried Point
-    P003: "generic_intro",          // Generic Introduction
-    P004: "role_blur",              // Role Blur
-    P005: "experience_dump",        // Experience Dump
-    P006: "context_heavy",          // Context Heavy
-    P007: "underseller",            // Activity List
-    P008: "enthusiast",             // Motivation Without Direction
-    P009: "structured",             // Strong Answer
-    P010: "insufficient_evidence",  // Insufficient Evidence
+    P001: "scatterer",
+    P002: "buried_point",
+    P003: "generic_intro",
+    P004: "role_blur",
+    P005: "experience_dump",
+    P006: "context_heavy",
+    P007: "underseller",
+    P008: "enthusiast",
+    P009: "structured",
+    P010: "insufficient_evidence",
   };
 
   if (id && EXACT[id]) return EXACT[id];
