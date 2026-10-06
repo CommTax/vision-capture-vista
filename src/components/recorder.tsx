@@ -39,7 +39,11 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response", sto
       const rec = new MediaRecorder(s);
       chunks.current = [];
       rec.ondataavailable = (e) => chunks.current.push(e.data);
-      rec.onstop = () => setAudioUrl(URL.createObjectURL(new Blob(chunks.current, { type: "audio/webm" })));
+      rec.onstop = () => {
+        const blob = new Blob(chunks.current, { type: "audio/webm" });
+        audioBlob.current = blob;
+        setAudioUrl(URL.createObjectURL(blob));
+      };
       rec.start(); mr.current = rec;
       const ctx = new AudioContext(); const an = ctx.createAnalyser(); an.fftSize = 64; ctx.createMediaStreamSource(s).connect(an);
       const data = new Uint8Array(an.frequencyBinCount);
@@ -74,7 +78,7 @@ export function Recorder({ max, onDone, submitLabel = "Analyze my response", sto
           <button className="btn btn-ghost" onClick={pause}>{state === "rec" ? <><Pause className="size-4" />Pause</> : <><Play className="size-4" />Resume</>}</button>
           <button className="btn btn-primary" onClick={stop}><Square className="size-4" />{stopLabel}</button>
         </>}
-        {state === "done" && <button className="btn btn-ghost" onClick={() => { setState("idle"); setSec(0); setTranscript(""); finalText.current = ""; setAudioUrl(""); audioBlob.current = null; }}
+        {state === "done" && <button className="btn btn-ghost" onClick={() => { setState("idle"); setSec(0); setTranscript(""); finalText.current = ""; setAudioUrl(""); audioBlob.current = null; }}>Re-record</button>}
       </div>
       {err && <p className="text-center text-[13px] text-destructive">{err}</p>}
       {state === "done" && (
