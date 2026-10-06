@@ -1,3 +1,4 @@
+import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -47,9 +48,13 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 }
 
 function Dashboard() {
-  const profile = useStore((s) => s.profile)!;
-  const rs = useStore((s) => s.responses);
-  const days = useStore((s) => s.practiceDays);
+const { session, reps, loading } = usePaidDashboard();
+const profile = {
+  name: session?.name ?? "",
+  email: session?.email ?? "",
+} as { name: string; email: string };
+const rs = reps;
+const days = reps.map((r) => r.created_at.slice(0, 10));
   const cp = currentPattern(rs);
   const stats = skillStats(rs);
   const f = FOCUS[cp.focus as Dimension] ?? FOCUS.impact;
@@ -59,6 +64,14 @@ function Dashboard() {
   const byId = new Map(rs.map((r) => [r.id, r]));
   const { free } = useEntitlement();
 
+if (loading && rs.length === 0) {
+  return (
+    <div className="py-20 text-center text-muted-foreground">
+      Loading your dashboard…
+    </div>
+  );
+}
+  
   return (
     <div className="space-y-6">
       {/* 1. Next practice */}
