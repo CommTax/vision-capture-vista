@@ -14,9 +14,10 @@ function getToken() {
 function authHeaders() {
   const token = getToken();
 
-  // The Render backend expects a raw JWT in the lowercase `authorization`
-  // header. It does NOT accept a "Bearer " prefix.
-  return token ? { authorization: token } : {};
+  // Render backend expects `Authorization: Bearer <jwt>`.
+  // /api/auth/session aliases the header exactly as "Authorization";
+  // all other routes accept it case-insensitively via FastAPI/Starlette.
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
