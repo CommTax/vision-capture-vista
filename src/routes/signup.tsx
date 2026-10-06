@@ -56,20 +56,42 @@ function SignIn() {
     return () => clearTimeout(t);
   }, [cool]);
 
-  async function route() {
-    try {
-      const session = await getBackendSession();
+async function route() {
+  try {
+    const session = await getBackendSession();
 
-      if (!session) {
-        setErr("Your session could not be loaded. Please try signing in again.");
-        return;
-      }
-
-      navigate({ to: "/practice", replace: true });
-    } catch {
-      setErr("We couldn't load your account. Please try again.");
+    if (!session) {
+      setErr("Your session could not be loaded. Please try signing in again.");
+      return;
     }
+
+    // Populate the local profile so AppShell knows the user is signed in
+    // and can route to /dashboard or /onboarding appropriately.
+    const email = (session.email as string) || "";
+    const name = (session.name as string) || "";
+    const onboarded = Boolean(session.profile_completed);
+
+    setState((s) => ({
+      ...s,
+      profile: s.profile
+        ? { ...s.profile, email, name: s.profile.name || name, onboarded }
+        : {
+            name: name || "Friend",
+            email,
+            goal: "",
+            struggle: "",
+            experience: "",
+            level: "Mid career",
+            onboarded,
+            plan: "free",
+          },
+    }));
+
+    navigate({ to: "/practice", replace: true });
+  } catch {
+    setErr("We couldn't load your account. Please try again.");
   }
+}
 
   async function send(e?: React.FormEvent) {
     e?.preventDefault();
