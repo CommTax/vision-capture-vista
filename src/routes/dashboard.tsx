@@ -3,12 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { PatternCardSection } from "@/components/free-practice";
-import { Locked } from "@/components/plan-gate";
-import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
 import { DRILLS, PATTERNS, modeName, type Dimension } from "@/lib/data";
 import { currentPattern, skillStats } from "@/lib/insights";
-import { streak, useStore, type ResponseRecord } from "@/lib/store";
+import { streak, type ResponseRecord } from "@/lib/store";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Your next practice — TheUnspoken" }, { name: "description", content: "What to practice now, why, and how your responses are changing." }, { property: "og:title", content: "Your next practice — TheUnspoken" }, { property: "og:description", content: "Your personal practice cockpit." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -48,13 +46,13 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 }
 
 function Dashboard() {
-const { session, reps, loading } = usePaidDashboard();
-const profile = {
-  name: session?.name ?? "",
-  email: session?.email ?? "",
-} as { name: string; email: string };
-const rs = reps;
-const days = reps.map((r) => r.created_at.slice(0, 10));
+  const { session, reps, loading } = usePaidDashboard();
+  const profile = {
+    name: session?.name ?? "",
+    email: session?.email ?? "",
+  } as { name: string; email: string };
+  const rs = reps;
+  const days = reps.map((r) => r.created_at.slice(0, 10));
   const cp = currentPattern(rs);
   const stats = skillStats(rs);
   const f = FOCUS[cp.focus as Dimension] ?? FOCUS.impact;
@@ -62,16 +60,15 @@ const days = reps.map((r) => r.created_at.slice(0, 10));
   const drills = f.drills.map((id) => DRILLS.find((d) => d.id === id)).filter(Boolean) as typeof DRILLS;
   const primary = PATTERNS[cp.primary] ?? PATTERNS.scatterer;
   const byId = new Map(rs.map((r) => [r.id, r]));
-  const { free } = useEntitlement();
 
-if (loading && rs.length === 0) {
-  return (
-    <div className="py-20 text-center text-muted-foreground">
-      Loading your dashboard…
-    </div>
-  );
-}
-  
+  if (loading && rs.length === 0) {
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Loading your dashboard…
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* 1. Next practice */}
@@ -90,27 +87,6 @@ if (loading && rs.length === 0) {
       </header>
 
       {rs[0] && <section id="my-card" className="paper rounded-[24px] px-5 pb-8"><PatternCardSection a={[...rs].sort((x, y) => y.created_at.localeCompare(x.created_at))[0].analysis} /></section>}
-
-
-      {free ? (
-        <>
-          <section className="glass flex flex-col p-7">
-            <div className="eyebrow mb-4">Your current pattern</div>
-            <div className="font-display text-[26px] font-bold leading-tight">{primary.name.replace(/^The /, "").toUpperCase()}</div>
-            <p className="mt-2 text-[14px] leading-6 text-muted-foreground">{primary.desc}</p>
-            <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-[12px]">
-              <div><div className="text-muted-foreground">Secondary</div><div className="mt-1 font-mono">{(PATTERNS[cp.secondary] ?? primary).short}</div></div>
-              <div><div className="text-muted-foreground">Strength</div><div className="mt-1 font-mono text-success">{cp.strength.toUpperCase()}</div></div>
-              <div><div className="text-muted-foreground">Focus</div><div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div></div>
-            </div>
-            <div className="mt-5 rounded-2xl bg-primary/10 p-4">
-              <div className="eyebrow !text-primary">Your next move</div>
-              <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
-            </div>
-          </section>
-          <Locked feature="history" title="Continue your personal practice path" body="Unlock targeted challenges, response history, recommendations, and change tracking based on your answers." cta="Unlock your dashboard" />
-        </>
-      ) : <>
 
       {/* 2. Why */}
       <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
@@ -208,7 +184,6 @@ if (loading && rs.length === 0) {
           })}</div>
         )}
       </section>
-      </>}
     </div>
   );
 }
