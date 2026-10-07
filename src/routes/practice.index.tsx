@@ -10,6 +10,7 @@ import { getState, useStore } from "@/lib/store";
 import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
+import { fetchScenarios } from "@/lib/questions-api";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 
