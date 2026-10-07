@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Gate } from "@/components/plan-gate";
 import { AppShell } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { buildSkillInsights } from "@/lib/skills";
@@ -11,7 +10,7 @@ import { setState, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/$drillId")({
   head: () => ({ meta: [{ title: "Drill — TheUnspoken" }, { name: "description", content: "A focused communication drill with instant feedback." }, { property: "og:title", content: "Drill — TheUnspoken" }, { property: "og:description", content: "Practice one skill, get feedback, retry." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  component: () => <AppShell><Gate feature="drills" title="Unlock targeted practice." body="This drill is built to practice one behavior your responses need. Unlock targeted drills with before-and-after results." cta="Unlock targeted practice"><DrillPage /></Gate></AppShell>,
+  component: () => <AppShell><DrillPage /></AppShell>,
 });
 
 function DrillPage() {
