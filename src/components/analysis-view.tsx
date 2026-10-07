@@ -75,8 +75,8 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
 
       {/* helped / improve */}
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="glass p-6"><div className="eyebrow mb-3">3 things that helped</div>{a.strengths.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-success">+</span>{s}</div>)}</div>
-        <div className="glass p-6"><div className="eyebrow mb-3">3 things to improve</div>{a.improvements.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-primary">→</span>{s}</div>)}</div>
+        <div className="glass p-6"><div className="eyebrow mb-3">Things that helped</div>{a.strengths.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-success">+</span>{s}</div>)}</div>
+        <div className="glass p-6"><div className="eyebrow mb-3">Things to improve</div>{a.improvements.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-primary">→</span>{s}</div>)}</div>
       </section>
 
       {/* Breakdown */}
