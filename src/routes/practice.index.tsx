@@ -12,9 +12,11 @@ import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
 import { fetchScenarios } from "@/lib/questions-api";
 import { RefreshCw } from "lucide-react";
+import { RoleSelectorCard } from "@/components/role-selector-card";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 const VISIBLE_COUNT = 2;
+const API_BASE = import.meta.env.VITE_API_URL ?? "https://unspoken-backend-nqvl.onrender.com";
 
 export const Route = createFileRoute("/practice/")({
   validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
@@ -122,6 +124,13 @@ function Practice() {
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
 
+  // Role + swap state for interview practice
+  const [selectedRole, setSelectedRole] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("unspoken-practice-role");
+  });
+  const [swapRemaining, setSwapRemaining] = useState<number | null>(null);
+
   // Pool of scenarios for the selected mode (fetched from the backend).
   const [pool, setPool] = useState<Scenario[]>([]);
   const [librarySource, setLibrarySource] = useState<"backend" | "fallback">(
@@ -129,12 +138,21 @@ function Practice() {
   );
   const [libraryLoading, setLibraryLoading] = useState(false);
 
-  // Which scenario is currently shown in each of the 4 slots.
+  // Which scenario is currently shown in each visible slot.
   const [slots, setSlots] = useState<Scenario[]>([]);
 
   // Full catalog for the selected mode (fallback when the pool is small).
   const [allForMode, setAllForMode] = useState<Scenario[]>([]);
 
+  // Persist selected role to localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (selectedRole && !selectedRole.startsWith("__")) {
+      localStorage.setItem("unspoken-practice-role", selectedRole);
+    }
+  }, [selectedRole]);
+
+  // Fetch scenarios whenever mode / level / role changes
   useEffect(() => {
     if (!mode || mode === "custom") {
       setPool([]);
@@ -146,7 +164,14 @@ function Practice() {
     let cancelled = false;
     setLibraryLoading(true);
 
-    void fetchScenarios({ mode, level })
+    void fetchScenarios({
+      mode,
+      level,
+      role:
+        mode === "interview" && selectedRole && !selectedRole.startsWith("__")
+          ? selectedRole
+          : undefined,
+    })
       .then(({ scenarios, source }) => {
         if (cancelled) return;
         setPool(scenarios);
@@ -161,11 +186,72 @@ function Practice() {
     return () => {
       cancelled = true;
     };
-  }, [mode, level]);
+  }, [mode, level, selectedRole]);
+
+  // Load swap-status whenever mode / role changes
+  useEffect(() => {
+    if (!mode || mode === "custom") {
+      setSwapRemaining(null);
+      return;
+    }
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("unspoken-session-token")
+        : null;
+    if (!token) {
+      setSwapRemaining(null);
+      return;
+    }
+    const roleParam =
+      mode === "interview" && selectedRole && !selectedRole.startsWith("__")
+        ? selectedRole
+        : "";
+    fetch(
+      `${API_BASE}/api/paid/swap-status?mode=${mode}&role_name=${encodeURIComponent(roleParam)}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.remaining !== null && d.remaining !== undefined)
+          setSwapRemaining(d.remaining);
+      })
+      .catch(() => {});
+  }, [mode, selectedRole]);
 
   // Swap the scenario in one slot for a different one from the pool.
-  // Falls back to a local list if the pool is too small.
-  function shuffleSlot(index: number) {
+  // Asks the backend for permission first (free swap cap).
+  async function shuffleSlot(index: number) {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("unspoken-session-token")
+        : null;
+
+    if (token && mode) {
+      const roleParam =
+        mode === "interview" && selectedRole && !selectedRole.startsWith("__")
+          ? selectedRole
+          : "";
+      const res = await fetch(`${API_BASE}/api/paid/swap`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ mode, role_name: roleParam }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(
+          err?.detail?.message ??
+            "You've seen all free questions for this role. Upgrade to continue.",
+        );
+        return;
+      }
+      const data = await res.json();
+      if (data.remaining !== null && data.remaining !== undefined)
+        setSwapRemaining(data.remaining);
+    }
+
     const current = slots[index];
     const used = new Set(slots.map((s) => s.scenario_id));
 
@@ -173,12 +259,10 @@ function Practice() {
       (s) => !used.has(s.scenario_id) && s.scenario_id !== current?.scenario_id,
     );
 
-    // If the pool is exhausted, allow reusing anything except the current slot.
     if (candidates.length === 0) {
       candidates = pool.filter((s) => s.scenario_id !== current?.scenario_id);
     }
 
-    // If the pool has only one item, fall back to the full local list.
     if (candidates.length === 0) {
       const localPool = allScenarios(level).filter((s) => s.category === mode);
       candidates = localPool.filter(
@@ -424,15 +508,35 @@ function Practice() {
 
         {!libraryLoading && mode && mode !== "custom" && slots.length > 0 && (
           <div className="mt-5">
+            {mode === "interview" && (
+              <div className="mb-4">
+                <RoleSelectorCard
+                  selected={selectedRole}
+                  isPaid={!ent.free}
+                  onChange={setSelectedRole}
+                />
+              </div>
+            )}
+
             <div className="eyebrow mb-3">
               {categoryName(mode)}
+              {selectedRole && mode === "interview" && (
+                <span className="ml-2 text-[11px] normal-case tracking-normal text-muted-foreground">
+                  · {selectedRole}
+                </span>
+              )}
+              {swapRemaining !== null && (
+                <span className="ml-2 text-[11px] normal-case tracking-normal text-muted-foreground">
+                  · {swapRemaining} swap{swapRemaining === 1 ? "" : "s"} left
+                </span>
+              )}
               {librarySource === "fallback" && (
                 <span className="ml-2 text-[11px] normal-case tracking-normal text-muted-foreground">
                   (offline list)
                 </span>
               )}
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-3">
               {slots.map((s, i) => (
                 <ScenarioCard
                   key={`${s.scenario_id}-${i}`}
