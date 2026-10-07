@@ -1,6 +1,6 @@
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Flame } from "lucide-react";
+import { Flame, Instagram, MessageCircle, Share2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { PATTERNS, modeName, type Dimension } from "@/lib/data";
@@ -10,9 +10,9 @@ import { streak, type ResponseRecord } from "@/lib/store";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Your next practice — TheUnspoken" },
+      { title: "Dashboard — TheUnspoken" },
       { name: "description", content: "What to practice now, why, and how your responses are changing." },
-      { property: "og:title", content: "Your next practice — TheUnspoken" },
+      { property: "og:title", content: "Dashboard — TheUnspoken" },
       { property: "og:description", content: "Your personal practice cockpit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -55,12 +55,46 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
   return r.analysis.summary;
 }
 
+// ────────────────────────────────────────────────────────────
+// Share helpers — used by the pattern card buttons
+// ────────────────────────────────────────────────────────────
+function buildShareText(name: string, patternName: string, patternDesc: string, url: string) {
+  return `${name ? name + "'s" : "My"} communication pattern: ${patternName}.\n\n"${patternDesc}"\n\nWhat's yours? ${url}`;
+}
+
+function shareToWhatsApp(text: string) {
+  const encoded = encodeURIComponent(text);
+  window.open(`https://wa.me/?text=${encoded}`, "_blank", "noopener,noreferrer");
+}
+
+async function shareToInstagram(text: string) {
+  // Instagram has no direct web share endpoint. Use Web Share API if available
+  // (mobile Safari/Chrome), which shows IG in the share sheet. Fall back to copy.
+  if (typeof navigator !== "undefined" && (navigator as any).share) {
+    try {
+      await (navigator as any).share({ text });
+      return;
+    } catch {
+      // user cancelled or not allowed — fall through to copy
+    }
+  }
+  // Fallback: copy to clipboard and open Instagram
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Copied to clipboard. Paste it into your Instagram story.");
+  } catch {
+    alert("Copy this text for your Instagram story:\n\n" + text);
+  }
+  window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+}
+
 function Dashboard() {
   const { session, reps, loading } = usePaidDashboard();
   const profile = {
     name: session?.name ?? "",
     email: session?.email ?? "",
   } as { name: string; email: string };
+
   const rs = reps;
   const days = reps.map((r) => r.created_at.slice(0, 10));
   const cp = currentPattern(rs);
@@ -69,6 +103,9 @@ function Dashboard() {
   const focus = cap(cp.focus);
   const primary = PATTERNS[cp.primary] ?? PATTERNS.scatterer;
   const byId = new Map(rs.map((r) => [r.id, r]));
+
+  // First name only for the card
+  const firstName = (profile.name || "You").trim().split(/\s+/)[0];
 
   if (loading && rs.length === 0) {
     return (
@@ -80,12 +117,15 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header */}
+      {/* 1. Header (greeting + stats, no title) */}
       <header className="rise pt-2">
         <div className="eyebrow mb-3">Good to see you, {profile.name}</div>
-        <h1 className="text-[clamp(32px,4.4vw,52px)] font-bold leading-[1.05]">Your next practice</h1>
-        <div className="mt-6 flex flex-wrap items-center gap-5">
-          <Link to="/practice/$questionId" params={{ questionId: CHALLENGES[0].id }} className="btn btn-primary px-6 py-3 text-[15px]">
+        <div className="mt-2 flex flex-wrap items-center gap-5">
+          <Link
+            to="/practice/$questionId"
+            params={{ questionId: CHALLENGES[0].id }}
+            className="btn btn-primary px-6 py-3 text-[15px]"
+          >
             Start today's practice →
           </Link>
           <div className="flex gap-5 font-mono text-[12px] text-muted-foreground">
@@ -99,14 +139,54 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* 2. Your current pattern */}
-      <section className="glass flex flex-col p-7">
-        <div className="eyebrow mb-4">Your current pattern</div>
-        <div className="font-display text-[26px] font-bold leading-tight">
+      {/* 2. Pattern card — the hero. User's name + pattern + share actions all in one card. */}
+      <section
+        className="relative overflow-hidden rounded-3xl p-7"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.35) 45%, rgba(11,13,20,0.9) 100%)",
+          border: "1px solid rgba(139,127,255,0.35)",
+          boxShadow:
+            "0 20px 60px -20px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+        }}
+      >
+        {/* subtle glow accent in the corner */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: -80,
+            right: -80,
+            width: 220,
+            height: 220,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(closest-side, rgba(139,127,255,0.35), transparent)",
+            filter: "blur(8px)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Top row: eyebrow left, user name right */}
+        <div className="relative flex items-start justify-between gap-4">
+          <div className="eyebrow !text-primary">Your current pattern</div>
+          <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
+            {firstName}'s
+          </div>
+        </div>
+
+        {/* Hero: pattern name */}
+        <div className="relative mt-4 font-display text-[clamp(30px,5vw,42px)] font-bold leading-[1.05]">
           {primary.name.replace(/^The /, "").toUpperCase()}
         </div>
-        <p className="mt-2 text-[14px] leading-6 text-muted-foreground">{primary.desc}</p>
-        <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-[12px]">
+
+        {/* Description */}
+        <p className="relative mt-3 max-w-2xl text-[15px] leading-7 text-muted-foreground">
+          {primary.desc}
+        </p>
+
+        {/* Metadata row */}
+        <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-border/60 pt-4 text-[12px]">
           <div>
             <div className="text-muted-foreground">Secondary</div>
             <div className="mt-1 font-mono">{(PATTERNS[cp.secondary] ?? primary).short}</div>
@@ -120,17 +200,50 @@ function Dashboard() {
             <div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div>
           </div>
         </div>
-        <div className="mt-5 rounded-2xl bg-primary/10 p-4">
+
+        {/* Next move panel */}
+        <div className="relative mt-5 rounded-2xl bg-primary/10 p-4">
           <div className="eyebrow !text-primary">Your next move</div>
           <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
         </div>
-        <Link
-          to="/practice/$questionId"
-          params={{ questionId: CHALLENGES[0].id }}
-          className="mt-4 inline-block text-[13px] text-primary"
-        >
-          Practice this →
-        </Link>
+
+        {/* Share row */}
+        <div className="relative mt-6 flex flex-wrap items-center gap-3">
+          <span className="text-[12px] text-muted-foreground">
+            Share your pattern:
+          </span>
+          <button
+            onClick={() =>
+              shareToWhatsApp(
+                buildShareText(firstName, primary.name, primary.desc, "theunspoken.co.in"),
+              )
+            }
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-[13px] font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+            title="Share on WhatsApp"
+          >
+            <MessageCircle className="size-4" />
+            WhatsApp
+          </button>
+          <button
+            onClick={() =>
+              shareToInstagram(
+                buildShareText(firstName, primary.name, primary.desc, "theunspoken.co.in"),
+              )
+            }
+            className="inline-flex items-center gap-2 rounded-full border border-pink-500/40 bg-pink-500/10 px-4 py-2 text-[13px] font-medium text-pink-300 transition hover:bg-pink-500/20"
+            title="Share on Instagram"
+          >
+            <Instagram className="size-4" />
+            Instagram
+          </button>
+          <Link
+            to="/practice/$questionId"
+            params={{ questionId: CHALLENGES[0].id }}
+            className="ml-auto text-[13px] text-primary"
+          >
+            Practice this →
+          </Link>
+        </div>
       </section>
 
       {/* 3. Why you're seeing this */}
@@ -189,17 +302,7 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 5. Share your pattern */}
-      <section className="glass p-7">
-        <div className="eyebrow mb-2 !text-primary">Share your pattern</div>
-        <h3 className="font-display text-[22px] font-bold">Show people your pattern.</h3>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          Share it on your Instagram Story or WhatsApp Status, and ask your friends what theirs is.
-        </p>
-        <button className="btn btn-primary mt-5">Create my card</button>
-      </section>
-
-      {/* 6. Recent responses */}
+      {/* 5. Recent responses */}
       <section className="glass p-7">
         <div className="mb-1 flex justify-between">
           <h2 className="text-[22px] font-bold">Your recent responses</h2>
@@ -255,7 +358,7 @@ function Dashboard() {
         )}
       </section>
 
-      {/* 7. Changes */}
+      {/* 6. Changes */}
       <section className="glass p-7">
         <div className="mb-5 flex justify-between">
           <h2 className="text-[22px] font-bold">How your responses are changing</h2>
