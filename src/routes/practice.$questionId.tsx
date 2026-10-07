@@ -341,7 +341,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
           {focus && viewed.analysis.dimensions[focus] && (
             <div className="glass mb-6 p-6"><div className="eyebrow mb-2 !text-primary">Focus check · {cap(focus)} {viewed.analysis.scores[focus]}</div><p className="text-[15px]">{viewed.analysis.dimensions[focus].happened}</p>{viewed.analysis.dimensions[focus].evidence && <p className="mt-1 text-[13px] italic text-muted-foreground">{viewed.analysis.dimensions[focus].evidence}</p>}<p className="mt-2 text-[13px]"><span className="text-muted-foreground">Try this: </span>{viewed.analysis.dimensions[focus].tryThis}</p></div>
           )}
-          {ent.free ? <FreeResult a={viewed.analysis} transcript={viewed.transcript} /> : <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />}
+          <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />
           {viewed.audio_url && <audio controls src={viewed.audio_url} className="w-full" />}
           {!ent.canSubmit && <Conversion />}
           <div className="flex flex-wrap justify-center gap-3 pt-4">
