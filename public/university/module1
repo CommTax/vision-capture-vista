@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Module 1 — Why Smart People Get Overlooked | The Unspoken University</title>
+<meta name="description" content="The invisible tax on everything you say — and the five places meaning gets lost." />
+
+<meta property="og:title" content="Module 1 — Why Smart People Get Overlooked" />
+<meta property="og:description" content="The invisible tax on everything you say — and the five places meaning gets lost." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://theunspoken.co.in/university/module-1.html" />
+
+<link rel="icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/university/university.css" />
+</head>
+<body>
+
+<div class="university">
+
+<nav class="nav">
+  <div class="wrap-wide">
+    <a class="brand" href="/university/index.html">The Unspoken <span>University</span></a>
+    <div class="nav-links">
+      <a href="/university/index.html">← All modules</a>
+    </div>
+  </div>
+</nav>
+
+<header class="module-head">
+  <div class="wrap">
+    <p class="eyebrow">Module 1</p>
+    <h1>Why Smart People Get Overlooked</h1>
+    <p class="lede">The invisible tax on everything you say — and the five places meaning gets lost.</p>
+    <div class="meta">
+      <span>5 chapters</span>
+      <span>~25 minutes</span>
+      <span>Start here</span>
+    </div>
+    <a class="btn" href="#ch-1-1">Start Chapter 1.1 →</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="chapter" id="ch-1-1">
+    <p class="chapter-num">Chapter 1.1</p>
+    <h2>The Nod That Means Nothing</h2>
+    <p>You're three sentences into an answer. The other person nods.</p>
+    <p>You keep going, encouraged. They nod again. By the time you finish, you feel like it went fine — they were listening, they seemed engaged, nobody interrupted you.</p>
+    <p>Then the meeting ends, and somehow, the thing you actually meant to say never quite shows up anywhere. Not in the follow-up email. Not in the decision that gets made. Not in how anyone describes you afterward.</p>
+    <div class="pull">
+      <p><strong>The uncomfortable part:</strong> that nod almost never means "I understood you completely." Most of the time it means "I'm being polite," or "I've stopped tracking but don't want to say so," or "I'll figure out what you meant later, maybe."</p>
+    </div>
+    <p>Nobody nods and then adds, <em>"by the way, I lost you around the second minute."</em> People don't do that. They just quietly stop receiving, and let you keep talking into the silence they've created.</p>
+    <p>Which means you can walk out of a conversation you'd swear went well, having actually been unheard the entire time — and have no way of knowing it happened.</p>
+    <p>That's not a confidence problem. It's not even a communication skills problem, in the way most people mean that phrase. It's a <strong>visibility problem</strong>. You cannot fix what you cannot see.</p>
+  </section>
+
+  <section class="chapter" id="ch-1-2">
+    <p class="chapter-num">Chapter 1.2</p>
+    <h2>Signal and Noise</h2>
+    <p>Here's a simpler way to think about everything that happens when you speak: every sentence you say is made of two things.</p>
+    <ul>
+      <li><strong>Signal</strong> — the part that actually carries your point.</li>
+      <li><strong>Noise</strong> — everything else riding along: the filler, the backtracking, the context nobody asked for, the three ways you rephrase the same idea because you're not sure the first one landed.</li>
+    </ul>
+    <p>The listener's brain is doing something you're not consciously aware of — sorting signal from noise in real time, and quietly discarding the noise.</p>
+    <p>The problem is, if there's too much noise, your listener's brain starts discarding signal too. It's easier to tune out the whole stretch than to keep filtering.</p>
+    <p>This is why a technically correct, fully accurate answer can still fail completely. It's not what you said that's wrong. It's the <strong>ratio</strong>.</p>
+    <p>Someone who says four true, relevant sentences will out-communicate someone who says twelve true, relevant-ish sentences, almost every time — because the listener's attention is a limited resource, and you're the one deciding how to spend it for them.</p>
+    <div class="pull">
+      <p><strong>The good news:</strong> signal-to-noise isn't a talent. It's a ratio. And ratios can be measured, noticed, and changed.</p>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-1-3">
+    <p class="chapter-num">Chapter 1.3</p>
+    <h2>The Tax You're Already Paying</h2>
+    <p>Think of every gap between what you meant and what someone understood as a small, invisible <strong>tax</strong> on everything you do at work.</p>
+    <ul>
+      <li>The promotion that goes to someone who explains their work more simply than you explain yours — even when your work was better.</li>
+      <li>The interview where you knew the answer cold but somehow didn't get the offer.</li>
+      <li>The meeting where you said the smart thing first, and someone else said the same thing worse ten minutes later — and got the credit.</li>
+    </ul>
+    <p>None of that shows up on a scorecard anywhere. Nobody sends you an invoice for it. You just quietly pay it, conversation after conversation.</p>
+    <p>And because nobody names it, you rarely trace the pattern back to its actual source. You blame the room. The politics. The luck of who spoke when. Sometimes that's true. Often, it's the tax.</p>
+    <p><strong>The reason this university exists:</strong> the tax is completely avoidable once you can actually see it — and almost nobody ever gets shown their own version of it.</p>
+  </section>
+
+  <section class="chapter" id="ch-1-4">
+    <p class="chapter-num">Chapter 1.4</p>
+    <h2>Five Places It Gets Lost</h2>
+    <p>The gap between what you mean and what lands isn't one problem. It's usually one of five — and most people only ever have one or two active at a time.</p>
+    <table class="framework">
+      <thead>
+        <tr><th></th><th>Failure point</th><th>What it looks like</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Structure</td><td>You know the point, but it doesn't arrive in an order anyone can follow.</td></tr>
+        <tr><td>2</td><td>Thinking</td><td>The logic underneath isn't visible, so a good conclusion reads as opinion.</td></tr>
+        <tr><td>3</td><td>Precision</td><td>Too many words doing the work of too few ideas.</td></tr>
+        <tr><td>4</td><td>Impact</td><td>Technically clear, but forgettable.</td></tr>
+        <tr><td>5</td><td>Connection</td><td>Accurate and organized, but not aimed at the person in front of you.</td></tr>
+      </tbody>
+    </table>
+    <p>You likely already suspect which one or two of these are yours. Most people do — they just haven't seen it named clearly enough to do anything about it.</p>
+    <p>That's the difference between a vague feeling (<em>"I ramble sometimes"</em>) and something you can actually work on (<em>"I lose the thread specifically in the transition between context and conclusion"</em>).</p>
+  </section>
+
+  <section class="chapter" id="ch-1-5">
+    <p class="chapter-num">Chapter 1.5</p>
+    <h2>What Happens From Here</h2>
+    <p>You now know something most people go their whole career without being told: the reason your words don't always land isn't a mystery, and it isn't fixed.</p>
+    <p>It's one of five specific, nameable things. And every one of them is trainable.</p>
+    <p>The next module goes into the first and most common of the five — <strong>Structure</strong> — starting with the exact reason smart people ramble, and the one small habit that fixes it before you even open your mouth.</p>
+  </section>
+
+  <aside class="notice">
+    <p class="notice-label">Notice This</p>
+    <p>Before you read Module 2, pay attention to one thing in your next real conversation:</p>
+    <p><strong>The moment right after someone nods.</strong></p>
+    <p>Do you keep adding more — or do you stop and check?</p>
+    <p>That single reflex — adding more instead of checking — is where most of Chapter 2.1 begins.</p>
+  </aside>
+
+  <div class="foot-nav">
+    <a href="/university/index.html">← All modules</a>
+    <a class="next" href="/university/module-2.html">Module 2: Structure →</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>The Unspoken University — free and open, forever.</p>
+    <p>
+      <a href="/university/index.html">Modules</a>
+      <a href="/">Main site</a>
+    </p>
+  </div>
+</footer>
+
+</div><!-- /.university -->
+
+</body>
+</html>
