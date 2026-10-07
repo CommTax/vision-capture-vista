@@ -358,7 +358,46 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
           ) : (
             <>
               <div className="mt-6 flex gap-2">
-                <button className="chip flex items-center gap-2" data-active={kind === "voice"} onClick={() => setKind("voice")}><Mic className="size-4" />Record voice</button>
+                <button
+  className="chip flex items-center gap-2"
+  data-active={kind === "voice"}
+  onClick={async () => {
+    // If voice isn't supported at all, don't switch
+    if (
+      typeof MediaRecorder === "undefined" ||
+      !navigator.mediaDevices?.getUserMedia
+    ) {
+      setError("Voice recording isn't supported on this browser. Use text mode.");
+      return;
+    }
+
+    // Ask for mic permission BEFORE switching to voice mode.
+    // On mobile, this triggers the browser prompt the first time.
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Immediately stop the stream — the recorder will start its own
+      stream.getTracks().forEach((t) => t.stop());
+      setError("");
+      setKind("voice");
+    } catch (err: any) {
+      if (err?.name === "NotAllowedError") {
+        setError(
+          "Microphone access is blocked. Enable it in your browser settings and try again.",
+        );
+      } else if (err?.name === "NotFoundError") {
+        setError("No microphone found on this device.");
+      } else {
+        setError(
+          "Couldn't access the microphone. Try text mode instead.",
+        );
+      }
+      // Stay in text mode
+    }
+  }}
+>
+  <Mic className="size-4" />
+  Record voice
+</button>
                 <button className="chip flex items-center gap-2" data-active={kind === "text"} onClick={() => setKind("text")}><Keyboard className="size-4" />Type response</button>
               </div>
               <div className="mt-6">
