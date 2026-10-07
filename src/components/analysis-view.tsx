@@ -113,11 +113,12 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
       </section>
 
       {/* Dimensions */}
-      <section className="glass p-6 md:p-7">
-        <div className="eyebrow mb-1">Eight dimensions</div>
-        <p className="mb-5 text-[13px] text-muted-foreground">
-          Tap any dimension to see what happened, the evidence, and what it means.
-        </p>
+{a.pattern_name !== "Insufficient Evidence" && (
+  <section className="glass p-6 md:p-7">
+    <div className="eyebrow mb-1">Eight dimensions</div>
+    <p className="mb-5 text-[13px] text-muted-foreground">
+      Tap any dimension to see what happened, the evidence, and what it means.
+    </p>
         <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
           {DIMENSIONS.map((d) => {
             const r = a.dimensions[d];
