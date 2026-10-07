@@ -10,19 +10,17 @@ import { getState, setState, useStore } from "@/lib/store";
 import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
-import { fetchScenarios } from "@/lib/questions-api";const VISIBLE_COUNT = 2;
+import { fetchScenarios } from "@/lib/questions-api";
 import { RefreshCw } from "lucide-react";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
+const VISIBLE_COUNT = 2;
 
 export const Route = createFileRoute("/practice/")({
   validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
   head: () => ({ meta: [{ title: "Practice — TheUnspoken" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — TheUnspoken" }, { property: "og:description", content: "Practice what you need to say next." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
-
-const VISIBLE_COUNT = 2;
-
 
 function ScenarioCard({
   s,
