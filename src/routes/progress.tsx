@@ -6,6 +6,7 @@ import { BADGES, DIMENSIONS, PATTERNS, type Dimension } from "@/lib/data";
 import { currentPattern } from "@/lib/insights";
 import { buildRecommendations } from "@/lib/recommendations";
 import { streak, useStore, type ResponseRecord } from "@/lib/store";
+import { usePaidDashboard } from "@/lib/paid-dashboard";           // CHANGED: import added
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -87,10 +88,18 @@ function TimeChart({ pts }: { pts: { s: number; label: string }[] }) {
 }
 
 function Progress() {
-  const rs = useStore((s) => s.responses);
-  const days = useStore((s) => s.practiceDays);
-  const drills = useStore((s) => s.drillsDone);
+  const { reps: rs, loading } = usePaidDashboard();                 // CHANGED: was useStore for rs
+  const days = useStore((s) => s.practiceDays);                     // keep: UI-only
+  const drills = useStore((s) => s.drillsDone);                     // keep: UI-only
   const [period, setPeriod] = useState<Period>("30");
+
+  if (loading && rs.length === 0) {                                 // CHANGED: loading guard
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Loading your progress…
+      </div>
+    );
+  }
 
   const all = chronOf(rs);
   const cutoff = period === "all" ? 0 : Date.now() - Number(period) * 864e5;
