@@ -288,15 +288,9 @@ export function normalizeBackendAnalysis(raw: unknown): Analysis {
   };
 
   // ---------- strengths / improvements ----------
-  const strengths = [
-    str(coaching.what_worked),
-  ].filter(Boolean);
+const strengths = [str(coaching.what_worked)].filter(Boolean);
 
-  const improvements = [
-    str(coaching.one_thing_to_change),
-    str(metrics.focus_note),
-    str(metrics.structure_note),
-  ].filter(Boolean);
+const improvements = [str(coaching.one_thing_to_change)].filter(Boolean);
 
   // ---------- example structure ----------
   const example_structure =
