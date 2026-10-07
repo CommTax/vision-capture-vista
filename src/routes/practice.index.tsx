@@ -6,7 +6,7 @@ import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
 import { MODES, type Dimension, type ModeId } from "@/lib/data";
 import { allScenarios, buildCustomScenario, CATEGORY_BLURB, categoryName, recommendPractice, type Scenario } from "@/lib/scenarios";
-import { getState, useStore } from "@/lib/store";
+import { getState, setState, useStore } from "@/lib/store";
 import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
@@ -51,7 +51,41 @@ function Practice() {
   const initialMode = Route.useSearch().mode;
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
-  const library = mode && mode !== "custom" ? all.filter((s) => s.category === mode) : [];
+
+  // Scenarios for the selected mode — loaded from the public /api/questions
+  // endpoint, with the local allScenarios() list as fallback if the fetch fails.
+  const [library, setLibrary] = useState<Scenario[]>(
+    initialMode && initialMode !== "custom"
+      ? all.filter((s) => s.category === initialMode)
+      : [],
+  );
+  const [librarySource, setLibrarySource] = useState<"backend" | "fallback">("fallback");
+  const [libraryLoading, setLibraryLoading] = useState(false);
+
+  useEffect(() => {
+    if (!mode || mode === "custom") {
+      setLibrary([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLibraryLoading(true);
+
+    void fetchScenarios({ mode, level })
+      .then(({ scenarios, source }) => {
+        if (cancelled) return;
+        setLibrary(scenarios);
+        setLibrarySource(source);
+      })
+      .finally(() => {
+        if (!cancelled) setLibraryLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, level]);
+
   const ent = useEntitlement();
   const preview = custom.trim().length > 8 ? buildCustomScenario(custom, level) : null;
 
@@ -77,23 +111,23 @@ function Practice() {
               stage: p.level ?? undefined,
             }).then((res) => {
               if (res.session_token) setFreeSession(res.session_token);
-    // Populate the local profile so the header shows the name.
-    setState((s) => ({
-      ...s,
-      profile: {
-        name: p.name ?? "Friend",
-        email: p.email ?? "",
-        phone: p.phone,
-        phone_country_code: p.phone_country_code,
-        goal: "",
-        struggle: "",
-        experience: "",
-        level: p.level ?? "Mid career",
-        onboarded: false,
-        plan: "free",
-      },
-    }));            
-        setHasToken(true);
+              // Populate the local profile so the header shows the name.
+              setState((s) => ({
+                ...s,
+                profile: {
+                  name: p.name ?? "Friend",
+                  email: p.email ?? "",
+                  phone: p.phone,
+                  phone_country_code: p.phone_country_code,
+                  goal: "",
+                  struggle: "",
+                  experience: "",
+                  level: p.level ?? "Mid career",
+                  onboarded: false,
+                  plan: "free",
+                },
+              }));
+              setHasToken(true);
             }).catch((err) => {
               console.warn("[practice] signupFree failed:", err);
               setHasToken(true);
@@ -161,11 +195,41 @@ function Practice() {
             <button className="btn btn-primary" disabled={!preview}>Create practice →</button>
           </form>
         )}
-        {library.length > 0 && (
-          <div className="mt-5"><div className="eyebrow mb-3">{categoryName(mode!)}</div>
-            <div className="grid gap-3 md:grid-cols-2">{library.map((s) => <ScenarioCard key={s.scenario_id} s={s} recommended={s.scenario_id === recScenario?.scenario_id} />)}</div>
+
+        {libraryLoading && mode && mode !== "custom" && (
+          <div className="glass mt-5 p-6 text-center text-[14px] text-muted-foreground">
+            Loading {categoryName(mode)} questions…
           </div>
         )}
+
+        {!libraryLoading && library.length > 0 && (
+          <div className="mt-5">
+            <div className="eyebrow mb-3">
+              {categoryName(mode!)}
+              {librarySource === "fallback" && (
+                <span className="ml-2 text-[11px] normal-case tracking-normal text-muted-foreground">
+                  (offline list)
+                </span>
+              )}
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {library.map((s) => (
+                <ScenarioCard
+                  key={s.scenario_id}
+                  s={s}
+                  recommended={s.scenario_id === recScenario?.scenario_id}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!libraryLoading && mode && mode !== "custom" && library.length === 0 && (
+          <div className="glass mt-5 p-6 text-center text-[14px] text-muted-foreground">
+            No questions in this mode yet.
+          </div>
+        )}
+
         {!mode && !rec && (
           <div className="mt-5"><div className="eyebrow mb-3">Start anywhere</div>
             <div className="grid gap-3 md:grid-cols-2">{all.filter((s) => s.category === "interview").map((s) => <ScenarioCard key={s.scenario_id} s={s} />)}</div>
