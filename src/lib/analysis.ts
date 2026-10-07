@@ -8,6 +8,7 @@ export type DimensionResult = { score: number; happened: string; evidence: strin
 
 export type Segment = { label: string; start: number; end: number; flag?: string };
 
+
 export type Analysis = {
   primary_pattern: string;
   /** Raw pattern name from the backend (e.g. "Disjointed Feature Drop"). */
