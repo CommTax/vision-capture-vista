@@ -44,7 +44,9 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
             <p className="mt-4 text-[16px] leading-relaxed text-muted-foreground">{a.summary}</p>
             <div className="mt-4 flex flex-wrap gap-2 text-[12px]">
               <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">{P?.name ?? a.primary_pattern}</span>
-              <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">Secondary: {PATTERNS[a.secondary_pattern]?.name}</span>
+              {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern && (
+                <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">Secondary: {PATTERNS[a.secondary_pattern]?.name ?? a.secondary_pattern}</span>
+              )}
             </div>
           </div>
           <div className="text-right">
@@ -75,8 +77,8 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
 
       {/* helped / improve */}
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="glass p-6"><div className="eyebrow mb-3">Things that helped</div>{a.strengths.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-success">+</span>{s}</div>)}</div>
-        <div className="glass p-6"><div className="eyebrow mb-3">Things to improve</div>{a.improvements.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-primary">→</span>{s}</div>)}</div>
+        <div className="glass p-6"><div className="eyebrow mb-3">What helped</div>{a.strengths.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-success">+</span>{s}</div>)}</div>
+        <div className="glass p-6"><div className="eyebrow mb-3">What to improve</div>{a.improvements.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-primary">→</span>{s}</div>)}</div>
       </section>
 
       {/* Breakdown */}
@@ -112,41 +114,42 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
         ))}
       </section>
 
-      {/* Dimensions */}
-{a.pattern_name !== "Insufficient Evidence" && (
-  <section className="glass p-6 md:p-7">
-    <div className="eyebrow mb-1">Eight dimensions</div>
-    <p className="mb-5 text-[13px] text-muted-foreground">
-      Tap any dimension to see what happened, the evidence, and what it means.
-    </p>
-        <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
-          {DIMENSIONS.map((d) => {
-            const r = a.dimensions[d];
-            const isOpen = open === d;
-            return (
-              <div key={d} className="border-b border-border py-3">
-                <button
-                  className="flex w-full items-center justify-between gap-3 text-left"
-                  onClick={() => setOpen(isOpen ? null : d)}
-                  aria-expanded={isOpen}
-                >
-                  <ScoreBar label={d.toUpperCase()} value={r.score} />
-                  <ChevronDown
-                    className={`size-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="mt-3 space-y-2 text-[13px]">
-                    <p><span className="text-muted-foreground">What happened: </span>{r.happened}</p>
-                    <p><span className="text-muted-foreground">Evidence: </span>{r.evidence}</p>
-                    <p><span className="text-primary">What it means: </span>{r.tryThis}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* Dimensions — hidden when the answer was too short to diagnose */}
+      {a.overall > 0 && (
+        <section className="glass p-6 md:p-7">
+          <div className="eyebrow mb-1">Eight dimensions</div>
+          <p className="mb-5 text-[13px] text-muted-foreground">
+            Tap any dimension to see what happened, the evidence, and what it means.
+          </p>
+          <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
+            {DIMENSIONS.map((d) => {
+              const r = a.dimensions[d];
+              const isOpen = open === d;
+              return (
+                <div key={d} className="border-b border-border py-3">
+                  <button
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                    onClick={() => setOpen(isOpen ? null : d)}
+                    aria-expanded={isOpen}
+                  >
+                    <ScoreBar label={d.toUpperCase()} value={r.score} />
+                    <ChevronDown
+                      className={`size-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="mt-3 space-y-2 text-[13px]">
+                      <p><span className="text-muted-foreground">What happened: </span>{r.happened}</p>
+                      <p><span className="text-muted-foreground">Evidence: </span>{r.evidence}</p>
+                      <p><span className="text-primary">What it means: </span>{r.tryThis}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Original vs example vs rework */}
       <section className="grid gap-6 md:grid-cols-2">
