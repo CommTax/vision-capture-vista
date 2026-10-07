@@ -4,7 +4,7 @@ import { Flame } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { PatternCardSection } from "@/components/free-practice";
 import { cap } from "@/components/analysis-view";
-import { DRILLS, PATTERNS, modeName, type Dimension } from "@/lib/data";
+import { PATTERNS, modeName, type Dimension } from "@/lib/data";
 import { currentPattern, skillStats } from "@/lib/insights";
 import { streak, type ResponseRecord } from "@/lib/store";
 
@@ -13,7 +13,6 @@ export const Route = createFileRoute("/dashboard")({
   component: () => <AppShell><Dashboard /></AppShell>,
 });
 
-// Focus-specific coaching copy. Picked by the user's weakest recent dimension.
 const FOCUS: Record<Dimension, { goal: string; why: string; chain: string[]; move: string; drills: string[] }> = {
   impact: { goal: "make your answers more specific, memorable, and outcome-focused", why: "Your recent responses are generally clear, but they often lose impact because the outcome isn't specific enough.", chain: ["Point", "Evidence", "Result"], move: "Make the point → prove it → show the result.", drills: ["result-first", "exec-summary", "specific"] },
   structure: { goal: "put your ideas in a clear order the listener can follow", why: "Your recent responses have useful ideas, but they arrive in an order that's hard to follow.", chain: ["Point", "Reason", "Example"], move: "Say the answer → give one reason → show one example.", drills: ["three-steps", "five-sec", "one-sentence"] },
@@ -57,7 +56,6 @@ function Dashboard() {
   const stats = skillStats(rs);
   const f = FOCUS[cp.focus as Dimension] ?? FOCUS.impact;
   const focus = cap(cp.focus);
-  const drills = f.drills.map((id) => DRILLS.find((d) => d.id === id)).filter(Boolean) as typeof DRILLS;
   const primary = PATTERNS[cp.primary] ?? PATTERNS.scatterer;
   const byId = new Map(rs.map((r) => [r.id, r]));
 
@@ -71,11 +69,10 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Next practice */}
+      {/* 1. Header */}
       <header className="rise pt-2">
         <div className="eyebrow mb-3">Good to see you, {profile.name}</div>
         <h1 className="text-[clamp(32px,4.4vw,52px)] font-bold leading-[1.05]">Your next practice</h1>
-        <p className="mt-4 max-w-2xl text-[16px] leading-7 text-muted-foreground">Your current focus is <span className="text-primary">{focus}</span>. Today's practice is designed to help you {f.goal}.</p>
         <div className="mt-6 flex flex-wrap items-center gap-5">
           <Link to="/practice/$questionId" params={{ questionId: CHALLENGES[0].id }} className="btn btn-primary px-6 py-3 text-[15px]">Start today's practice →</Link>
           <div className="flex gap-5 font-mono text-[12px] text-muted-foreground">
@@ -88,7 +85,7 @@ function Dashboard() {
 
       {rs[0] && <section id="my-card" className="paper rounded-[24px] px-5 pb-8"><PatternCardSection a={[...rs].sort((x, y) => y.created_at.localeCompare(x.created_at))[0].analysis} /></section>}
 
-      {/* 2. Why */}
+      {/* 2. Why you're seeing this */}
       <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
         <div className="md:col-span-7">
           <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
@@ -100,88 +97,120 @@ function Dashboard() {
             {f.chain.map((c, i) => <span key={c} className="flex items-center gap-2">{i > 0 && <span className="text-primary">→</span>}<span className="rounded-full border border-primary/40 px-3 py-1.5">{c}</span></span>)}
           </div>
           <p className="mt-4 text-[13px] text-muted-foreground">Practice this pattern in your next response.</p>
-          {drills[0] && <Link to="/drills/$drillId" params={{ drillId: drills[0].id }} className="btn btn-ghost btn-sm mt-4 self-start">Practice {focus} →</Link>}
+          <Link to="/drills/$drillId" params={{ drillId: f.drills[0] }} className="btn btn-ghost btn-sm mt-4 self-start">Practice {focus} →</Link>
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-12">
-        {/* 3. Today's challenges */}
-        <section className="glass p-7 lg:col-span-7">
-          <div className="mb-5 flex items-baseline justify-between"><div className="eyebrow !text-primary">Today's 2 challenges</div><span className="font-mono text-[11px] text-muted-foreground">2 challenges · ~5 minutes</span></div>
-          <div className="space-y-3">
-            {CHALLENGES.map((c, i) => (
-              <Link key={c.id} to="/practice/$questionId" params={{ questionId: c.id }} className="group flex items-start gap-5 rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong">
-                <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
-                <div className="flex-1"><div className="font-display text-[18px] font-bold leading-snug">{c.t}</div><div className="mt-2 font-mono text-[11px] text-muted-foreground">FOCUS: <span className="text-primary">{focus.toUpperCase()}</span></div></div>
-                <span className="text-[13px] text-primary group-hover:translate-x-0.5">Start →</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. Pattern diagnosis */}
-        <section className="glass flex flex-col p-7 lg:col-span-5">
-          <div className="eyebrow mb-4">Your current pattern</div>
-          <div className="font-display text-[26px] font-bold leading-tight">{primary.name.replace(/^The /, "").toUpperCase()}</div>
-          <p className="mt-2 text-[14px] leading-6 text-muted-foreground">{primary.desc}</p>
-          <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-[12px]">
-            <div><div className="text-muted-foreground">Secondary</div><div className="mt-1 font-mono">{(PATTERNS[cp.secondary] ?? primary).short}</div></div>
-            <div><div className="text-muted-foreground">Strength</div><div className="mt-1 font-mono text-success">{cp.strength.toUpperCase()}</div></div>
-            <div><div className="text-muted-foreground">Focus</div><div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div></div>
-          </div>
-          <div className="mt-5 rounded-2xl bg-primary/10 p-4">
-            <div className="eyebrow !text-primary">Your next move</div>
-            <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
-          </div>
-          <Link to="/practice/$questionId" params={{ questionId: CHALLENGES[0].id }} className="mt-4 text-[13px] text-primary">Practice this →</Link>
-        </section>
-      </div>
-
-      {/* 6. Drills */}
-      <section>
-        <h2 className="text-[24px] font-bold">Practice your weak spots</h2>
-        <p className="mt-1 text-[14px] text-muted-foreground">Short exercises built around your current pattern.</p>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">{drills.map((d) => (
-          <div key={d.id} className="glass flex flex-col p-6"><div className="font-display text-[17px] font-bold">{d.name}</div><p className="mt-2 flex-1 text-[13px] text-muted-foreground">“{d.objective}”</p><Link to="/drills/$drillId" params={{ drillId: d.id }} className="btn btn-ghost btn-sm mt-5 self-start">Practice →</Link></div>
-        ))}
+      {/* 3. Your current pattern — moved up */}
+      <section className="glass flex flex-col p-7">
+        <div className="eyebrow mb-4">Your current pattern</div>
+        <div className="font-display text-[26px] font-bold leading-tight">{primary.name.replace(/^The /, "").toUpperCase()}</div>
+        <p className="mt-2 text-[14px] leading-6 text-muted-foreground">{primary.desc}</p>
+        <div className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4 text-[12px]">
+          <div><div className="text-muted-foreground">Secondary</div><div className="mt-1 font-mono">{(PATTERNS[cp.secondary] ?? primary).short}</div></div>
+          <div><div className="text-muted-foreground">Strength</div><div className="mt-1 font-mono text-success">{cp.strength.toUpperCase()}</div></div>
+          <div><div className="text-muted-foreground">Focus</div><div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div></div>
         </div>
+        <div className="mt-5 rounded-2xl bg-primary/10 p-4">
+          <div className="eyebrow !text-primary">Your next move</div>
+          <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
+        </div>
+        <Link to="/practice/$questionId" params={{ questionId: CHALLENGES[0].id }} className="mt-4 inline-block text-[13px] text-primary">Practice this →</Link>
       </section>
 
-      {/* 7. Recent responses */}
+      {/* 4. Today's challenges */}
       <section className="glass p-7">
-        <div className="mb-1 flex justify-between"><h2 className="text-[22px] font-bold">Your recent responses</h2><Link to="/responses" className="text-[12px] text-primary">All responses →</Link></div>
+        <div className="mb-5 flex items-baseline justify-between">
+          <div className="eyebrow !text-primary">Today's 2 challenges</div>
+          <span className="font-mono text-[11px] text-muted-foreground">2 challenges · ~5 minutes</span>
+        </div>
+        <div className="space-y-3">
+          {CHALLENGES.map((c, i) => (
+            <Link key={c.id} to="/practice/$questionId" params={{ questionId: c.id }} className="group flex items-start gap-5 rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong">
+              <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
+              <div className="flex-1">
+                <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
+                <div className="mt-2 font-mono text-[11px] text-muted-foreground">FOCUS: <span className="text-primary">{focus.toUpperCase()}</span></div>
+              </div>
+              <span className="text-[13px] text-primary group-hover:translate-x-0.5">Start →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. Share your pattern — moved down */}
+      <section className="glass p-7">
+        <div className="eyebrow mb-2 !text-primary">Share your pattern</div>
+        <h3 className="font-display text-[22px] font-bold">Show people your pattern.</h3>
+        <p className="mt-1 text-[13px] text-muted-foreground">
+          Share it on your Instagram Story or WhatsApp Status, and ask your friends what theirs is.
+        </p>
+        <button className="btn btn-primary mt-5">Create my card</button>
+      </section>
+
+      {/* 6. Recent responses */}
+      <section className="glass p-7">
+        <div className="mb-1 flex justify-between">
+          <h2 className="text-[22px] font-bold">Your recent responses</h2>
+          <Link to="/responses" className="text-[12px] text-primary">All responses →</Link>
+        </div>
         <p className="mb-4 text-[14px] text-muted-foreground">See what changed from one attempt to the next.</p>
-        {rs.length === 0 ? <p className="text-[14px] text-muted-foreground">No responses yet. <Link to="/practice" className="text-primary">Start your first rep.</Link></p> : (
-          <div className="divide-y divide-border">{rs.slice(0, 4).map((r) => {
-            const prev = r.parent_id ? byId.get(r.parent_id) : undefined;
-            const from = prev ? PATTERNS[prev.analysis.primary_pattern]?.short : undefined;
-            const to = PATTERNS[r.analysis.primary_pattern]?.short ?? "";
-            return (
-              <Link key={r.id} to="/responses/$responseId" params={{ responseId: r.id }} className="grid gap-2 py-4 md:grid-cols-12 md:items-center">
-                <div className="md:col-span-6"><div className="text-[15px] font-medium">“{r.question}”</div><div className="mt-1 text-[13px] text-muted-foreground">{insight(r, prev)}</div></div>
-                <div className="font-mono text-[12px] md:col-span-3">{from && from !== to ? <><span className="text-muted-foreground line-through">{from}</span> <span className="text-primary">→</span> </> : null}<span>{to}</span>{prev && <div className="mt-1 text-muted-foreground">Structure {prev.analysis.scores.structure} → <span className="text-primary">{r.analysis.scores.structure}</span></div>}</div>
-                <div className="font-mono text-[11px] text-muted-foreground md:col-span-3 md:text-right">{modeName(r.mode).toUpperCase()} · ATTEMPT {r.attempt}<div className="mt-1">STR {r.analysis.scores.structure} · CLR {r.analysis.scores.clarity} · IMP {r.analysis.scores.impact}</div></div>
-              </Link>
-            );
-          })}</div>
+        {rs.length === 0 ? (
+          <p className="text-[14px] text-muted-foreground">No responses yet. <Link to="/practice" className="text-primary">Start your first rep.</Link></p>
+        ) : (
+          <div className="divide-y divide-border">
+            {rs.slice(0, 4).map((r) => {
+              const prev = r.parent_id ? byId.get(r.parent_id) : undefined;
+              const from = prev ? PATTERNS[prev.analysis.primary_pattern]?.short : undefined;
+              const to = PATTERNS[r.analysis.primary_pattern]?.short ?? "";
+              return (
+                <Link key={r.id} to="/responses/$responseId" params={{ responseId: r.id }} className="grid gap-2 py-4 md:grid-cols-12 md:items-center">
+                  <div className="md:col-span-6">
+                    <div className="text-[15px] font-medium">"{r.question}"</div>
+                    <div className="mt-1 text-[13px] text-muted-foreground">{insight(r, prev)}</div>
+                  </div>
+                  <div className="font-mono text-[12px] md:col-span-3">
+                    {from && from !== to ? <><span className="text-muted-foreground line-through">{from}</span> <span className="text-primary">→</span> </> : null}
+                    <span>{to}</span>
+                    {prev && <div className="mt-1 text-muted-foreground">Structure {prev.analysis.scores.structure} → <span className="text-primary">{r.analysis.scores.structure}</span></div>}
+                  </div>
+                  <div className="font-mono text-[11px] text-muted-foreground md:col-span-3 md:text-right">
+                    {modeName(r.mode).toUpperCase()} · ATTEMPT {r.attempt}
+                    <div className="mt-1">STR {r.analysis.scores.structure} · CLR {r.analysis.scores.clarity} · IMP {r.analysis.scores.impact}</div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         )}
       </section>
 
-      {/* 5. Changes */}
+      {/* 7. Changes */}
       <section className="glass p-7">
-        <div className="mb-5 flex justify-between"><h2 className="text-[22px] font-bold">How your responses are changing</h2><Link to="/progress" className="text-[12px] text-primary">See full progress →</Link></div>
-        {rs.length < 2 ? <p className="text-[14px] text-muted-foreground">Complete two responses to see what's changing.</p> : (
-          <div className="grid gap-x-8 gap-y-4 md:grid-cols-2">{stats.slice(0, 5).map((s) => {
-            const down = s.trend < 0;
-            return (
-              <div key={s.d} className="flex items-center gap-4">
-                <div className="w-28 text-[14px]">{cap(s.d)}</div>
-                <div className="font-mono text-[13px]"><span className="text-muted-foreground">{s.early}</span> → <span className={down ? "text-destructive" : "text-foreground"}>{s.current}</span></div>
-                <div className={`font-mono text-[12px] ${down ? "text-destructive" : s.trend > 0 ? "text-success" : "text-muted-foreground"}`}>{down ? `↓ ${-s.trend}` : s.trend > 0 ? `↑ ${s.trend}` : "no change"}</div>
-                {down && DECLINE_NOTE[s.d] && <div className="hidden flex-1 text-[12px] text-muted-foreground lg:block">{DECLINE_NOTE[s.d]}</div>}
-              </div>
-            );
-          })}</div>
+        <div className="mb-5 flex justify-between">
+          <h2 className="text-[22px] font-bold">How your responses are changing</h2>
+          <Link to="/progress" className="text-[12px] text-primary">See full progress →</Link>
+        </div>
+        {rs.length < 2 ? (
+          <p className="text-[14px] text-muted-foreground">Complete two responses to see what's changing.</p>
+        ) : (
+          <div className="grid gap-x-8 gap-y-4 md:grid-cols-2">
+            {stats.slice(0, 5).map((s) => {
+              const down = s.trend < 0;
+              return (
+                <div key={s.d} className="flex items-center gap-4">
+                  <div className="w-28 text-[14px]">{cap(s.d)}</div>
+                  <div className="font-mono text-[13px]">
+                    <span className="text-muted-foreground">{s.early}</span> → <span className={down ? "text-destructive" : "text-foreground"}>{s.current}</span>
+                  </div>
+                  <div className={`font-mono text-[12px] ${down ? "text-destructive" : s.trend > 0 ? "text-success" : "text-muted-foreground"}`}>
+                    {down ? `↓ ${-s.trend}` : s.trend > 0 ? `↑ ${s.trend}` : "no change"}
+                  </div>
+                  {down && DECLINE_NOTE[s.d] && <div className="hidden flex-1 text-[12px] text-muted-foreground lg:block">{DECLINE_NOTE[s.d]}</div>}
+                </div>
+              );
+            })}
+          </div>
         )}
       </section>
     </div>
