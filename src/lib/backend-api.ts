@@ -76,8 +76,40 @@ export async function resumeFree(payload: {
 }
 
 // ---------------------------------------------------------------
-// Trial (legacy — kept for reference; the frontend now uses
-// /api/paid/* for everyone, and the backend enforces the cap.)
+// Questions (public — the hub fetches from here)
+// ---------------------------------------------------------------
+
+export type QuestionCard = {
+  id: string;
+  title: string;
+  mode: string;
+  category: string | null;
+  context: string;
+  focus: string[];
+  difficulty: string;
+  seconds: number;
+  roles: string[];
+};
+
+export async function getQuestions(params: {
+  mode?: string;
+  category?: string;
+  role?: string;
+  limit?: number;
+} = {}): Promise<{ questions: QuestionCard[] }> {
+  const q = new URLSearchParams();
+  if (params.mode) q.set("mode", params.mode);
+  if (params.category) q.set("category", params.category);
+  if (params.role) q.set("role", params.role);
+  if (params.limit) q.set("limit", String(params.limit));
+  const qs = q.toString();
+  return apiGet<{ questions: QuestionCard[] }>(
+    `/api/questions${qs ? `?${qs}` : ""}`,
+  );
+}
+
+// ---------------------------------------------------------------
+// Trial (legacy — kept for reference)
 // ---------------------------------------------------------------
 
 export type TrialUploadForm = {
@@ -124,8 +156,7 @@ export async function analyzeTrial(payload: { drill_id: string }) {
 }
 
 // ---------------------------------------------------------------
-// Paid (used by everyone — free users have plan='free' on the row,
-// the backend chooses the cap based on that)
+// Paid
 // ---------------------------------------------------------------
 
 export type PaidUploadForm = {
