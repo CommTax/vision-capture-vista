@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { BADGES, DIMENSIONS, PATTERNS, type Dimension } from "@/lib/data";
@@ -40,10 +39,8 @@ function periodChanges(list: ResponseRecord[]): Change[] | null {
     const prev = avg(earlier.map((r) => r.analysis.scores[d]));
     const cur = avg(recent.map((r) => r.analysis.scores[d]));
     const delta = cur - prev;
-    // Evidence: for a decline use the weakest recent response; for a gain the strongest. Never invented.
     const sorted = [...recent].sort((a, b) => a.analysis.scores[d] - b.analysis.scores[d]);
     const src = delta < 0 ? sorted[0] : sorted[sorted.length - 1];
-    // Only use a note when it agrees with the direction: a low score explaining a decline, a high one a gain.
     const sc = src?.analysis.scores[d] ?? 0;
     const raw = src?.analysis.dimensions[d]?.happened ?? null;
     const critical = !!raw && CRITICAL.test(raw);
@@ -161,7 +158,7 @@ function Progress() {
         {few && <p className="mt-5 font-mono text-[11px] text-muted-foreground">Based on only two responses in this period — treat as early signal.</p>}
       </section>
 
-      <Locked feature="progress" title="Your detailed progress" body="Unlock skill-by-skill changes, time-to-point history, attempt comparisons, recurring patterns, and milestones." cta="Unlock progress insights"><div className="mt-6">
+      <div className="mt-6">
 
       {/* 2. What's changing */}
       <section className="mt-6 glass p-7">
@@ -279,7 +276,7 @@ function Progress() {
           ))}
         </div>
       </section>
-      </div></Locked>
+      </div>
     </>
   );
 }
