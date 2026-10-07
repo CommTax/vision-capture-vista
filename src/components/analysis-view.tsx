@@ -81,23 +81,6 @@ export function AnalysisView({ a, transcript, onRetry }: { a: Analysis; transcri
         <div className="glass p-6"><div className="eyebrow mb-3">What to improve</div>{a.improvements.map((s) => <div key={s} className="flex gap-2 py-1 text-[14px]"><span className="text-primary">→</span>{s}</div>)}</div>
       </section>
 
-      {/* Breakdown */}
-      <section className="glass p-6 md:p-7">
-        <div className="mb-5 flex justify-between"><div className="eyebrow">Response breakdown</div><span className="text-[11px] text-muted-foreground">{a.duration}s total</span></div>
-        <div className="flex h-12 overflow-hidden rounded-xl">
-          {a.segments.map((s) => (
-            <div key={s.label + s.start} title={s.flag} className={`flex items-center justify-center border-r border-background text-[11px] font-medium ${s.label === "Main point" ? "bg-primary text-primary-foreground" : s.flag ? "bg-destructive/25" : "bg-secondary"}`} style={{ flex: Math.max(1, s.end - s.start) }}>
-              <span className="truncate px-1">{s.label}</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          {a.segments.map((s) => (
-            <div key={s.label + "l"} className="text-[12px]"><div className="font-mono text-muted-foreground">{s.start}–{s.end} sec</div><div className="font-medium">{s.label.toUpperCase()}</div>{s.flag && <div className="text-destructive">{s.flag}</div>}</div>
-          ))}
-        </div>
-      </section>
-
       {/* Metrics */}
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
