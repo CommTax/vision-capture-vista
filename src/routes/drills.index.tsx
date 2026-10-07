@@ -198,47 +198,21 @@ function Drills() {
         )}
       </section>
 
-      {/* 4. Library */}
-      <section>
-        <h2 className="text-[22px] font-bold">Explore drills</h2>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          Every exercise, grouped by the skill it trains.
-        </p>
-        <div className="mt-5 space-y-6">
-          {DIMENSIONS.filter((dim) => DRILLS.some((d) => d.skill === dim)).map(
-            (dim) => (
-              <div key={dim} className="grid gap-3 md:grid-cols-[140px_1fr]">
-                <div className="eyebrow pt-4">{dim}</div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {DRILLS.filter((d) => d.skill === dim).map((d) => (
-                    <Link
-                      key={d.id}
-                      to="/drills/$drillId"
-                      params={{ drillId: d.id }}
-                      className="flex items-center justify-between gap-4 rounded-2xl border border-border p-4 transition hover:bg-glass-strong"
-                    >
-                      <div>
-                        <div className="font-display text-[16px] font-bold">
-                          {d.name}
-                        </div>
-                        <div className="text-[13px] text-muted-foreground">
-                          {d.objective}
-                        </div>
-                      </div>
-                      <div className="shrink-0 text-right font-mono text-[11px] text-muted-foreground">
-                        {d.minutes} min
-                        {done.includes(d.id) && (
-                          <div className="text-success">Completed</div>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ),
-          )}
-        </div>
-      </section>
+{/* 4. Daily drills note */}
+<section className="glass p-7">
+  <div className="eyebrow mb-2 !text-primary">Daily drills</div>
+  <h2 className="text-[20px] font-bold">
+    Your daily drills update as you practice.
+  </h2>
+  <p className="mt-2 text-[14px] leading-6 text-muted-foreground">
+    Each day, we'll surface a small set of drills tailored to the
+    skills your latest responses need most. Complete your next
+    practice response to keep them fresh.
+  </p>
+  <Link to="/practice" className="btn btn-primary mt-5">
+    Practice now →
+  </Link>
+</section>
 
       {/* 5. Completed */}
       {completed.length > 0 && (
