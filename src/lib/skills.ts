@@ -17,6 +17,10 @@ export type SkillInsight = {
   recurring_gap: string | null;
   recommended_drill: Drill;
   series: number[];
+
+  // NEW — pulled from the most recent response's coaching block (DB-backed)
+  one_thing_to_change: string | null;
+  what_worked: string | null;
 };
 
 export const SKILL_MEANING: Record<Dimension, string> = {
@@ -53,24 +57,68 @@ export function buildSkillInsights(rs: ResponseRecord[]): SkillInsight[] {
   const chron = [...rs].sort((a, b) => a.created_at.localeCompare(b.created_at));
   const half = Math.max(1, Math.floor(chron.length / 2));
   const recent = chron.slice(-half), earlier = chron.length >= 2 ? chron.slice(0, chron.length - half) : [];
+
+  // Most recent response — used for coaching copy that isn't per-dimension
+  const latest = chron[chron.length - 1];
+  const latestCoaching = (latest as any)?.analysis?.coaching ?? null;
+
   return DIMENSIONS.map((d) => {
     const score = avg(recent.map((r) => r.analysis.scores[d]));
     const previous_score = earlier.length ? avg(earlier.map((r) => r.analysis.scores[d])) : null;
     const change = score !== null && previous_score !== null ? score - previous_score : null;
+
     // Lowest-scoring recent responses first, so evidence explains the score rather than contradicting it.
-    const evidence = [...recent].reverse().sort((a, b) => a.analysis.scores[d] - b.analysis.scores[d]).map((r) => r.analysis.dimensions[d]?.happened).filter((x): x is string => !!x)
+    const evidence = [...recent].reverse().sort((a, b) => a.analysis.scores[d] - b.analysis.scores[d])
+      .map((r) => r.analysis.dimensions[d]?.happened)
+      .filter((x): x is string => !!x)
       .filter((x, i, a) => a.indexOf(x) === i).slice(0, 3);
+
     const best = chron.reduce<ResponseRecord | null>((b, r) => (!b || r.analysis.scores[d] > b.analysis.scores[d] ? r : b), null);
-    const strongest_example = best ? { response_id: best.id, question: best.question, score: best.analysis.scores[d], note: best.analysis.dimensions[d]?.happened ?? "", excerpt: best.analysis.dimensions[d]?.evidence ?? "" } : null;
+    const strongest_example = best ? {
+      response_id: best.id,
+      question: best.question,
+      score: best.analysis.scores[d],
+      note: best.analysis.dimensions[d]?.happened ?? "",
+      excerpt: best.analysis.dimensions[d]?.evidence ?? "",
+    } : null;
+
     const tries: Record<string, number> = {};
-    chron.filter((r) => r.analysis.scores[d] < 70).forEach((r) => { const t = r.analysis.dimensions[d]?.tryThis; if (t) tries[t] = (tries[t] || 0) + 1; });
+    chron.filter((r) => r.analysis.scores[d] < 70).forEach((r) => {
+      const t = r.analysis.dimensions[d]?.tryThis;
+      if (t) tries[t] = (tries[t] || 0) + 1;
+    });
     const recurring_gap = Object.entries(tries).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
     const recommended_drill = DRILLS.find((x) => x.id === DRILL_FOR[d]) ?? DRILLS[0];
-    return { skill: d, score, previous_score, change, status: status(score, change), evidence, strongest_example, recurring_gap, recommended_drill, series: chron.map((r) => r.analysis.scores[d]) };
+
+    // NEW — per-dimension improvement tip from the DB (falls back to the dimension's tryThis on the latest response)
+    const one_thing_to_change =
+      (latest as any)?.analysis?.dimensions?.[d]?.tryThis
+      ?? latestCoaching?.one_thing_to_change
+      ?? null;
+
+    // NEW — what worked overall (only meaningful on the focus skill; other skills still get it for consistency)
+    const what_worked = latestCoaching?.what_worked ?? null;
+
+    return {
+      skill: d,
+      score,
+      previous_score,
+      change,
+      status: status(score, change),
+      evidence,
+      strongest_example,
+      recurring_gap,
+      recommended_drill,
+      series: chron.map((r) => r.analysis.scores[d]),
+      one_thing_to_change,
+      what_worked,
+    };
   });
 }
 
 /** Focus = lowest-scoring core skill, ties broken by the biggest decline. */
 export function pickFocus(xs: SkillInsight[]) {
-  return [...xs].filter((x) => x.score !== null && CORE.includes(x.skill)).sort((a, b) => (a.score! - b.score!) || ((a.change ?? 0) - (b.change ?? 0)))[0];
+  return [...xs].filter((x) => x.score !== null && CORE.includes(x.skill))
+    .sort((a, b) => (a.score! - b.score!) || ((a.change ?? 0) - (b.change ?? 0)))[0];
 }
