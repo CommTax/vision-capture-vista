@@ -10,7 +10,7 @@ import { getState, setState, useStore } from "@/lib/store";
 import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
-import { fetchScenarios } from "@/lib/questions-api";
+import { fetchScenarios } from "@/lib/questions-api";const VISIBLE_COUNT = 2;
 import { RefreshCw } from "lucide-react";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/practice/")({
   component: () => <AppShell allowGuest><Practice /></AppShell>,
 });
 
-const VISIBLE_COUNT = 4;
+const VISIBLE_COUNT = 2;
 
 function ScenarioCard({
   s,
