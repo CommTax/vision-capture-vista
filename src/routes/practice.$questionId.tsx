@@ -11,8 +11,9 @@ import {
   buildPaidUploadForm,
   uploadPaidResponse,
   analyzePaidResponse,
+  getQuestions,
 } from "@/lib/backend-api";
-import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
+import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type ModeId, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
 import { FreeCounter, Conversion, LeadCapture } from "@/components/plan-gate";
@@ -25,12 +26,8 @@ export const Route = createFileRoute("/practice/$questionId")({
   component: SessionRoute,
 });
 
-
 /**
  * Reads the authenticated email from the stored JWT.
- * verifyOtp/signupFree store the token but do NOT populate profile.email,
- * so on a fresh device the local store has no email even for a logged-in user.
- * The token's `sub` claim carries the email.
  */
 function getEmailFromToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -52,7 +49,7 @@ function SessionRoute() {
   const hydrated = useHydrated();
   if (!hydrated) return <div className="min-h-screen" />;
 
-    const hasToken =
+  const hasToken =
     typeof window !== "undefined" &&
     !!localStorage.getItem("unspoken-session-token");
 
@@ -60,8 +57,6 @@ function SessionRoute() {
     throw redirect({ to: "/practice", replace: true });
   }
 
-  // Everyone goes through the same Session component.
-  // The backend decides the cap based on the user's plan.
   return (
     <AppShell allowGuest>
       <Session
@@ -88,12 +83,64 @@ function loadChain(id?: string): ResponseRecord[] {
 function Session({ questionId, situation, retry, focus, ctx }: { questionId: string; situation?: string; retry?: string; focus?: Dimension; ctx?: string }) {
   const navigate = useNavigate();
   const level = useStore((st) => st.profile?.level ?? "Mid career");
+
+  // The question is resolved in two steps:
+  //   1. If it starts with "q_" → it's a DB question → fetch from /api/questions.
+  //   2. Otherwise → look up in the local QUESTIONS array (legacy flow).
+  const [dbQuestion, setDbQuestion] = useState<Question | null>(null);
+  const [dbLoading, setDbLoading] = useState(false);
+  const [dbError, setDbError] = useState("");
+
+  useEffect(() => {
+    if (!questionId || questionId === "custom" || !questionId.startsWith("q_")) {
+      setDbQuestion(null);
+      return;
+    }
+
+    let cancelled = false;
+    setDbLoading(true);
+    setDbError("");
+
+    void getQuestions({ limit: 100 })
+      .then(({ questions }) => {
+        if (cancelled) return;
+        const found = questions.find((x) => x.id === questionId);
+        if (!found) {
+          setDbError("Question not found.");
+          setDbQuestion(null);
+          return;
+        }
+        setDbQuestion({
+          id: found.id,
+          mode: found.mode as ModeId,
+          text: found.title,
+          context: found.context || found.category || found.mode,
+          difficulty: (found.difficulty as Question["difficulty"]) ?? "Medium",
+          seconds: found.seconds || 60,
+        });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("[practice] failed to load DB question:", err);
+        setDbError("Could not load this question. Please try again.");
+        setDbQuestion(null);
+      })
+      .finally(() => {
+        if (!cancelled) setDbLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [questionId]);
+
   const q: Question = useMemo(() => {
-    if (questionId === "custom") return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
+    if (questionId === "custom") {
+      return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
+    }
+    if (dbQuestion) return dbQuestion;
     const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
     const sc = toScenario(base, level);
     return { ...base, context: sc.context, difficulty: sc.difficulty, seconds: sc.time_limit };
-  }, [questionId, situation, ctx, level]);
+  }, [questionId, situation, ctx, level, dbQuestion]);
 
   const [attempts, setAttempts] = useState<ResponseRecord[]>(() => loadChain(retry));
   const [phase, setPhase] = useState<"respond" | "analyzing" | "result">("respond");
@@ -146,7 +193,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         stage?: string;
       };
 
-      // Prefer local profile, fall back to the JWT subject.
       const email = profile.email ?? getEmailFromToken();
       if (!email) {
         throw new Error("Please sign in before submitting your response.");
@@ -162,6 +208,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
         question_type: q.mode,
         question_prompt: q.text,
         duration_seconds: duration || 0,
+        bank_question_id: q.id.startsWith("q_") ? q.id : undefined,
       });
 
       const uploaded = await uploadPaidResponse(form);
@@ -234,6 +281,24 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
   const another = async () => {
     if (q.mode === "custom") { navigate({ to: "/practice" }); return; }
+
+    // For DB-sourced questions, pick another from the same mode via the API.
+    if (q.id.startsWith("q_")) {
+      try {
+        const seen = new Set(getState().responses.map((r) => r.question_id));
+        const { questions } = await getQuestions({ mode: q.mode, limit: 50 });
+        const unseen = questions.filter((x) => !seen.has(x.id) && x.id !== q.id);
+        const pick = unseen[Math.floor(Math.random() * unseen.length)] ?? questions[0];
+        if (pick) {
+          navigate({ to: "/practice/$questionId", params: { questionId: pick.id }, search: {} });
+          return;
+        }
+      } catch (err) {
+        console.warn("[practice] another() DB lookup failed, using local:", err);
+      }
+    }
+
+    // Local fallback (existing behaviour).
     const seen = new Set(getState().responses.map((r) => r.question_id));
     const all = QUESTIONS.filter((x) => x.mode === q.mode && x.id !== q.id);
     const unseen = all.filter((x) => !seen.has(x.id));
@@ -251,6 +316,23 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   };
 
   const mmss = (n: number) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+
+  if (dbLoading) {
+    return (
+      <div className="mx-auto max-w-4xl py-20 text-center text-muted-foreground">
+        Loading question…
+      </div>
+    );
+  }
+
+  if (dbError) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4 py-20 text-center">
+        <p className="text-muted-foreground">{dbError}</p>
+        <Link to="/practice" className="btn btn-primary">Back to practice</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
