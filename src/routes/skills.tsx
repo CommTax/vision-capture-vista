@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap, Spark } from "@/components/analysis-view";
-import { usePaidDashboard } from "@/lib/paid-dashboard";           // CHANGED: was useStore
+import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type SkillInsight, type SkillStatus } from "@/lib/skills";
 
 export const Route = createFileRoute("/skills")({
@@ -68,23 +68,28 @@ function Detail({ x }: { x: SkillInsight }) {
 }
 
 function Skills() {
-  const { reps: rs, loading } = usePaidDashboard();                // CHANGED: was useStore
-  if (loading && rs.length === 0) {                                // CHANGED: loading guard
-    return (
-      <div className="py-20 text-center text-muted-foreground">
-        Loading your skills…
-      </div>
-    );
-  }
+  // ─── ALL HOOKS FIRST, UNCONDITIONALLY ───
+  const { reps: rs, loading } = usePaidDashboard();
+  const [sel, setSel] = useState<string | null>(null);
+
+  // ─── Derived values (safe to compute before return) ───
   const xs = buildSkillInsights(rs);
   const focus = pickFocus(xs);
-  const [sel, setSel] = useState<string | null>(null);
   const selected = xs.find((x) => x.skill === sel);
   const scored = xs.filter((x) => x.score !== null);
   const strongest = [...scored].sort((a, b) => b.score! - a.score!)[0];
   const improving = [...scored].filter((x) => (x.change ?? 0) > 0 && x !== strongest && x !== focus).sort((a, b) => b.change! - a.change!)[0];
   const slipping = [...scored].filter((x) => (x.change ?? 0) < 0 && x !== focus).sort((a, b) => a.change! - b.change!)[0];
   const toggle = (d: string) => setSel((c) => (c === d ? null : d));
+
+  // ─── Early return AFTER all hooks ───
+  if (loading && rs.length === 0) {
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Loading your skills…
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
