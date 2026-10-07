@@ -15,6 +15,10 @@ type SR = {
     | null;
 };
 
+const API_BASE =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  "https://unspoken-backend-nqvl.onrender.com";
+
 function pickSupportedMime(): string {
   if (typeof MediaRecorder === "undefined") return "";
   const candidates = [
@@ -53,6 +57,7 @@ export function Recorder({
   const [transcript, setTranscript] = useState("");
   const [err, setErr] = useState("");
   const [transcribing, setTranscribing] = useState(false);
+
   const mr = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const audioBlob = useRef<Blob | null>(null);
@@ -61,8 +66,6 @@ export function Recorder({
   const finalText = useRef("");
   const stream = useRef<MediaStream | null>(null);
 
-  // SpeechRecognition is present on desktop Chrome / Edge, and sometimes
-  // on Android Chrome. On iOS Safari it's not supported at all.
   const supportsSR =
     typeof window !== "undefined" &&
     ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
@@ -119,17 +122,24 @@ export function Recorder({
       const data = new Uint8Array(an.frequencyBinCount);
       const loop = () => {
         an.getByteFrequencyData(data);
-        setLevels(Array.from(data).slice(0, 32).map((v) => Math.max(0.08, v / 255)));
+        setLevels(
+          Array.from(data)
+            .slice(0, 32)
+            .map((v) => Math.max(0.08, v / 255))
+        );
         raf.current = requestAnimationFrame(loop);
       };
       loop();
 
-      // Only attach live transcription if the browser actually has it.
       if (supportsSR) {
         try {
           const C =
-            (window as unknown as Record<string, new () => SR>)["SpeechRecognition"] ??
-            (window as unknown as Record<string, new () => SR>)["webkitSpeechRecognition"];
+            (window as unknown as Record<string, new () => SR>)[
+              "SpeechRecognition"
+            ] ??
+            (window as unknown as Record<string, new () => SR>)[
+              "webkitSpeechRecognition"
+            ];
           const r = new C();
           r.continuous = true;
           r.interimResults = true;
@@ -146,7 +156,7 @@ export function Recorder({
           r.start();
           sr.current = r;
         } catch {
-          // SpeechRecognition unavailable — silently skip, we'll fall back.
+          // SpeechRecognition unavailable — silently skip
         }
       }
 
@@ -178,24 +188,77 @@ export function Recorder({
     setState("done");
   }
 
-  // Fallback: if live transcription produced nothing, send the audio
-  // to our backend for server-side transcription.
+  // ────────────────────────────────────────────────────────────
+  // Option A flow:
+  //   1. Upload the audio blob to R2 via the existing helper
+  //   2. Send the resulting drill_id to /api/paid/transcribe
+  //   3. Get the transcript back and populate the textarea
+  // ────────────────────────────────────────────────────────────
   async function transcribeOnServer() {
     if (!audioBlob.current) return;
+
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("unspoken-session-token")
+        : null;
+
+    if (!token) {
+      setErr("Please sign in again to transcribe.");
+      return;
+    }
+
     setTranscribing(true);
     setErr("");
+
     try {
-      const form = new FormData();
-      const ext = (audioBlob.current.type || "").includes("mp4") ? "m4a" : "webm";
-      form.append("audio", audioBlob.current, `recording.${ext}`);
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL ?? "https://unspoken-backend-nqvl.onrender.com"}/api/paid/transcribe`,
-        { method: "POST", body: form }
+      // Lazy import to avoid a circular dependency at module load time.
+      const { buildPaidUploadForm, uploadPaidResponse } = await import(
+        "@/lib/backend-api"
       );
-      if (!res.ok) throw new Error(`Transcribe failed: ${res.status}`);
+
+      const blob = audioBlob.current;
+      const ext = (blob.type || "").includes("mp4") ? "m4a" : "webm";
+      const file = new File([blob], `recording.${ext}`, { type: blob.type });
+
+      const form = buildPaidUploadForm({
+        audio: file,
+        mode: "voice",
+        question_slot: "transcribe-only",
+        question_type: "intro",
+        question_prompt: "Voice transcription",
+        duration_seconds: sec,
+      });
+
+      const uploaded = await uploadPaidResponse(form);
+      const drill_id = uploaded?.drill_id;
+      if (!drill_id) {
+        throw new Error("Upload succeeded but no drill_id returned");
+      }
+
+      const res = await fetch(`${API_BASE}/api/paid/transcribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ drill_id }),
+      });
+
+      if (res.status === 401) {
+        setErr("Your session expired. Please sign in again.");
+        return;
+      }
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        throw new Error(`${res.status} ${detail}`);
+      }
+
       const { transcript: t } = await res.json();
-      if (t) setTranscript(t);
-      else setErr("We couldn't transcribe that recording. Please type your response.");
+      if (t && t.trim()) {
+        setTranscript(t.trim());
+      } else {
+        setErr("We couldn't hear anything. Try again or type your response.");
+      }
     } catch (e) {
       console.error("[recorder] transcribe failed:", e);
       setErr("We couldn't transcribe that recording. Please type your response.");
@@ -266,6 +329,7 @@ export function Recorder({
               finalText.current = "";
               setAudioUrl("");
               audioBlob.current = null;
+              setErr("");
             }}
           >
             Re-record
@@ -282,7 +346,7 @@ export function Recorder({
           <div className="text-[12px] text-muted-foreground">
             {supportsSR
               ? "Transcript — correct anything we misheard."
-              : "Type what you said, or let us transcribe it for you."}
+              : "Your transcript will appear below. You can also edit it."}
           </div>
 
           <textarea
@@ -305,7 +369,10 @@ export function Recorder({
 
           <button
             className="btn btn-primary w-full"
-            disabled={transcript.trim().split(/\s+/).filter(Boolean).length < 5}
+            disabled={
+              transcribing ||
+              transcript.trim().split(/\s+/).filter(Boolean).length < 5
+            }
             onClick={() =>
               onDone({
                 transcript,
