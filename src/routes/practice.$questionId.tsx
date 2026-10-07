@@ -15,7 +15,7 @@ import {
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
 import { cap } from "@/components/analysis-view";
-import { FreeCounter, FreeResult, Conversion } from "@/components/plan-gate";
+import { FreeCounter, Conversion, LeadCapture } from "@/components/plan-gate";
 import { canSubmit, isFree, recordSubmission, useEntitlement } from "@/lib/entitlements";
 import { addResponse, getState, setState, uid, useStore, type ResponseRecord } from "@/lib/store";
 
