@@ -11,7 +11,7 @@ import {
   buildPaidUploadForm,
   uploadPaidResponse,
   analyzePaidResponse,
-  getQuestions,
+  getQuestion,
   getQuestions,
 } from "@/lib/backend-api";
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type ModeId, type Question } from "@/lib/data";
