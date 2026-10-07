@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
-import { DIMENSIONS, DRILLS } from "@/lib/data";
+import { DRILLS } from "@/lib/data";
 import { buildRecommendations } from "@/lib/recommendations";
 import { useStore } from "@/lib/store";
 
