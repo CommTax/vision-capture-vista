@@ -23,6 +23,7 @@ export const Route = createFileRoute("/practice/")({
 
 const VISIBLE_COUNT = 2;
 
+
 function ScenarioCard({
   s,
   focus,
