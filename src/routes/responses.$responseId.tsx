@@ -30,18 +30,22 @@ function Detail() {
   // ─── All hooks first, unconditionally ───
   const { reps: allReps, loading: listLoading } = usePaidDashboard();
   const [rec, setRec] = useState<ResponseRecord | null>(null);
-  const [fetchError, setFetchError] = useState(false);
+  const [fetchFailed, setFetchFailed] = useState(false);
 
-  // If the drill isn't in the reps list yet, fetch it directly
+  // Fast path: try to find in the already-loaded list
   useEffect(() => {
-    // Already have it from the list?
     const found = allReps.find((x) => x.id === responseId);
     if (found) {
       setRec(found);
-      return;
+      setFetchFailed(false);
     }
+  }, [responseId, allReps]);
 
-    // Otherwise, try to fetch the single drill from the backend.
+  // Slow path: fetch directly from the backend if not in the list
+  useEffect(() => {
+    if (rec) return;
+    if (listLoading) return;
+
     let cancelled = false;
     (async () => {
       const token =
@@ -49,30 +53,29 @@ function Detail() {
           ? localStorage.getItem("unspoken-session-token")
           : null;
       if (!token) {
-        if (!cancelled) setFetchError(true);
+        if (!cancelled) setFetchFailed(true);
         return;
       }
+
       try {
         const res = await fetch(
           `${API_BASE}/api/paid/reps/${responseId}/analysis`,
           { headers: { Authorization: `Bearer ${token}` } },
         );
         if (!res.ok) {
-          if (!cancelled) setFetchError(true);
+          if (!cancelled) setFetchFailed(true);
           return;
         }
         const payload = await res.json();
         if (cancelled) return;
 
-        // Build a ResponseRecord from the backend shape
-        const analysis = normalizeBackendAnalysis(
-          payload.analysis ?? payload,
-        );
-        setRec({
+        const analysis = normalizeBackendAnalysis(payload.analysis ?? payload);
+
+        const mapped: ResponseRecord = {
           id: payload.drill_id ?? responseId,
           question_id: payload.drill_id ?? responseId,
-          question: payload.question || "",
-          mode: (payload.analysis?.mode as ResponseRecord["mode"]) ?? "interview",
+          question: payload.question || payload.analysis?.question || "",
+          mode: "interview",
           response_type: "voice",
           transcript: payload.analysis?.transcribed_text || "",
           audio_url: undefined,
@@ -81,20 +84,21 @@ function Detail() {
           attempt: 1,
           parent_id: undefined,
           analysis,
-        });
+        };
+        setRec(mapped);
       } catch (err) {
         console.error("[response-detail] fetch failed:", err);
-        if (!cancelled) setFetchError(true);
+        if (!cancelled) setFetchFailed(true);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [responseId, allReps]);
+  }, [responseId, rec, listLoading]);
 
-  // ─── Loading state ───
-  if (!rec && listLoading && allReps.length === 0) {
+  // ─── Loading ───
+  if (!rec && listLoading) {
     return (
       <div className="py-20 text-center text-muted-foreground">
         Loading response…
@@ -103,7 +107,7 @@ function Detail() {
   }
 
   // ─── Not found ───
-  if (!rec) {
+  if (!rec && fetchFailed) {
     return (
       <div className="glass p-10 text-center">
         Response not found.{" "}
@@ -114,7 +118,15 @@ function Detail() {
     );
   }
 
-  // Find the parent attempt for the compare panel
+  if (!rec) {
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Loading response…
+      </div>
+    );
+  }
+
+  // ─── Found — render ───
   const parent = rec.parent_id
     ? allReps.find((x) => x.id === rec.parent_id)
     : undefined;
