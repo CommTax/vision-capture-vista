@@ -564,18 +564,6 @@ function Practice() {
           </div>
         )}
 
-        {!mode && !rec && (
-          <div className="mt-5">
-            <div className="eyebrow mb-3">Start anywhere</div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {all
-                .filter((s) => s.category === "interview")
-                .map((s) => (
-                  <ScenarioCard key={s.scenario_id} s={s} />
-                ))}
-            </div>
-          </div>
-        )}
       </section>
     </div>
   );
