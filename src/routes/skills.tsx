@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap, Spark } from "@/components/analysis-view";
-import { useStore } from "@/lib/store";
+import { usePaidDashboard } from "@/lib/paid-dashboard";           // CHANGED: was useStore
 import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type SkillInsight, type SkillStatus } from "@/lib/skills";
 
 export const Route = createFileRoute("/skills")({
@@ -68,7 +68,14 @@ function Detail({ x }: { x: SkillInsight }) {
 }
 
 function Skills() {
-  const rs = useStore((s) => s.responses);
+  const { reps: rs, loading } = usePaidDashboard();                // CHANGED: was useStore
+  if (loading && rs.length === 0) {                                // CHANGED: loading guard
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Loading your skills…
+      </div>
+    );
+  }
   const xs = buildSkillInsights(rs);
   const focus = pickFocus(xs);
   const [sel, setSel] = useState<string | null>(null);
