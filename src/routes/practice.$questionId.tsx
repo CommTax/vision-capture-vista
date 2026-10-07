@@ -12,6 +12,7 @@ import {
   uploadPaidResponse,
   analyzePaidResponse,
   getQuestions,
+  getQuestions,
 } from "@/lib/backend-api";
 import { DIMENSIONS, QUESTIONS, modeName, type Dimension, type ModeId, type Question } from "@/lib/data";
 import { EVAL_FOCUS, toScenario } from "@/lib/scenarios";
@@ -91,7 +92,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
   const [dbLoading, setDbLoading] = useState(false);
   const [dbError, setDbError] = useState("");
 
-  useEffect(() => {
+    useEffect(() => {
     if (!questionId || questionId === "custom" || !questionId.startsWith("q_")) {
       setDbQuestion(null);
       return;
@@ -101,15 +102,9 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     setDbLoading(true);
     setDbError("");
 
-    void getQuestions({ limit: 100 })
-      .then(({ questions }) => {
+    void getQuestion(questionId)
+      .then((found) => {
         if (cancelled) return;
-        const found = questions.find((x) => x.id === questionId);
-        if (!found) {
-          setDbError("Question not found.");
-          setDbQuestion(null);
-          return;
-        }
         setDbQuestion({
           id: found.id,
           mode: found.mode as ModeId,
@@ -131,7 +126,7 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
     return () => { cancelled = true; };
   }, [questionId]);
-
+  
   const q: Question = useMemo(() => {
     if (questionId === "custom") {
       return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
