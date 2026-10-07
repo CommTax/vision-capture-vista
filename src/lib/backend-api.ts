@@ -108,6 +108,10 @@ export async function getQuestions(params: {
   );
 }
 
+export async function getQuestion(id: string): Promise<QuestionCard> {
+  return apiGet<QuestionCard>(`/api/questions/${encodeURIComponent(id)}`);
+}
+
 // ---------------------------------------------------------------
 // Trial (legacy — kept for reference)
 // ---------------------------------------------------------------
