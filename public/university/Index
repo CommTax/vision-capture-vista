@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Unspoken University — Free Communication Education</title>
+<meta name="description" content="You already know how to talk. That was never the problem. Learn what happens after you speak — free, open, no signup." />
+
+<meta property="og:title" content="The Unspoken University" />
+<meta property="og:description" content="You already know how to talk. That was never the problem." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://theunspoken.co.in/university/index.html" />
+
+<link rel="icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/university/university.css" />
+</head>
+<body>
+
+<div class="university">
+
+<nav class="nav">
+  <div class="wrap-wide">
+    <a class="brand" href="/university/index.html">The Unspoken <span>University</span></a>
+    <div class="nav-links">
+      <a href="/university/index.html">Modules</a>
+      <a href="#framework">Framework</a>
+      <a href="/">← Main site</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Free, open, and built for the conversation you're about to have</p>
+    <h1>You already know how to talk. That was never the problem.</h1>
+    <p class="lede">The Unspoken University is where you learn what actually happens after you speak — where your words land, what survives the trip, and the small habits that close the gap between what you mean and what people hear.</p>
+    <div class="hero-cta">
+      <a class="btn" href="/university/module-1.html">Start with Module 1 →</a>
+      <a class="btn btn-ghost" href="#modules">Browse all modules</a>
+    </div>
+    <div class="trust">
+      <span>Free forever</span>
+      <span>No signup</span>
+      <span>No ads</span>
+      <span>5 minutes per chapter</span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow">Why this exists</p>
+    <h2>Nobody ever taught you what happens after you talk.</h2>
+    <p>Not in school. Not in onboarding. Not in the feedback you've gotten since — because the one thing you most need feedback on, whether you actually landed, is the one thing almost nobody will tell you directly.</p>
+    <p>So you've been paying a tax you can't see. The promotion that went to someone who explained their work more simply. The meeting where you said the smart thing first and someone else got the credit ten minutes later. Nobody sends you an invoice for it.</p>
+    <p>This is where you learn to read the invoice — and stop paying it.</p>
+    <div class="pull">
+      <p>Free, no signup, no exam at the end. <strong>The only test that matters is your next real conversation.</strong></p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow">How this works</p>
+    <h2>Short chapters. Real moments. One thing to notice.</h2>
+    <p>Every chapter is five to ten minutes — built to be read between meetings, not studied like a textbook.</p>
+    <p>Each one opens with a moment you'll recognize. That's on purpose. You don't learn a habit by being told to have it — you learn it by seeing where the old one was costing you.</p>
+    <p>Every module ends with a <strong>Notice This</strong> prompt. Not a quiz. One thing to watch for in your next real conversation. Notice, adjust, notice again.</p>
+  </div>
+</section>
+
+<section class="section" id="modules">
+  <div class="wrap-wide">
+    <div class="wrap" style="padding:0;">
+      <p class="eyebrow">Explore the curriculum</p>
+      <h2>Start anywhere. Start at the beginning.</h2>
+    </div>
+
+    <div class="module-grid">
+
+      <a class="module-card" href="/university/module-1.html">
+        <p class="card-num">Module 1 · Start here</p>
+        <h3>Why Smart People Get Overlooked</h3>
+        <p>The invisible tax on everything you say — and the five places meaning gets lost.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <a class="module-card" href="/university/module-2.html">
+        <p class="card-num">Module 2</p>
+        <h3>Structure — Getting From Thought to Point</h3>
+        <p>Why smart people ramble, and the order that makes any answer land.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <a class="module-card" href="/university/module-3.html">
+        <p class="card-num">Module 3</p>
+        <h3>Precision — Saying It in Fewer, Better Words</h3>
+        <p>Removing the insurance you didn't need to buy.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <a class="module-card" href="/university/module-4.html">
+        <p class="card-num">Module 4</p>
+        <h3>Impact — Making It Stick</h3>
+        <p>Clarity gets you understood in the moment. Impact is what survives after the meeting ends.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <a class="module-card" href="/university/module-5.html">
+        <p class="card-num">Module 5</p>
+        <h3>Delivery — Pace, Pause, Presence</h3>
+        <p>Same words, different weight. Delivery is the container everything else travels in.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <a class="module-card" href="/university/module-6.html">
+        <p class="card-num">Module 6 · Final module</p>
+        <h3>Scenario Playbooks</h3>
+        <p>Five real situations where structure, precision, impact, and delivery work together.</p>
+        <p class="card-meta">5 chapters · ~25 minutes</p>
+      </a>
+
+      <div class="module-card coming">
+        <p class="card-num">Coming</p>
+        <h3>Thinking</h3>
+        <p>Making your reasoning visible so your conclusions read as logic, not opinion.</p>
+        <p class="card-meta">In progress</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="framework">
+  <div class="wrap-wide">
+    <div class="wrap" style="padding:0;">
+      <p class="eyebrow">The framework</p>
+      <h2>Five places meaning gets lost.</h2>
+      <p>Every gap between what you mean and what lands is usually one of five. Most people only ever have one or two active at a time.</p>
+    </div>
+
+    <div class="five-grid">
+      <div class="five-card"><h3>Structure</h3><p>You know the point, but it doesn't arrive in an order anyone can follow.</p></div>
+      <div class="five-card"><h3>Thinking</h3><p>Your logic isn't visible, so a good conclusion reads as opinion.</p></div>
+      <div class="five-card"><h3>Precision</h3><p>Too many words doing the work of too few ideas.</p></div>
+      <div class="five-card"><h3>Impact</h3><p>Technically clear, but forgettable.</p></div>
+      <div class="five-card"><h3>Connection</h3><p>Accurate, but not aimed at the person in front of you.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>The Unspoken University — free and open, forever.</p>
+    <p>
+      <a href="/university/index.html">Modules</a>
+      <a href="#framework">Framework</a>
+      <a href="/">Main site</a>
+    </p>
+  </div>
+</footer>
+
+</div><!-- /.university -->
+
+</body>
+</html>
