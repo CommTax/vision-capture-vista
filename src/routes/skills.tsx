@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Locked } from "@/components/plan-gate";
 import { AppShell, PageHead } from "@/components/app-shell";
 import { cap, Spark } from "@/components/analysis-view";
 import { useStore } from "@/lib/store";
-import { useEntitlement } from "@/lib/entitlements";
 import { buildSkillInsights, CORE, OUTCOMES, pickFocus, SKILL_MEANING, type SkillInsight, type SkillStatus } from "@/lib/skills";
 
 export const Route = createFileRoute("/skills")({
@@ -74,7 +72,6 @@ function Skills() {
   const xs = buildSkillInsights(rs);
   const focus = pickFocus(xs);
   const [sel, setSel] = useState<string | null>(null);
-  const { free } = useEntitlement();
   const selected = xs.find((x) => x.skill === sel);
   const scored = xs.filter((x) => x.score !== null);
   const strongest = [...scored].sort((a, b) => b.score! - a.score!)[0];
@@ -93,14 +90,14 @@ function Skills() {
         <>
           {/* Focus + profile */}
           <div className="grid gap-6 lg:grid-cols-12">
-            <section className={`glass glass-float border-primary/40 p-7 md:p-8 ${free ? "lg:col-span-12" : "lg:col-span-7"}`}>
+            <section className="glass glass-float border-primary/40 p-7 md:p-8 lg:col-span-7">
               <div className="eyebrow mb-3 !text-primary">Current focus</div>
               <div className="font-display text-[40px] font-bold leading-none">{cap(focus.skill)} <span className="text-primary">· {focus.score}</span></div>
               <p className="mt-4 text-[16px] font-medium leading-7">{focus.evidence[0] ?? NO_EVIDENCE}</p>
               {focus.recurring_gap && <p className="mt-2 text-[14px] leading-6 text-muted-foreground">What still gets lost: {focus.recurring_gap}</p>}
-              {free ? <Link to="/plans" className="btn btn-primary mt-6">Unlock next practice</Link> : <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>}
+              <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>
             </section>
-            {!free && <section className="glass p-7 lg:col-span-5">
+            <section className="glass p-7 lg:col-span-5">
               <div className="eyebrow mb-4">Your communication profile</div>
               <dl className="space-y-3 text-[14px]">
                 {([["Strongest", strongest], ["Improving", improving], ["Current focus", focus], ["Needs attention", slipping]] as const).map(([l, x]) => (
@@ -110,17 +107,16 @@ function Skills() {
               <div className="eyebrow mt-5 mb-1">What to practice now</div>
               <p className="text-[14px]">{focus.recommended_drill.objective}</p>
               <Link to="/practice" className="mt-3 inline-block text-[13px] text-primary">Start practice →</Link>
-            </section>}
+            </section>
           </div>
 
-          {free ? <Locked feature="skills" title="Your complete skill profile" body="Unlock every skill score, response-level evidence, strongest examples, recommended drills, and progress over time." cta="Unlock skill insights" /> : <>
           {/* Core */}
           <section>
             <h2 className="text-[20px] font-bold">Core communication skills</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">Select a skill to see the evidence behind it.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{xs.filter((x) => CORE.includes(x.skill)).map((x) => <SkillCard key={x.skill} x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />)}</div>
           </section>
-          {selected && CORE.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
+          {selected && CORE.includes(selected.skill) && <Detail x={selected} />}
 
           {/* Outcomes */}
           <section>
@@ -130,10 +126,9 @@ function Skills() {
               <div className="glass flex flex-col p-5"><div className="font-display text-[16px] font-bold">Influence</div><p className="mt-2 text-[13px] leading-5 text-muted-foreground">Built from impact, relevance and confidence. Not scored on its own.</p></div>
             </div>
           </section>
-          {selected && OUTCOMES.includes(selected.skill) && <Locked feature="skills" title={`Full ${cap(selected.skill)} breakdown`} body="Recurring patterns, response-level evidence, strongest and weakest examples, detailed changes and recommended drills." cta="Unlock full breakdown"><Detail x={selected} /></Locked>}
+          {selected && OUTCOMES.includes(selected.skill) && <Detail x={selected} />}
 
           {/* Trend */}
-          <Locked feature="skills" title="See how every skill is changing" body="Full skill history across your responses, response by response." cta="Unlock full breakdown">
           <section className="glass p-7">
             <h2 className="text-[20px] font-bold">How your skills are changing</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">Each line is one skill across your last {rs.length} responses, oldest to newest.</p>
@@ -145,8 +140,6 @@ function Skills() {
               ))}</div>
             )}
           </section>
-          </Locked>
-          </>}
         </>
       )}
     </div>
