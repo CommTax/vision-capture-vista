@@ -72,6 +72,13 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
             {[...NAV, ...(has("sprint") ? [{ to: "/sprint", label: "Sprint" } as const] : [])].map((n) => (
               <Link key={n.to} to={n.to} className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>{n.label}</Link>
             ))}
+            {/* University — static HTML page, not a router route */}
+            <a
+              href="/university/index.html"
+              className="hover:text-foreground"
+            >
+              University
+            </a>
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
