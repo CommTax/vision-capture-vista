@@ -5,7 +5,6 @@ import { Keyboard, Mic } from "lucide-react";
 import { AppShell, useHydrated } from "@/components/app-shell";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
-import { AICoach } from "@/components/ai-coach";
 import { type Analysis, normalizeBackendAnalysis } from "@/lib/analysis";
 import {
   buildPaidUploadForm,
@@ -449,20 +448,25 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
                   {attempts.slice(0, view).map((a, i) => <button key={a.id} className="chip" data-active={compareWith === i} onClick={() => setCompareWith(i)}>Attempt {i + 1}</button>)}
                 </div>
               )}
-              <ComparePanel a1={attempts[compareWith].analysis} a2={viewed.analysis} n1={compareWith + 1} n2={view + 1} />
+                           <ComparePanel a1={attempts[compareWith].analysis} a2={viewed.analysis} n1={compareWith + 1} n2={view + 1} />
             </>
           )}
-<div className="flex flex-wrap justify-center gap-3 pt-4">
-  <button className="btn btn-primary" onClick={() => retryNow(false)}>
-    Try Again
-  </button>
 
-  {ent.free && (
-    <Link to="/plans" className="btn btn-ghost">
-      Upgrade for Unlimited Practice →
-    </Link>
-  )}
-</div>
+          <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />
+
+          {viewed.audio_url && <audio controls src={viewed.audio_url} className="w-full" />}
+
+          <div className="flex flex-wrap justify-center gap-3 pt-4">
+            <button className="btn btn-primary" onClick={() => retryNow(false)}>
+              Try Again
+            </button>
+
+            {ent.free && (
+              <Link to="/plans" className="btn btn-ghost">
+                Upgrade for Unlimited Practice →
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </div>
