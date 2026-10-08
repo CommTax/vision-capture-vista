@@ -34,8 +34,16 @@ export const SKILL_MEANING: Record<Dimension, string> = {
   memorability: "Whether the listener walks away with one line they'll remember.",
 };
 
-export const CORE: Dimension[] = ["structure", "clarity", "conciseness", "relevance", "impact", "delivery", "confidence"];
-export const OUTCOMES: Dimension[] = ["memorability"];
+export const CORE: Dimension[] = ["structure", "clarity", "conciseness", "relevance", "delivery", "confidence"];
+export const OUTCOMES: Dimension[] = ["impact", "memorability"];
+
+// Dimensions eligible to be picked as the user's current focus.
+// Kept separate from CORE so we can still recommend drills for outcomes
+// like Impact and Memorability.
+export const FOCUSABLE: Dimension[] = [
+  "structure", "clarity", "conciseness", "relevance",
+  "impact", "delivery", "confidence", "memorability",
+];
 
 const DRILL_FOR: Record<Dimension, string> = {
   structure: "five-sec", clarity: "one-sentence", conciseness: "cut-30", relevance: "specific",
@@ -117,8 +125,9 @@ export function buildSkillInsights(rs: ResponseRecord[]): SkillInsight[] {
   });
 }
 
-/** Focus = lowest-scoring core skill, ties broken by the biggest decline. */
+/** Focus = lowest-scoring eligible skill, ties broken by the biggest decline. */
 export function pickFocus(xs: SkillInsight[]) {
-  return [...xs].filter((x) => x.score !== null && CORE.includes(x.skill))
+  return [...xs]
+    .filter((x) => x.score !== null && FOCUSABLE.includes(x.skill))
     .sort((a, b) => (a.score! - b.score!) || ((a.change ?? 0) - (b.change ?? 0)))[0];
 }
