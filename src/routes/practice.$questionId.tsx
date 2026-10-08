@@ -453,16 +453,14 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
             </>
           )}
 <div className="flex flex-wrap justify-center gap-3 pt-4">
-  {/* Try Again — always available */}
   <button className="btn btn-primary" onClick={() => retryNow(false)}>
     Try Again
   </button>
 
-  {ent.free ? (
-    /* Free users: Upgrade CTA */
+  {ent.free && (
     <Link to="/plans" className="btn btn-ghost">
       Upgrade for Unlimited Practice →
-    </>
+    </Link>
   )}
 </div>
         </div>
