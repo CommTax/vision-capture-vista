@@ -57,7 +57,39 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 }
 
 // ────────────────────────────────────────────────────────────
-// Share helpers — used by the pattern card buttons
+// Dynamic focus extractor — reads the user's latest drill
+// ────────────────────────────────────────────────────────────
+function dynamicFocus(
+  rs: ResponseRecord[],
+  dimension: Dimension,
+): { why?: string; chain?: string[]; move?: string } | null {
+  const latest = rs.find((r) => r.analysis && r.analysis.overall > 0);
+  if (!latest) return null;
+
+  const a: any = latest.analysis;
+
+  const why: string | undefined =
+    a?.coaching?.one_thing_to_change ||
+    a?.metrics?.[`${dimension}_note`] ||
+    a?.dimensions?.[dimension]?.happened ||
+    undefined;
+
+  const chain: string[] | undefined =
+    Array.isArray(a?.coaching?.recommended_structure) &&
+    a.coaching.recommended_structure.length >= 2
+      ? a.coaching.recommended_structure.slice(0, 3)
+      : undefined;
+
+  const move: string | undefined =
+    a?.coaching?.one_thing_to_change ||
+    a?.coaching?.what_worked ||
+    undefined;
+
+  return { why, chain, move };
+}
+
+// ────────────────────────────────────────────────────────────
+// Share helpers
 // ────────────────────────────────────────────────────────────
 function buildShareText(name: string, patternName: string, patternDesc: string, url: string) {
   return `${name ? name + "'s" : "My"} communication pattern: ${patternName}.\n\n"${patternDesc}"\n\nWhat's yours? ${url}`;
@@ -74,7 +106,7 @@ async function shareToInstagram(text: string) {
       await (navigator as any).share({ text });
       return;
     } catch {
-      // user cancelled or not allowed — fall through to copy
+      // cancelled
     }
   }
   try {
@@ -128,7 +160,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header — greeting + stats (no CTA button) */}
+      {/* 1. Header */}
       <header className="rise pt-2">
         <div className="eyebrow mb-3">Good to see you, {profile.name}</div>
         <div className="mt-2 flex flex-wrap items-center gap-5">
@@ -143,7 +175,7 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* 2. Pattern card — the hero. User's name + pattern + share actions. */}
+      {/* 2. Pattern card */}
       <section
         className="relative overflow-hidden rounded-3xl p-7"
         style={{
@@ -170,12 +202,12 @@ function Dashboard() {
           }}
         />
 
-{/* Top row: user name pill on the right */}
-<div className="relative flex items-start justify-end gap-4">
-  <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
-    {firstName}'s pattern
-  </div>
-</div>
+        {/* Top row: user name pill on the right */}
+        <div className="relative flex items-start justify-end gap-4">
+          <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
+            {firstName}'s pattern
+          </div>
+        </div>
 
         {/* Hero: pattern name */}
         <div className="relative mt-4 font-display text-[clamp(30px,5vw,42px)] font-bold leading-[1.05]">
@@ -209,7 +241,7 @@ function Dashboard() {
           <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
         </div>
 
-        {/* Share row (no more "Practice this →") */}
+        {/* Share row */}
         <div className="relative mt-6 flex flex-wrap items-center gap-3">
           <span className="text-[12px] text-muted-foreground">
             Share your pattern:
@@ -241,34 +273,73 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 3. Why you're seeing this */}
-      <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
-        <div className="md:col-span-7">
-          <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
-          <p className="font-display text-[22px] font-bold leading-snug">{f.why}</p>
-          <p className="mt-3 text-[15px] text-muted-foreground">
-            That's why your current focus is <b className="text-primary">{focus.toUpperCase()}</b>.
-          </p>
-        </div>
-        <div className="flex flex-col justify-center md:col-span-5">
-          <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em]">
-            {f.chain.map((c, i) => (
-              <span key={c} className="flex items-center gap-2">
-                {i > 0 && <span className="text-primary">→</span>}
-                <span className="rounded-full border border-primary/40 px-3 py-1.5">{c}</span>
-              </span>
-            ))}
+      {/* 3. Why you're seeing this — dynamic */}
+      {rs.length > 0 && rs.some((r) => r.analysis?.overall > 0) ? (
+        (() => {
+          const dyn = dynamicFocus(rs, cp.focus as Dimension);
+          const whyText = dyn?.why || f.why;
+          const chainText = dyn?.chain && dyn.chain.length > 0 ? dyn.chain : f.chain;
+          const moveText = dyn?.move || f.move;
+
+          return (
+            <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
+              <div className="md:col-span-7">
+                <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
+                <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
+                <p className="mt-3 text-[15px] text-muted-foreground">
+                  That's why your current focus is <b className="text-primary">{focus.toUpperCase()}</b>.
+                </p>
+                <p className="mt-3 text-[14px] leading-6 text-muted-foreground">{moveText}</p>
+              </div>
+              <div className="flex flex-col justify-center md:col-span-5">
+                <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em]">
+                  {chainText.map((c, i) => (
+                    <span key={c + i} className="flex items-center gap-2">
+                      {i > 0 && <span className="text-primary">→</span>}
+                      <span className="rounded-full border border-primary/40 px-3 py-1.5">{c}</span>
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-4 text-[13px] text-muted-foreground">
+                  Practice this pattern in your next response.
+                </p>
+                <Link
+                  to="/drills/$drillId"
+                  params={{ drillId: f.drills[0] }}
+                  className="btn btn-ghost btn-sm mt-4 self-start"
+                >
+                  Practice {focus} →
+                </Link>
+              </div>
+            </section>
+          );
+        })()
+      ) : (
+        <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
+          <div className="md:col-span-7">
+            <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
+            <p className="font-display text-[22px] font-bold leading-snug">
+              Once you record your first response, we'll personalize this section for you.
+            </p>
+            <p className="mt-3 text-[15px] leading-7 text-muted-foreground">
+              We'll read your response, identify the pattern holding you back,
+              and show you exactly what to practice next.
+            </p>
           </div>
-          <p className="mt-4 text-[13px] text-muted-foreground">Practice this pattern in your next response.</p>
-          <Link
-            to="/drills/$drillId"
-            params={{ drillId: f.drills[0] }}
-            className="btn btn-ghost btn-sm mt-4 self-start"
-          >
-            Practice {focus} →
-          </Link>
-        </div>
-      </section>
+          <div className="flex flex-col justify-center md:col-span-5">
+            <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em] opacity-50">
+              <span className="rounded-full border border-border px-3 py-1.5">You</span>
+              <span className="text-primary">→</span>
+              <span className="rounded-full border border-border px-3 py-1.5">Response</span>
+              <span className="text-primary">→</span>
+              <span className="rounded-full border border-border px-3 py-1.5">Pattern</span>
+            </div>
+            <Link to="/practice" className="btn btn-primary btn-sm mt-6 self-start">
+              Record your first response →
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* 4. Today's 2 challenges */}
       <section className="glass p-7">
