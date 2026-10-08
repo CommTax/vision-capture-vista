@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, ChevronDown, Flag, Mic, RotateCcw, Search, ThumbsUp } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Flag, MessageSquareWarning, Mic, RotateCcw, Search, ThumbsUp } from "lucide-react";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
 const AUTO_MS = 6000;
@@ -77,9 +77,9 @@ function ChooseView() {
       <div className="absolute -left-12 -top-6 z-10 hidden sm:block">
         <OptionChip icon={<Mic className="size-4" />} label="Interview" active />
       </div>
-      <div className="absolute -bottom-6 -right-12 z-10 hidden sm:block">
-        <OptionChip icon={<ThumbsUp className="size-4 text-emerald-400" />} label="Leadership" />
-      </div>
+<div className="absolute -bottom-6 -right-12 z-10 hidden sm:block">
+  <OptionChip icon={<MessageSquareWarning className="size-4 text-emerald-400" />} label="Difficult conversation" />
+</div>
 
       <div className="relative w-full max-w-[340px] space-y-3">
         <div className="how-float">
@@ -167,7 +167,7 @@ function RetryView() {
 }
 
 const STEPS = [
-  { title: "Choose your moment", body: "Pick a real conversation and what you want to improve.", View: ChooseView },
+  { title: "Pick the situation", body: "Choose a real conversation and what you want to improve.", View: ChooseView },
   { title: "Respond naturally", body: "Speak or type your answer the way you'd say it in the room.", View: RespondView },
   { title: "See what got lost", body: "Your pattern, what your listener heard, and one thing to fix.", View: LostView },
   { title: "Say it again", body: "Retry the same moment and watch what changes.", View: RetryView },
