@@ -11,6 +11,13 @@ export function ScoreBar({ label, value, prev }: { label: string; value: number;
   return (
     <div>
       <div className="mb-1 flex justify-between text-[12px]">
+        <AnalysisView
+  a={viewed.analysis}
+  transcript={viewed.transcript}
+  onRetry={() => retryNow(false)}
+  audioUrl={viewed.audio_url}
+  durationSec={viewed.duration}
+/>
         <span className="text-muted-foreground">{label}</span>
         <span className="font-mono text-primary">
           {prev !== undefined && <span className="mr-1 text-muted-foreground">{prev} →</span>}
