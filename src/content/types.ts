@@ -61,6 +61,8 @@ export interface PricingPlan {
   features: string[];
   cta: string;
   highlighted?: boolean;
+  /** Short flag on the card, e.g. "Best for upcoming interviews". */
+  badge?: string;
   active: boolean;
 }
 
