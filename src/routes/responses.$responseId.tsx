@@ -164,13 +164,14 @@ function Detail() {
         )}
       </div>
 
-      {audioSrc && (
-        <audio controls preload="metadata" src={audioSrc} className="w-full" />
-      )}
+{parent && <ComparePanel a1={parent.analysis} a2={rec.analysis} />}
 
-      {parent && <ComparePanel a1={parent.analysis} a2={rec.analysis} />}
-
-      <AnalysisView a={rec.analysis} transcript={rec.transcript} />
+<AnalysisView
+  a={rec.analysis}
+  transcript={rec.transcript}
+  audioUrl={rec.audio_url}
+  durationSec={rec.duration}
+/>
     </div>
   );
 }
