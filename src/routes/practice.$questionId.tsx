@@ -462,20 +462,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
     /* Free users: Upgrade CTA */
     <Link to="/plans" className="btn btn-ghost">
       Upgrade for Unlimited Practice →
-    </Link>
-  ) : (
-    /* Paid users: Edit + Saved */
-    <>
-      <button className="btn btn-ghost" onClick={() => retryNow(true)}>
-        Edit my answer
-      </button>
-      <Link
-        to="/responses/$responseId"
-        params={{ responseId: viewed.id }}
-        className="btn btn-ghost"
-      >
-        Saved to My Responses
-      </Link>
     </>
   )}
 </div>
