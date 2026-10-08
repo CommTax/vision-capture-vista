@@ -56,7 +56,7 @@ export function PatternShift({ pattern, size = "lg" }: { pattern: string; size?:
 }
 
 // ──────────────────────────────────────────────────────────────
-// Small helper: one dimension as a card with progress bar.
+// Dimension card — used in the Analytics tab
 // ──────────────────────────────────────────────────────────────
 function DimensionCard({
   dimension,
@@ -115,380 +115,436 @@ export function AnalysisView({
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [tab, setTab] = useState<"coaching" | "analytics">("coaching");
 
   const P = PATTERNS[a.primary_pattern];
   const drill = DRILLS.find((d) => d.id === a.recommended_drill);
 
   return (
     <div className="space-y-6">
-      {/* ───────── 1. HERO RESULT CARD ───────── */}
-      <section
-        className="relative overflow-hidden rounded-3xl p-7 md:p-9"
-        style={{
-          background:
-            "linear-gradient(160deg, rgba(139,127,255,0.14) 0%, rgba(26,16,51,0.4) 45%, rgba(11,13,20,0.9) 100%)",
-          border: "1px solid rgba(139,127,255,0.35)",
-          boxShadow:
-            "0 24px 80px -30px rgba(139,127,255,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
-        }}
-      >
+      {/* ───────── TAB SWITCHER ───────── */}
+      <div className="flex justify-center">
         <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full"
+          className="inline-flex rounded-full border p-1"
           style={{
-            background:
-              "radial-gradient(closest-side, rgba(139,127,255,0.45), transparent)",
-            filter: "blur(20px)",
+            background: "rgba(255,255,255,0.03)",
+            borderColor: "rgba(255,255,255,0.08)",
           }}
-        />
+        >
+          <button
+            onClick={() => setTab("coaching")}
+            className={`rounded-full px-5 py-2 font-mono text-[12px] uppercase tracking-[0.1em] transition ${
+              tab === "coaching"
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Coaching
+          </button>
+          <button
+            onClick={() => setTab("analytics")}
+            className={`rounded-full px-5 py-2 font-mono text-[12px] uppercase tracking-[0.1em] transition ${
+              tab === "analytics"
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Analytics
+          </button>
+        </div>
+      </div>
 
-        <div className="relative grid gap-8 md:grid-cols-12 md:items-center">
-          {/* Left: score + pattern + summary */}
-          <div className="md:col-span-7">
-            <div className="eyebrow mb-3 !text-primary">Your result</div>
+      {/* ═══════════════════════════════════════════════════
+          COACHING TAB — the narrative
+         ═══════════════════════════════════════════════════ */}
+      {tab === "coaching" && (
+        <>
+          {/* 1. HERO RESULT CARD */}
+          <section
+            className="relative overflow-hidden rounded-3xl p-7 md:p-9"
+            style={{
+              background:
+                "linear-gradient(160deg, rgba(139,127,255,0.14) 0%, rgba(26,16,51,0.4) 45%, rgba(11,13,20,0.9) 100%)",
+              border: "1px solid rgba(139,127,255,0.35)",
+              boxShadow:
+                "0 24px 80px -30px rgba(139,127,255,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
+            }}
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(139,127,255,0.45), transparent)",
+                filter: "blur(20px)",
+              }}
+            />
 
-            <div className="flex items-baseline gap-3">
-              <span className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
-                {a.overall}
-              </span>
-              <span className="text-[15px] text-muted-foreground">/ 100</span>
+            <div className="relative grid gap-8 md:grid-cols-12 md:items-center">
+              {/* Left: score + pattern + summary */}
+              <div className="md:col-span-7">
+                <div className="eyebrow mb-3 !text-primary">Your result</div>
+
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
+                    {a.overall}
+                  </span>
+                  <span className="text-[15px] text-muted-foreground">/ 100</span>
+                </div>
+
+                <div className="mt-5">
+                  <PatternShift pattern={a.primary_pattern} />
+                </div>
+
+                <p className="mt-5 max-w-xl text-[16px] leading-7 text-muted-foreground">
+                  {a.summary}
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-2 text-[12px]">
+                  <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">
+                    {P?.name ?? a.primary_pattern}
+                  </span>
+                  {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern && (
+                    <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+                      Secondary: {PATTERNS[a.secondary_pattern]?.name ?? a.secondary_pattern}
+                    </span>
+                  )}
+                </div>
+
+                {onRetry && (
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <button className="btn btn-primary px-6 py-3 text-[15px]" onClick={onRetry}>
+                      Try Again →
+                    </button>
+                    <a href="#what-got-lost" className="btn btn-ghost px-6 py-3 text-[15px]">
+                      See what to fix
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: compact diagnosis panel */}
+              <div className="md:col-span-5">
+                <div className="rounded-2xl border border-border/60 bg-background/40 p-5 backdrop-blur-sm">
+                  <div className="eyebrow mb-3">Diagnosis</div>
+                  <dl className="space-y-3 text-[13px]">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Primary pattern</dt>
+                      <dd className="font-mono text-foreground">{P?.short}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Transition</dt>
+                      <dd className="font-mono text-primary">
+                        {P?.short} → {P?.to}
+                      </dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Time to point</dt>
+                      <dd className="font-mono text-foreground">
+                        {a.main_point_delay ? `${a.main_point_delay}s` : "—"}
+                      </dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Words</dt>
+                      <dd className="font-mono text-foreground">{a.word_count}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
             </div>
+          </section>
 
-            <div className="mt-5">
-              <PatternShift pattern={a.primary_pattern} />
-            </div>
+          {/* 2. WHAT GOT LOST + MAKE IT LAND */}
+          <div id="what-got-lost" className="space-y-6">
+            <section className="glass p-7 md:p-8">
+              <div className="eyebrow mb-5 !text-primary">What got lost</div>
 
-            <p className="mt-5 max-w-xl text-[16px] leading-7 text-muted-foreground">
-              {a.summary}
-            </p>
+              {/* Act 1 — Intended */}
+              <div className="relative">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full border border-border bg-background/60 font-mono text-[10px] text-muted-foreground">
+                    01
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    What you meant
+                  </span>
+                </div>
+                <p className="mt-3 pl-8 text-[16px] font-medium leading-7 text-foreground">
+                  {a.what_got_lost.intended}
+                </p>
+              </div>
 
-            <div className="mt-6 flex flex-wrap gap-2 text-[12px]">
-              <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">
-                {P?.name ?? a.primary_pattern}
-              </span>
-              {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern && (
-                <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">
-                  Secondary: {PATTERNS[a.secondary_pattern]?.name ?? a.secondary_pattern}
+              {/* Connector */}
+              <div className="relative my-5 flex items-center gap-3 pl-8">
+                <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                  but
                 </span>
+                <span className="h-px flex-1 bg-gradient-to-l from-border to-transparent" />
+              </div>
+
+              {/* Act 2 — Heard (bubble) */}
+              <div className="relative">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full border border-destructive/40 bg-destructive/10 font-mono text-[10px] text-destructive">
+                    02
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-destructive">
+                    What they actually heard
+                  </span>
+                </div>
+
+                <div className="relative mt-3 pl-8">
+                  <div
+                    className="relative rounded-2xl border border-destructive/30 bg-destructive/5 p-5"
+                    style={{
+                      boxShadow: "0 20px 60px -30px rgba(248,113,113,0.4)",
+                    }}
+                  >
+                    <div
+                      aria-hidden
+                      className="absolute -left-2 top-5 size-4 rotate-45 border-b border-l border-destructive/30 bg-destructive/5"
+                    />
+                    <p className="font-display text-[19px] italic leading-7 text-foreground/90">
+                      "{a.what_got_lost.heard}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Act 3 — Why */}
+              <div className="mt-7 border-t border-border pt-6">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-full border border-border bg-background/60 font-mono text-[10px] text-muted-foreground">
+                    03
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    Why it got lost
+                  </span>
+                </div>
+                <ul className="mt-4 space-y-3">
+                  {a.what_got_lost.why.map((w) => (
+                    <li
+                      key={w}
+                      className="flex gap-3 rounded-2xl border border-border/60 bg-background/30 p-4 text-[14px] leading-6"
+                    >
+                      <span className="shrink-0 text-primary">·</span>
+                      <span className="text-foreground/90">{w}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            {/* Make it land — full width below */}
+            <section className="glass p-7 md:p-8">
+              <div className="eyebrow mb-4 !text-primary">Make it land</div>
+              <ol className="grid gap-3 md:grid-cols-3">
+                {a.what_got_lost.makeItLand.map((m, i) => (
+                  <li
+                    key={m}
+                    className="flex gap-3 rounded-2xl border border-border/60 bg-background/30 p-4 text-[14px] leading-6"
+                  >
+                    <span className="shrink-0 font-mono text-primary">0{i + 1}</span>
+                    <span>{m}</span>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-5">
+                <div className="eyebrow mb-2 !text-primary">One thing to fix</div>
+                <p className="text-[15px] leading-6">{a.retry_instruction}</p>
+                {onRetry && (
+                  <button
+                    className="btn btn-primary btn-sm mt-3"
+                    onClick={onRetry}
+                  >
+                    Retry with this focus →
+                  </button>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* 3. HELPED / IMPROVE */}
+          <section className="grid gap-6 md:grid-cols-2">
+            <div className="glass p-6">
+              <div className="eyebrow mb-3">What helped</div>
+              {a.strengths.map((s) => (
+                <div key={s} className="flex gap-2 py-1 text-[14px]">
+                  <span className="text-success">+</span>
+                  <span>{s}</span>
+                </div>
+              ))}
+            </div>
+            <div className="glass p-6">
+              <div className="eyebrow mb-3">What to improve</div>
+              {a.improvements.map((s) => (
+                <div key={s} className="flex gap-2 py-1 text-[14px]">
+                  <span className="text-primary">→</span>
+                  <span>{s}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 4. ORIGINAL / EXAMPLE / REWORK */}
+          <section className="grid gap-6 md:grid-cols-2">
+            <div className="glass p-6">
+              <button
+                onClick={() => setTranscriptOpen((v) => !v)}
+                className="flex w-full items-center justify-between gap-4 text-left"
+                aria-expanded={transcriptOpen}
+              >
+                <span className="eyebrow">Your original response</span>
+                <ChevronDown
+                  className={`size-4 shrink-0 text-muted-foreground transition-transform ${
+                    transcriptOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {transcriptOpen && (
+                <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
+                  {transcript}
+                </p>
+              )}
+              {!transcriptOpen && (
+                <p className="mt-2 text-[12px] text-muted-foreground">
+                  Tap to see what you said.
+                </p>
               )}
             </div>
 
-            {onRetry && (
-              <div className="mt-7 flex flex-wrap gap-3">
-                <button className="btn btn-primary px-6 py-3 text-[15px]" onClick={onRetry}>
-                  Try Again →
-                </button>
-                <a href="#what-got-lost" className="btn btn-ghost px-6 py-3 text-[15px]">
-                  See what to fix
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* Right: compact diagnosis panel */}
-          <div className="md:col-span-5">
-            <div className="rounded-2xl border border-border/60 bg-background/40 p-5 backdrop-blur-sm">
-              <div className="eyebrow mb-3">Diagnosis</div>
-              <dl className="space-y-3 text-[13px]">
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Primary pattern</dt>
-                  <dd className="font-mono text-foreground">{P?.short}</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Transition</dt>
-                  <dd className="font-mono text-primary">
-                    {P?.short} → {P?.to}
-                  </dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Time to point</dt>
-                  <dd className="font-mono text-foreground">
-                    {a.main_point_delay ? `${a.main_point_delay}s` : "—"}
-                  </dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Words</dt>
-                  <dd className="font-mono text-foreground">{a.word_count}</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── 2. WHAT GOT LOST — three-act layout with bubble ───────── */}
-      <section id="what-got-lost" className="grid gap-6 lg:grid-cols-12">
-        <div className="glass p-7 lg:col-span-7">
-          <div className="eyebrow mb-5 !text-primary">What got lost</div>
-
-          {/* Act 1 — Intended */}
-          <div className="relative">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full border border-border bg-background/60 font-mono text-[10px] text-muted-foreground">
-                01
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                What you meant
-              </span>
-            </div>
-            <p className="mt-3 pl-8 text-[16px] font-medium leading-7 text-foreground">
-              {a.what_got_lost.intended}
-            </p>
-          </div>
-
-          {/* Connector */}
-          <div className="relative my-5 flex items-center gap-3 pl-8">
-            <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
-              but
-            </span>
-            <span className="h-px flex-1 bg-gradient-to-l from-border to-transparent" />
-          </div>
-
-          {/* Act 2 — Heard (bubble) */}
-          <div className="relative">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full border border-destructive/40 bg-destructive/10 font-mono text-[10px] text-destructive">
-                02
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-destructive">
-                What they actually heard
-              </span>
-            </div>
-
-            <div className="relative mt-3 pl-8">
-              <div
-                className="relative rounded-2xl border border-destructive/30 bg-destructive/5 p-5"
-                style={{
-                  boxShadow: "0 20px 60px -30px rgba(248,113,113,0.4)",
-                }}
-              >
-                <div
-                  aria-hidden
-                  className="absolute -left-2 top-5 size-4 rotate-45 border-b border-l border-destructive/30 bg-destructive/5"
-                />
-                <p className="font-display text-[19px] italic leading-7 text-foreground/90">
-                  "{a.what_got_lost.heard}"
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Act 3 — Why */}
-          <div className="mt-7 border-t border-border pt-6">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full border border-border bg-background/60 font-mono text-[10px] text-muted-foreground">
-                03
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                Why it got lost
-              </span>
-            </div>
-            <ul className="mt-4 space-y-3">
-              {a.what_got_lost.why.map((w, i) => (
-                <li
-                  key={w}
-                  className="flex gap-3 rounded-2xl border border-border/60 bg-background/30 p-4 text-[14px] leading-6"
-                >
-                  <span className="shrink-0 font-mono text-[12px] text-primary">
-                    0{i + 1}
-                  </span>
-                  <span className="text-foreground/90">{w}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Make it land — unchanged */}
-        <div className="glass p-7 lg:col-span-5">
-          <div className="eyebrow mb-4 !text-primary">Make it land</div>
-          <ol className="space-y-3">
-            {a.what_got_lost.makeItLand.map((m, i) => (
-              <li key={m} className="flex gap-3 text-[14px]">
-                <span className="font-mono text-primary">0{i + 1}</span>
-                <span>{m}</span>
-              </li>
-            ))}
-          </ol>
-
-          <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-4">
-            <div className="eyebrow mb-1 !text-primary">One thing to fix</div>
-            <p className="text-[14px] leading-6">{a.retry_instruction}</p>
-            {onRetry && (
-              <button
-                className="btn btn-primary btn-sm mt-3 w-full"
-                onClick={onRetry}
-              >
-                Retry with this focus →
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── 3. HELPED / IMPROVE ───────── */}
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="glass p-6">
-          <div className="eyebrow mb-3">What helped</div>
-          {a.strengths.map((s) => (
-            <div key={s} className="flex gap-2 py-1 text-[14px]">
-              <span className="text-success">+</span>
-              <span>{s}</span>
-            </div>
-          ))}
-        </div>
-        <div className="glass p-6">
-          <div className="eyebrow mb-3">What to improve</div>
-          {a.improvements.map((s) => (
-            <div key={s} className="flex gap-2 py-1 text-[14px]">
-              <span className="text-primary">→</span>
-              <span>{s}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ───────── 4. METRICS STRIP ───────── */}
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          ["Time to point", a.main_point_delay ? `${a.main_point_delay}s` : "—"],
-          ["Words", a.word_count],
-          ["Words / min", a.wpm || "—"],
-          ["Filler words", a.filler_words.reduce((x, f) => x + f.count, 0)],
-          ["Sentences", a.sentence_count],
-          ["Avg sentence", `${a.avg_sentence_length} words`],
-          ["Pauses", a.pauses ?? "—"],
-          ["Repeated", a.repeated_words.map((r) => r.word).join(", ") || "None"],
-        ].map(([l, v]) => (
-          <div key={l as string} className="glass p-4">
-            <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              {l}
-            </div>
-            <div className="mt-1 truncate font-display text-[20px] font-bold">{v}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* ───────── 5. EIGHT DIMENSIONS — GRID WITH EXPAND ───────── */}
-      {a.overall > 0 && (
-        <section className="glass p-6 md:p-7">
-          <div className="flex items-baseline justify-between">
-            <div>
-              <div className="eyebrow !text-primary">Eight dimensions</div>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Tap a dimension to see what happened and what it means.
+            <div className="glass p-6">
+              <div className="eyebrow mb-3 !text-primary">Example structure</div>
+              <p className="whitespace-pre-wrap text-[14px] leading-relaxed">
+                {a.example_structure}
+              </p>
+              <p className="mt-4 text-[11px] text-muted-foreground">
+                An example structure — not the correct answer. Use your own words.
               </p>
             </div>
+          </section>
+
+          {a.rework && (
+            <section className="glass p-6">
+              <div className="eyebrow mb-3 !text-primary">Your words, reworked</div>
+              <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{a.rework}</p>
+              <p className="mt-4 text-[11px] text-muted-foreground">
+                An example of how this could sound — not a script. Use your own words.
+              </p>
+            </section>
+          )}
+
+          {/* 5. RECOMMENDED DRILL */}
+          {drill && (
+            <section className="glass flex flex-wrap items-center justify-between gap-4 p-6">
+              <div>
+                <div className="eyebrow mb-1 !text-primary">Recommended drill</div>
+                <div className="font-display text-[20px] font-bold">{drill.name}</div>
+                <div className="text-[13px] text-muted-foreground">{drill.objective}</div>
+              </div>
+              <Link
+                to="/drills/$drillId"
+                params={{ drillId: drill.id }}
+                className="btn btn-primary"
+              >
+                Start drill →
+              </Link>
+            </section>
+          )}
+        </>
+      )}
+
+      {/* ═══════════════════════════════════════════════════
+          ANALYTICS TAB — the data
+         ═══════════════════════════════════════════════════ */}
+      {tab === "analytics" && (
+        <>
+          {/* Intro */}
+          <div className="glass p-5 md:p-6">
+            <div className="eyebrow mb-1 !text-primary">Response metrics</div>
+            <p className="text-[13px] leading-6 text-muted-foreground">
+              The raw data behind your score. Compare against your next attempt to see what changed.
+            </p>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {DIMENSIONS.map((d) => (
-              <DimensionCard
-                key={d}
-                dimension={d}
-                score={a.dimensions[d]?.score ?? 0}
-                open={open === d}
-                onClick={() => setOpen(open === d ? null : d)}
-              />
+          {/* Metrics strip */}
+          <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {[
+              ["Time to point", a.main_point_delay ? `${a.main_point_delay}s` : "—"],
+              ["Words", a.word_count],
+              ["Words / min", a.wpm || "—"],
+              ["Filler words", a.filler_words.reduce((x, f) => x + f.count, 0)],
+              ["Sentences", a.sentence_count],
+              ["Avg sentence", `${a.avg_sentence_length} words`],
+              ["Pauses", a.pauses ?? "—"],
+              ["Repeated", a.repeated_words.map((r) => r.word).join(", ") || "None"],
+            ].map(([l, v]) => (
+              <div key={l as string} className="glass p-4">
+                <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {l}
+                </div>
+                <div className="mt-1 truncate font-display text-[20px] font-bold">{v}</div>
+              </div>
             ))}
-          </div>
+          </section>
 
-          {open && a.dimensions[open as keyof typeof a.dimensions] && (
-            <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+          {/* Eight dimensions */}
+          {a.overall > 0 && (
+            <section className="glass p-6 md:p-7">
               <div className="flex items-baseline justify-between">
-                <div className="eyebrow !text-primary">{open.toUpperCase()}</div>
-                <button
-                  className="text-[12px] text-muted-foreground hover:text-foreground"
-                  onClick={() => setOpen(null)}
-                >
-                  Close ✕
-                </button>
-              </div>
-              <div className="mt-3 space-y-2 text-[14px] leading-6">
-                <p>
-                  <span className="text-muted-foreground">What happened: </span>
-                  {a.dimensions[open as keyof typeof a.dimensions].happened}
-                </p>
-                {a.dimensions[open as keyof typeof a.dimensions].evidence && (
-                  <p className="text-[13px] italic text-muted-foreground">
-                    {a.dimensions[open as keyof typeof a.dimensions].evidence}
+                <div>
+                  <div className="eyebrow !text-primary">Eight dimensions</div>
+                  <p className="mt-1 text-[13px] text-muted-foreground">
+                    Tap a dimension to see what happened and what it means.
                   </p>
-                )}
-                <p>
-                  <span className="text-primary">What it means: </span>
-                  {a.dimensions[open as keyof typeof a.dimensions].tryThis}
-                </p>
+                </div>
               </div>
-            </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {DIMENSIONS.map((d) => (
+                  <DimensionCard
+                    key={d}
+                    dimension={d}
+                    score={a.dimensions[d]?.score ?? 0}
+                    open={open === d}
+                    onClick={() => setOpen(open === d ? null : d)}
+                  />
+                ))}
+              </div>
+
+              {open && a.dimensions[open as keyof typeof a.dimensions] && (
+                <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+                  <div className="flex items-baseline justify-between">
+                    <div className="eyebrow !text-primary">{open.toUpperCase()}</div>
+                    <button
+                      className="text-[12px] text-muted-foreground hover:text-foreground"
+                      onClick={() => setOpen(null)}
+                    >
+                      Close ✕
+                    </button>
+                  </div>
+                  <div className="mt-3 space-y-2 text-[14px] leading-6">
+                    <p>
+                      <span className="text-muted-foreground">What happened: </span>
+                      {a.dimensions[open as keyof typeof a.dimensions].happened}
+                    </p>
+                    {a.dimensions[open as keyof typeof a.dimensions].evidence && (
+                      <p className="text-[13px] italic text-muted-foreground">
+                        {a.dimensions[open as keyof typeof a.dimensions].evidence}
+                      </p>
+                    )}
+                    <p>
+                      <span className="text-primary">What it means: </span>
+                      {a.dimensions[open as keyof typeof a.dimensions].tryThis}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
-
-      {/* ───────── 6. ORIGINAL / EXAMPLE / REWORK ───────── */}
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="glass p-6">
-          <button
-            onClick={() => setTranscriptOpen((v) => !v)}
-            className="flex w-full items-center justify-between gap-4 text-left"
-            aria-expanded={transcriptOpen}
-          >
-            <span className="eyebrow">Your original response</span>
-            <ChevronDown
-              className={`size-4 shrink-0 text-muted-foreground transition-transform ${
-                transcriptOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-          {transcriptOpen && (
-            <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
-              {transcript}
-            </p>
-          )}
-          {!transcriptOpen && (
-            <p className="mt-2 text-[12px] text-muted-foreground">
-              Tap to see what you said.
-            </p>
-          )}
-        </div>
-
-        <div className="glass p-6">
-          <div className="eyebrow mb-3 !text-primary">Example structure</div>
-          <p className="whitespace-pre-wrap text-[14px] leading-relaxed">
-            {a.example_structure}
-          </p>
-          <p className="mt-4 text-[11px] text-muted-foreground">
-            An example structure — not the correct answer. Use your own words.
-          </p>
-        </div>
-      </section>
-
-      {a.rework && (
-        <section className="glass p-6">
-          <div className="eyebrow mb-3 !text-primary">Your words, reworked</div>
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{a.rework}</p>
-          <p className="mt-4 text-[11px] text-muted-foreground">
-            An example of how this could sound — not a script. Use your own words.
-          </p>
-        </section>
-      )}
-
-      {/* ───────── 7. RECOMMENDED DRILL ───────── */}
-      {drill && (
-        <section className="glass flex flex-wrap items-center justify-between gap-4 p-6">
-          <div>
-            <div className="eyebrow mb-1 !text-primary">Recommended drill</div>
-            <div className="font-display text-[20px] font-bold">{drill.name}</div>
-            <div className="text-[13px] text-muted-foreground">{drill.objective}</div>
-          </div>
-          <Link
-            to="/drills/$drillId"
-            params={{ drillId: drill.id }}
-            className="btn btn-primary"
-          >
-            Start drill →
-          </Link>
-        </section>
+        </>
       )}
     </div>
   );
