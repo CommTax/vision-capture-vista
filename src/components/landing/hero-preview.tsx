@@ -83,7 +83,7 @@ export function HeroPreview() {
     };
   }, [reduced]);
 
-  const seconds = Math.min(40, Math.round(visible * SECONDS_PER_WORD));
+  const seconds = Math.min(36, Math.round(visible * SECONDS_PER_WORD));
   const timer = formatTime(seconds);
   const listening = seconds < 20;
   const status = listening
