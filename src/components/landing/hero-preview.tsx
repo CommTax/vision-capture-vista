@@ -1,26 +1,103 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mic, Sparkles } from "lucide-react";
 
-const TRANSCRIPT_WORDS = [
-  "So", "basically", "I", "worked", "on", "a", "few", "things,", "and", "um,",
-  "mostly", "backend,", "but", "also", "some", "other", "stuff…",
+// ─────────────────────────────────────────────────────────────
+// Script — the "response" being recorded.
+// Words flagged `filler` get a coral underline as they land.
+// ─────────────────────────────────────────────────────────────
+type ScriptWord = { text: string; filler?: boolean };
+
+const SCRIPT: ScriptWord[] = [
+  { text: "So" },
+  { text: "basically", filler: true },
+  { text: "I've" },
+  { text: "worked" },
+  { text: "on" },
+  { text: "a" },
+  { text: "few" },
+  { text: "things," },
+  { text: "and" },
+  { text: "um,", filler: true },
+  { text: "mostly" },
+  { text: "backend," },
+  { text: "but" },
+  { text: "also" },
+  { text: "some" },
+  { text: "other" },
+  { text: "stuff,", filler: true },
+  { text: "and" },
+  { text: "I" },
+  { text: "think" },
+  { text: "what" },
+  { text: "drives" },
+  { text: "me" },
+  { text: "is" },
+  { text: "learning…" },
 ];
 
-const EASE = [0.32, 0.72, 0, 1] as const;
+// Loop timings (ms)
+const T_START = 400;
+const T_WORD = 320;
+const T_AFTER_LAST = 1400;
+const T_CYCLE_RESTART = 1000;
 
-/**
- * Hero right-side visual: a live-typing transcript simulation
- * with a score chip and a "what got lost" callout. Loops every
- * ~8s. Respects prefers-reduced-motion.
- */
+// Total runtime ≈ 40s across ~25 words → ~1.6s of "recording" per word.
+const SECONDS_PER_WORD = 1.6;
+
+// Coral (matches the destructive accent in the rest of the product).
+const CORAL = "rgb(249, 115, 111)";
+const BRONZE = "rgb(180, 120, 90)";
 
 export function HeroPreview() {
   const reduced = useReducedMotion();
+  const [visible, setVisible] = useState<number>(reduced ? SCRIPT.length : 0);
+
+  useEffect(() => {
+    if (reduced) return;
+    let cancelled = false;
+    let tid: number | undefined;
+
+    const run = () => {
+      if (cancelled) return;
+      setVisible(0);
+      let i = 0;
+      const step = () => {
+        if (cancelled) return;
+        i += 1;
+        setVisible(i);
+        if (i < SCRIPT.length) {
+          tid = window.setTimeout(step, T_WORD);
+        } else {
+          tid = window.setTimeout(() => {
+            tid = window.setTimeout(run, T_CYCLE_RESTART);
+          }, T_AFTER_LAST);
+        }
+      };
+      tid = window.setTimeout(step, T_START);
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+      if (tid) window.clearTimeout(tid);
+    };
+  }, [reduced]);
+
+  const seconds = Math.min(40, Math.round(visible * SECONDS_PER_WORD));
+  const timer = formatTime(seconds);
+  const listening = seconds < 20;
+  const status = listening
+    ? "Listening for your point…"
+    : "Still waiting for your point…";
+
+  // Pattern chips fade in once we're past ~30s of "recording".
+  const showPatterns = visible >= 19;
+  // "Analysis pending" appears for the last beat, then the loop restarts.
+  const showScores = visible >= SCRIPT.length - 1;
 
   return (
     <div className="relative mx-auto w-full max-w-[420px]">
-      {/* Ambient glow */}
+      {/* Ambient glow behind the card */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-12 rounded-full opacity-60 blur-3xl"
@@ -34,9 +111,9 @@ export function HeroPreview() {
         className="relative glass-float overflow-hidden rounded-3xl p-5 md:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: EASE }}
+        transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
       >
-        {/* Header row */}
+        {/* Header: REC dot + timer */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="relative grid size-7 place-items-center rounded-full bg-destructive/15">
@@ -46,126 +123,123 @@ export function HeroPreview() {
                 }`}
               />
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-              Recording · 00:12
+            <span className="rounded-md bg-destructive/15 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-destructive">
+              Recording
             </span>
           </div>
-          <Mic className="size-4 text-muted-foreground" />
+          <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-[11px] tabular-nums text-foreground/80">
+            {timer}
+          </span>
         </div>
 
-        {/* Transcript — word-by-word reveal, loops */}
-        <div className="mt-5 min-h-[72px] text-[15px] leading-6">
-          {reduced ? (
-            <span className="text-foreground/85">{TRANSCRIPT_WORDS.join(" ")}</span>
-          ) : (
-            TRANSCRIPT_WORDS.map((w, i) => (
+        {/* Waveform — lit bars track progress */}
+        <div className="mt-4 flex h-9 items-center gap-[3px]" aria-hidden>
+          {Array.from({ length: 34 }, (_, i) => {
+            const seed = Math.abs(Math.sin(i * 0.83) * 20) + 4;
+            const active = i < (visible / SCRIPT.length) * 34;
+            return (
+              <span
+                key={i}
+                className="rounded-full transition-colors duration-200"
+                style={{
+                  width: 3,
+                  height: seed,
+                  background: active ? BRONZE : "rgba(180, 120, 90, 0.35)",
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* Transcript: types word by word. Fillers get a coral underline. */}
+        <div className="mt-5 min-h-[80px] text-[15px] leading-7">
+          {SCRIPT.slice(0, visible).map((w, i) => (
+            <motion.span
+              key={`${i}-${w.text}`}
+              className="mr-1 inline-block text-foreground/85"
+              initial={{ opacity: 0, y: 2 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              style={
+                w.filler
+                  ? { borderBottom: `1.5px solid ${CORAL}`, paddingBottom: 1 }
+                  : undefined
+              }
+            >
+              {w.text}
+            </motion.span>
+          ))}
+          {!reduced && visible < SCRIPT.length && (
+            <span
+              className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-foreground/60 align-middle"
+              aria-hidden
+            />
+          )}
+        </div>
+
+        {/* Pattern chips — appear near the end in dark red */}
+        <div className="mt-4 flex min-h-[24px] flex-wrap gap-1.5">
+          {showPatterns &&
+            [
+              { label: "Rambling", delay: 0 },
+              { label: "Scattered", delay: 0.35 },
+            ].map((p) => (
               <motion.span
-                key={`${i}-${w}`}
-                className="inline-block whitespace-pre text-foreground/85"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 1, 1, 0] }}
-                transition={{
-                  duration: 8,
-                  times: [
-                    i / TRANSCRIPT_WORDS.length,
-                    (i + 1) / TRANSCRIPT_WORDS.length,
-                    0.88,
-                    1,
-                  ],
-                  repeat: Infinity,
-                  ease: "linear",
+                key={p.label}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: p.delay, ease: "easeOut" }}
+                className="rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]"
+                style={{
+                  borderColor: "rgba(248, 113, 113, 0.35)",
+                  background: "rgba(248, 113, 113, 0.10)",
+                  color: "rgb(248, 113, 113)",
                 }}
               >
-                {w}{" "}
+                {p.label}
               </motion.span>
-            ))
-          )}
+            ))}
         </div>
 
         {/* Divider */}
         <div className="mt-4 h-px bg-border" />
 
-        {/* Score row */}
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-              Structure
-            </div>
-            <div className="mt-1 flex items-baseline gap-2">
-              <CountUp from={0} to={42} duration={1.6} reduced={!!reduced} />
-              <span className="text-[12px] text-destructive">Low</span>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-border" />
-          <div className="flex-1">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-              Time to point
-            </div>
-            <div className="mt-1 flex items-baseline gap-2">
-              <CountUp from={0} to={23} duration={1.6} reduced={!!reduced} suffix="s" />
-              <span className="text-[12px] text-destructive">Late</span>
-            </div>
-          </div>
+        {/* Status line — flips at 20s */}
+        <div className="mt-3 flex items-center gap-2">
+          <span className="grid size-4 place-items-center">
+            <span
+              className="size-2 animate-spin rounded-full border-2 border-muted-foreground/40 border-t-muted-foreground"
+              style={{ animationDuration: "1.4s" }}
+              aria-hidden
+            />
+          </span>
+          <span className="text-[13px] text-muted-foreground">{status}</span>
         </div>
 
-        {/* What got lost */}
-        <motion.div
-          className="mt-5 flex items-start gap-2.5 rounded-2xl border border-destructive/30 bg-destructive/5 p-3.5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.4, ease: EASE }}
-        >
-          <Sparkles className="mt-0.5 size-4 shrink-0 text-destructive" />
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-destructive">
-              What got lost
-            </div>
-            <p className="mt-1 text-[13px] leading-5 text-foreground/90">
-              Your point arrived at second 38. The role you want never came up.
-            </p>
-          </div>
-        </motion.div>
+        {/* Final beat: "analysis pending" — never shows the verdict */}
+        {showScores && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-4 flex items-center justify-between border-t border-border pt-3"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Analysis pending…
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-primary">
+              <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+              Running
+            </span>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
 }
 
-function CountUp({
-  from,
-  to,
-  duration,
-  suffix = "",
-  reduced,
-}: {
-  from: number;
-  to: number;
-  duration: number;
-  suffix?: string;
-  reduced: boolean;
-}) {
-  const [value, setValue] = useState(from);
-
-  useEffect(() => {
-    if (reduced) {
-      setValue(to);
-      return;
-    }
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / (duration * 1000));
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(Math.round(from + (to - from) * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [from, to, duration, reduced]);
-
-  return (
-    <span className="font-display text-[24px] font-bold leading-none">
-      {value}
-      {suffix}
-    </span>
-  );
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
