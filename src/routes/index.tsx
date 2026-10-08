@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Briefcase, MessageSquareWarning, Presentation } from "lucide-react";
 import { Logo } from "@/components/app-shell";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
@@ -12,9 +12,7 @@ import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
 import { ProofBlock } from "@/components/landing/proof-block";
 import { ScrollReveal } from "@/components/landing/scroll-reveal";
-import { MomentArt } from "@/components/moment-art";
 import type { PracticeMoment } from "@/content/types";
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,38 +29,84 @@ export const Route = createFileRoute("/")({
 });
 
 // ─────────────────────────────────────────────────────────────
+// Premium mode tile — icon plate + glow + footer CTA
+// ─────────────────────────────────────────────────────────────
 
-function MomentTile({ m }: { m: PracticeMoment }) {
+const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
+  interview: Briefcase,
+  "high-stakes": MessageSquareWarning,
+  presentation: Presentation,
+  leadership: Briefcase,
+  persuasion: MessageSquareWarning,
+  custom: Presentation,
+};
+
+function MomentTile({ m, index }: { m: PracticeMoment; index: number }) {
+  const Icon = MOMENT_ICONS[m.id] ?? Briefcase;
+
   return (
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group glass relative flex flex-col overflow-hidden p-6 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+      className="group glass relative flex h-full flex-col overflow-hidden p-6 text-left transition duration-500 hover:-translate-y-1 hover:border-primary/50"
+      style={{ animationDelay: `${index * 80}ms` }}
     >
+      {/* Ambient corner glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-40 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
+        className="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full opacity-40 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
         style={{
-          background: "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+          background: "radial-gradient(closest-side, rgba(139,127,255,0.55), transparent)",
         }}
       />
+
+      {/* Icon plate */}
       <div className="relative">
-        <MomentArt id={m.id} />
+        <div
+          className="relative grid size-14 place-items-center rounded-2xl transition-transform duration-500 group-hover:scale-105"
+          style={{
+            background:
+              "linear-gradient(150deg, rgba(139,127,255,0.22) 0%, rgba(26,16,51,0.5) 60%, rgba(11,13,20,0.6) 100%)",
+            border: "1px solid rgba(139,127,255,0.35)",
+            boxShadow:
+              "0 12px 40px -18px rgba(139,127,255,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
+        >
+          <Icon className="size-6 text-primary" />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            style={{
+              background:
+                "radial-gradient(closest-side, rgba(139,127,255,0.35), transparent)",
+            }}
+          />
+        </div>
       </div>
-      <h3 className="relative mt-5 font-display text-[20px] font-bold leading-snug">
+
+      {/* Title + description */}
+      <h3 className="relative mt-6 font-display text-[22px] font-bold leading-snug">
         {m.name}
       </h3>
-      <p className="relative mt-1.5 text-[13.5px] leading-5 text-muted-foreground">
+      <p className="relative mt-1.5 text-[14px] leading-6 text-muted-foreground">
         {m.description}
       </p>
-      <span className="relative mt-5 inline-flex items-center gap-1 text-[12px] font-semibold text-primary opacity-70 transition-opacity duration-300 group-hover:opacity-100">
-        Practice
-        <ArrowUpRight className="size-3" aria-hidden="true" />
-      </span>
+
+      {/* Bottom CTA row */}
+      <div className="relative mt-auto flex items-center justify-between border-t border-border/60 pt-4 mt-7">
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          Practice
+        </span>
+        <span className="grid size-7 place-items-center rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+          <ArrowUpRight className="size-3.5" />
+        </span>
+      </div>
     </Link>
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// FAQ
 // ─────────────────────────────────────────────────────────────
 
 function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: string; open: boolean; onToggle: () => void }) {
@@ -95,6 +139,8 @@ function FaqSection() {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Layout helpers
+// ─────────────────────────────────────────────────────────────
 
 const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
@@ -103,6 +149,8 @@ function Section({ id, className = "", children }: { id?: string; className?: st
   return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}>{children}</section>;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Landing
 // ─────────────────────────────────────────────────────────────
 
 function Landing() {
@@ -169,12 +217,12 @@ function Landing() {
               {hero.body}
             </p>
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
-<div className="mt-9">
-  <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
-    {signedIn ? hero.ctaSignedIn : hero.cta}
-    <ArrowRight className="ml-1 size-4" />
-  </button>
-</div>
+            <div className="mt-9">
+              <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
+                {signedIn ? hero.ctaSignedIn : hero.cta}
+                <ArrowRight className="ml-1 size-4" />
+              </button>
+            </div>
           </div>
 
           {/* Right: animated preview */}
@@ -184,12 +232,12 @@ function Landing() {
         </div>
       </section>
 
-      {/* HOW IT WORKS — animated walkthrough (existing component) */}
+      {/* HOW IT WORKS — animated walkthrough */}
       <section id="how">
         <HowItWorksDemo />
       </section>
 
-      {/* PRACTICE MOMENTS — 3 cards */}
+      {/* PRACTICE MOMENTS — 3 premium cards */}
       <Section id="modes" className="!py-14 md:!py-20">
         <ScrollReveal>
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -205,8 +253,8 @@ function Landing() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {moments.map((m, i) => (
-            <ScrollReveal key={m.id} delay={i * 80}>
-              <MomentTile m={m} />
+            <ScrollReveal key={m.id} delay={i * 80} className="h-full">
+              <MomentTile m={m} index={i} />
             </ScrollReveal>
           ))}
         </div>
@@ -238,7 +286,7 @@ function Landing() {
 
         <div className="mt-12 grid gap-4 md:grid-cols-3">
           {plans.map((t, i) => (
-            <ScrollReveal key={t.id} delay={i * 80}>
+            <ScrollReveal key={t.id} delay={i * 80} className="h-full">
               <div
                 className={`glass relative flex h-full flex-col p-8 ${
                   t.highlighted ? "glass-float border-primary/50" : ""
