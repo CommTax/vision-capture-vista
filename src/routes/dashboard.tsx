@@ -1,6 +1,7 @@
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Flame, Instagram, MessageCircle, Share2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Flame, Instagram, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { cap } from "@/components/analysis-view";
 import { PATTERNS, modeName, type Dimension } from "@/lib/data";
@@ -68,8 +69,6 @@ function shareToWhatsApp(text: string) {
 }
 
 async function shareToInstagram(text: string) {
-  // Instagram has no direct web share endpoint. Use Web Share API if available
-  // (mobile Safari/Chrome), which shows IG in the share sheet. Fall back to copy.
   if (typeof navigator !== "undefined" && (navigator as any).share) {
     try {
       await (navigator as any).share({ text });
@@ -78,7 +77,6 @@ async function shareToInstagram(text: string) {
       // user cancelled or not allowed — fall through to copy
     }
   }
-  // Fallback: copy to clipboard and open Instagram
   try {
     await navigator.clipboard.writeText(text);
     alert("Copied to clipboard. Paste it into your Instagram story.");
@@ -94,6 +92,19 @@ function Dashboard() {
     name: session?.name ?? "",
     email: session?.email ?? "",
   } as { name: string; email: string };
+
+  // ─── Collapsible state for recent responses ───
+  const [responsesOpen, setResponsesOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setResponsesOpen(localStorage.getItem("dashboard-responses-open") === "1");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("dashboard-responses-open", responsesOpen ? "1" : "0");
+  }, [responsesOpen]);
 
   const rs = reps;
   const days = reps.map((r) => r.created_at.slice(0, 10));
@@ -117,17 +128,10 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header (greeting + stats, no title) */}
+      {/* 1. Header — greeting + stats (no CTA button) */}
       <header className="rise pt-2">
         <div className="eyebrow mb-3">Good to see you, {profile.name}</div>
         <div className="mt-2 flex flex-wrap items-center gap-5">
-          <Link
-            to="/practice/$questionId"
-            params={{ questionId: CHALLENGES[0].id }}
-            className="btn btn-primary px-6 py-3 text-[15px]"
-          >
-            Start today's practice →
-          </Link>
           <div className="flex gap-5 font-mono text-[12px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Flame className="size-3.5 text-primary" />
@@ -139,7 +143,7 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* 2. Pattern card — the hero. User's name + pattern + share actions all in one card. */}
+      {/* 2. Pattern card — the hero. User's name + pattern + share actions. */}
       <section
         className="relative overflow-hidden rounded-3xl p-7"
         style={{
@@ -150,7 +154,6 @@ function Dashboard() {
             "0 20px 60px -20px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
-        {/* subtle glow accent in the corner */}
         <div
           aria-hidden
           style={{
@@ -207,7 +210,7 @@ function Dashboard() {
           <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
         </div>
 
-        {/* Share row */}
+        {/* Share row (no more "Practice this →") */}
         <div className="relative mt-6 flex flex-wrap items-center gap-3">
           <span className="text-[12px] text-muted-foreground">
             Share your pattern:
@@ -236,13 +239,6 @@ function Dashboard() {
             <Instagram className="size-4" />
             Instagram
           </button>
-          <Link
-            to="/practice/$questionId"
-            params={{ questionId: CHALLENGES[0].id }}
-            className="ml-auto text-[13px] text-primary"
-          >
-            Practice this →
-          </Link>
         </div>
       </section>
 
@@ -302,60 +298,93 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 5. Recent responses */}
+      {/* 5. Recent responses — collapsible */}
       <section className="glass p-7">
-        <div className="mb-1 flex justify-between">
-          <h2 className="text-[22px] font-bold">Your recent responses</h2>
-          <Link to="/responses" className="text-[12px] text-primary">All responses →</Link>
-        </div>
-        <p className="mb-4 text-[14px] text-muted-foreground">See what changed from one attempt to the next.</p>
-        {rs.length === 0 ? (
-          <p className="text-[14px] text-muted-foreground">
-            No responses yet. <Link to="/practice" className="text-primary">Start your first rep.</Link>
-          </p>
-        ) : (
-          <div className="divide-y divide-border">
-            {rs.slice(0, 4).map((r) => {
-              const prev = r.parent_id ? byId.get(r.parent_id) : undefined;
-              const from = prev ? PATTERNS[prev.analysis.primary_pattern]?.short : undefined;
-              const to = PATTERNS[r.analysis.primary_pattern]?.short ?? "";
-              return (
-                <Link
-                  key={r.id}
-                  to="/responses/$responseId"
-                  params={{ responseId: r.id }}
-                  className="grid gap-2 py-4 md:grid-cols-12 md:items-center"
-                >
-                  <div className="md:col-span-6">
-                    <div className="text-[15px] font-medium">"{r.question}"</div>
-                    <div className="mt-1 text-[13px] text-muted-foreground">{insight(r, prev)}</div>
-                  </div>
-                  <div className="font-mono text-[12px] md:col-span-3">
-                    {from && from !== to ? (
-                      <>
-                        <span className="text-muted-foreground line-through">{from}</span>{" "}
-                        <span className="text-primary">→</span>{" "}
-                      </>
-                    ) : null}
-                    <span>{to}</span>
-                    {prev && (
-                      <div className="mt-1 text-muted-foreground">
-                        Structure {prev.analysis.scores.structure} →{" "}
-                        <span className="text-primary">{r.analysis.scores.structure}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="font-mono text-[11px] text-muted-foreground md:col-span-3 md:text-right">
-                    {modeName(r.mode).toUpperCase()} · ATTEMPT {r.attempt}
-                    <div className="mt-1">
-                      STR {r.analysis.scores.structure} · CLR {r.analysis.scores.clarity} · IMP {r.analysis.scores.impact}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+        <button
+          type="button"
+          onClick={() => setResponsesOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-4 text-left"
+          aria-expanded={responsesOpen}
+          aria-controls="recent-responses-content"
+        >
+          <div>
+            <h2 className="text-[22px] font-bold">Your recent responses</h2>
+            <p className="mt-1 text-[14px] text-muted-foreground">
+              See what changed from one attempt to the next.
+            </p>
           </div>
-        )}
+          <span
+            aria-hidden="true"
+            className={`shrink-0 font-mono text-[20px] text-primary transition-transform duration-300 ${
+              responsesOpen ? "rotate-45" : ""
+            }`}
+          >
+            +
+          </span>
+        </button>
+
+        <div
+          id="recent-responses-content"
+          className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
+            responsesOpen ? "mt-4 grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden">
+            {rs.length === 0 ? (
+              <p className="text-[14px] text-muted-foreground">
+                No responses yet.{" "}
+                <Link to="/practice" className="text-primary">Start your first rep.</Link>
+              </p>
+            ) : (
+              <div className="divide-y divide-border">
+                {rs.slice(0, 4).map((r) => {
+                  const prev = r.parent_id ? byId.get(r.parent_id) : undefined;
+                  const from = prev ? PATTERNS[prev.analysis.primary_pattern]?.short : undefined;
+                  const to = PATTERNS[r.analysis.primary_pattern]?.short ?? "";
+                  return (
+                    <Link
+                      key={r.id}
+                      to="/responses/$responseId"
+                      params={{ responseId: r.id }}
+                      className="grid gap-2 py-4 md:grid-cols-12 md:items-center"
+                    >
+                      <div className="md:col-span-6">
+                        <div className="text-[15px] font-medium">"{r.question}"</div>
+                        <div className="mt-1 text-[13px] text-muted-foreground">{insight(r, prev)}</div>
+                      </div>
+                      <div className="font-mono text-[12px] md:col-span-3">
+                        {from && from !== to ? (
+                          <>
+                            <span className="text-muted-foreground line-through">{from}</span>{" "}
+                            <span className="text-primary">→</span>{" "}
+                          </>
+                        ) : null}
+                        <span>{to}</span>
+                        {prev && (
+                          <div className="mt-1 text-muted-foreground">
+                            Structure {prev.analysis.scores.structure} →{" "}
+                            <span className="text-primary">{r.analysis.scores.structure}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="font-mono text-[11px] text-muted-foreground md:col-span-3 md:text-right">
+                        {modeName(r.mode).toUpperCase()} · ATTEMPT {r.attempt}
+                        <div className="mt-1">
+                          STR {r.analysis.scores.structure} · CLR {r.analysis.scores.clarity} · IMP {r.analysis.scores.impact}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                <div className="pt-4">
+                  <Link to="/responses" className="text-[13px] text-primary">
+                    View all responses →
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* 6. Changes */}
