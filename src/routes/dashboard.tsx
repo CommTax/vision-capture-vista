@@ -296,7 +296,7 @@ function Dashboard() {
                 </p>
               </div>
               <div className="flex flex-col justify-center md:col-span-5">
-                <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em]">
+                <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] tracking-[0.12em]">
                   {chainText.map((c, i) => (
                     <span key={c + i} className="flex items-center gap-2">
                       {i > 0 && <span className="text-primary">→</span>}
