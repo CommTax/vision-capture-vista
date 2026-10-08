@@ -141,9 +141,6 @@ function Practice() {
   // Which scenario is currently shown in each visible slot.
   const [slots, setSlots] = useState<Scenario[]>([]);
 
-  // Full catalog for the selected mode (fallback when the pool is small).
-  const [allForMode, setAllForMode] = useState<Scenario[]>([]);
-
   // Persist selected role to localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -157,7 +154,6 @@ function Practice() {
     if (!mode || mode === "custom") {
       setPool([]);
       setSlots([]);
-      setAllForMode([]);
       return;
     }
 
@@ -175,7 +171,6 @@ function Practice() {
       .then(({ scenarios, source }) => {
         if (cancelled) return;
         setPool(scenarios);
-        setAllForMode(scenarios);
         setSlots(scenarios.slice(0, VISIBLE_COUNT));
         setLibrarySource(source);
       })
@@ -337,7 +332,7 @@ function Practice() {
   return (
     <div className="space-y-10">
       <div>
-        <PageHead eyebrow="Practice" title="What do you need to say next?" />
+        <PageHead eyebrow="" title="What do you need to say next?" />
         <p className="-mt-6 text-[15px] text-muted-foreground">
           Choose a real situation. Practice your response. See what gets lost.
         </p>
@@ -406,29 +401,29 @@ function Practice() {
       {/* 3. Categories */}
       <section>
         <h2 className="text-[22px] font-bold flex items-baseline justify-between">
-  Practice a situation
-  <span className="font-mono text-[11px] text-muted-foreground font-normal sm:hidden">
-    Swipe →
-  </span>
-</h2>
-<div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
-  {MODES.map((m) => (
-    <button
-      key={m.id}
-      onClick={() => setMode((c) => (c === m.id ? null : m.id))}
-      className={`glass w-[75vw] max-w-[280px] shrink-0 snap-start p-4 text-left transition sm:w-auto sm:max-w-none ${
-        mode === m.id
-          ? "border-primary/60 bg-primary/10"
-          : "hover:bg-glass-strong"
-      }`}
-    >
-      <div className="font-display text-[16px] font-bold">{m.name}</div>
-      <p className="mt-1 text-[12px] text-muted-foreground">
-        {CATEGORY_BLURB[m.id] ?? m.blurb}
-      </p>
-    </button>
-  ))}
-</div>
+          Practice a situation
+          <span className="font-mono text-[11px] text-muted-foreground font-normal sm:hidden">
+            Swipe →
+          </span>
+        </h2>
+        <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setMode((c) => (c === m.id ? null : m.id))}
+              className={`glass w-[75vw] max-w-[280px] shrink-0 snap-start p-4 text-left transition sm:w-auto sm:max-w-none ${
+                mode === m.id
+                  ? "border-primary/60 bg-primary/10"
+                  : "hover:bg-glass-strong"
+              }`}
+            >
+              <div className="font-display text-[16px] font-bold">{m.name}</div>
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                {CATEGORY_BLURB[m.id] ?? m.blurb}
+              </p>
+            </button>
+          ))}
+        </div>
 
         {/* 4. Library for the chosen category */}
         {mode === "custom" && ent.free && (
@@ -568,7 +563,6 @@ function Practice() {
             No questions in this mode yet.
           </div>
         )}
-
       </section>
     </div>
   );
