@@ -13,6 +13,7 @@ const EASE = [0.32, 0.72, 0, 1] as const;
  * with a score chip and a "what got lost" callout. Loops every
  * ~8s. Respects prefers-reduced-motion.
  */
+
 export function HeroPreview() {
   const reduced = useReducedMotion();
 
