@@ -63,7 +63,7 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 function dynamicFocus(
   rs: ResponseRecord[],
   dimension: Dimension,
-): { why?: string; chain?: string[]; move?: string } | null {
+): { why?: string; chain?: string[] } | null {
   // Latest drill with real scores
   const latest = rs.find((r) => r.analysis && r.analysis.overall > 0);
   if (!latest) return null;
@@ -76,9 +76,6 @@ function dynamicFocus(
     a.dimensions?.[dimension]?.tryThis ||
     a.summary ||
     undefined;
-
-  // "Move" line — same source; it's what to do next
-  const move = why;
 
   // Chain chips — parse from the LLM's example structure
   const chain: string[] | undefined = (() => {
@@ -94,7 +91,7 @@ function dynamicFocus(
     return parts.length >= 2 ? parts.slice(0, 3) : undefined;
   })();
 
-  return { why, chain, move };
+  return { why, chain };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -288,17 +285,16 @@ function Dashboard() {
           const dyn = dynamicFocus(rs, cp.focus as Dimension);
           const whyText = dyn?.why || f.why;
           const chainText = dyn?.chain && dyn.chain.length > 0 ? dyn.chain : f.chain;
-          const moveText = dyn?.move || f.move;
 
           return (
             <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
-<div className="md:col-span-7">
-  <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
-  <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
-  <p className="mt-3 text-[15px] text-muted-foreground">
-    That's why your current focus is <b className="text-primary">{focus}</b>.
-  </p>
-</div>
+              <div className="md:col-span-7">
+                <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
+                <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
+                <p className="mt-3 text-[15px] text-muted-foreground">
+                  That's why your current focus is <b className="text-primary">{focus}</b>.
+                </p>
+              </div>
               <div className="flex flex-col justify-center md:col-span-5">
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em]">
                   {chainText.map((c, i) => (
