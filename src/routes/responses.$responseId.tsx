@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { modeName } from "@/lib/data";
-import { AICoach } from "@/components/ai-coach";
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { normalizeBackendAnalysis } from "@/lib/analysis";
 import type { ResponseRecord } from "@/lib/store";
@@ -169,7 +168,6 @@ function Detail() {
 
       <AnalysisView a={rec.analysis} transcript={rec.transcript} />
 
-      <AICoach r={rec} level={level} />
-    </div>
+     </div>
   );
 }
