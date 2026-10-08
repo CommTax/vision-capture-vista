@@ -1,13 +1,15 @@
 // Single home for fallback content. Only the data provider imports this file.
 import type { DrillTeaser, FAQItem, HomepageContent, PracticeMoment, PricingPlan } from "./types";
 
+// ── Moments — trimmed to 3 for a focused landing page ──
 export const FALLBACK_MOMENTS: PracticeMoment[] = [
-  { id: "interview", name: "Interview", description: "Behavioral questions, difficult projects, leadership stories.", category: "interview", icon: "briefcase", common: true, active: true },
-  { id: "high-stakes", name: "High-stakes conversation", description: "Disagree, give feedback, handle sensitive moments.", category: "conversation", icon: "message", active: true },
-  { id: "presentation", name: "Presentation", description: "Recommendations and concise executive explanations.", category: "presentation", icon: "presentation", active: true },
-  { id: "leadership", name: "Leadership", description: "Executive updates, ambiguity, difficult decisions.", category: "everyday", icon: "crown", active: true },
-  { id: "persuasion", name: "Persuasion", description: "Influence stakeholders and get buy-in.", category: "sales", icon: "handshake", active: true },
-  { id: "custom", name: "Custom", description: "Practice any situation.", category: "custom", icon: "sparkles", active: true },
+  { id: "interview", name: "Interview", description: "Walk in with your answers already tested.", category: "interview", icon: "briefcase", common: true, active: true },
+  { id: "high-stakes", name: "Difficult conversation", description: "Say it honestly. Stay calm.", category: "conversation", icon: "message", active: true },
+  { id: "presentation", name: "Presentation", description: "Lead with the point.", category: "presentation", icon: "presentation", active: true },
+  // Kept in the data but disabled — surfaced only via "practice your own question"
+  { id: "leadership", name: "Leadership", description: "Executive updates, ambiguity, difficult decisions.", category: "everyday", icon: "crown", active: false },
+  { id: "persuasion", name: "Persuasion", description: "Influence stakeholders and get buy-in.", category: "sales", icon: "handshake", active: false },
+  { id: "custom", name: "Custom", description: "Practice any situation.", category: "custom", icon: "sparkles", active: false },
 ];
 
 export const FALLBACK_HOMEPAGE: HomepageContent = {
@@ -17,7 +19,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     headlineAccent: "rambling",
     rotatingWords: ["Rambling", "Scattered", "Unclear", "Forgettable"],
     body: "Practice the moment. See what got lost. Say it again.",
-    audience: "For job seekers, managers and students.",
+    audience: "For job seekers & students preparing for interviews.",
     cta: "Try TheUnspoken Free",
     ctaSignedIn: "Start Practicing",
     mobileHeadline: "Practice for moments that matter.",
@@ -87,19 +89,63 @@ export const FALLBACK_DRILL_TEASERS: DrillTeaser[] = [
   { id: "specific", title: "Make It Specific", description: "Replace vague claims with evidence.", targetSkill: "relevance", duration: 3, difficulty: "Medium", active: true },
 ];
 
+// ── Pricing — outcome-first bullets, real future prices ──
 export const FALLBACK_PRICING: PricingPlan[] = [
-  { id: "free", name: "Free", price: 0, currency: "INR", billingPeriod: "once", features: ["First practices", "Basic analysis", "Your pattern"], cta: "Start Practicing", active: true },
-  { id: "practice", name: "Practice", price: 499, currency: "INR", billingPeriod: "month", features: ["Unlimited practice", "Detailed analysis", "Voice + text", "History", "Drills", "Progress"], cta: "Choose Plan", highlighted: true, active: true },
-  { id: "sprint", name: "Sprint", price: 1499, currency: "INR", billingPeriod: "program", features: ["Goal-specific practice", "Advanced analysis", "Personalized drills", "Progress report"], cta: "Start Sprint", active: true },
+  {
+    id: "free",
+    name: "Free",
+    price: 0,
+    currency: "INR",
+    billingPeriod: "once",
+    features: [
+      "5 practices, no card needed",
+      "See your pattern",
+      "Get one tighter rewrite",
+    ],
+    cta: "Start free",
+    active: true,
+  },
+  {
+    id: "practice",
+    name: "Practice",
+    price: 499,
+    currency: "INR",
+    billingPeriod: "month",
+    features: [
+      "Unlimited practice, voice or text",
+      "Drills that target your weakest area",
+      "Track your progress over time",
+    ],
+    cta: "Keep improving",
+    highlighted: false,
+    active: true,
+  },
+  {
+    id: "sprint",
+    name: "Sprint",
+    price: 1499,
+    currency: "INR",
+    billingPeriod: "program",
+    features: [
+      "14 days, built around one goal",
+      "Daily practice with a weekly check-in",
+      "Final report showing what changed",
+    ],
+    cta: "Start Sprint",
+    highlighted: true,
+    badge: "Best for upcoming interviews",
+    active: true,
+  },
 ];
 
 export const FALLBACK_FAQ: FAQItem[] = [
   { id: "what", question: "What is TheUnspoken?", answer: "TheUnspoken is a practice platform for important communication moments. You practice a real response, see what got lost, understand why, and try again." },
   { id: "practice", question: "What can I practice?", answer: "You can practice interviews, presentations, leadership communication, difficult conversations, persuasion, professional updates, group discussions, and custom situations." },
   { id: "feedback", question: "How does TheUnspoken give feedback?", answer: "TheUnspoken analyzes what you actually said and identifies specific patterns such as structure, clarity, conciseness, relevance, impact, delivery, confidence, and memorability." },
-  { id: "script", question: "Is TheUnspoken writing answers for me?", answer: "No. TheUnspoken is designed around practice rather than giving you a script to memorize. The goal is to help you improve how you communicate your own ideas." },
+  { id: "script", question: "Is TheUnspoken writing answers for me?", answer: "No. TheUnspoken shows you what got lost in your own words and offers one example of how it could land better — but the answer has to be yours. We coach you to say it in your own voice, not ours." },
   { id: "voice", question: "Can I practice with text as well as voice?", answer: "Yes. TheUnspoken supports both text and voice practice where available." },
+  { id: "storage", question: "Is my voice recording stored or used to train AI?", answer: "Your recordings are stored securely so you can replay them later and see your progress. We never use your voice or transcripts to train AI models. You can delete any recording from your history at any time." },
   { id: "retry", question: "How does retry work?", answer: "After you respond, TheUnspoken identifies what got lost and gives you a specific thing to work on. You then try the same or a similar moment again so you can see whether your response changed." },
-  { id: "who", question: "Who is TheUnspoken for?", answer: "TheUnspoken is for anyone who needs to communicate clearly when it matters — from interviews and career conversations to presentations, leadership, persuasion, and difficult workplace conversations." },
-  { id: "free", question: "Is there a free version?", answer: "Yes. You can start practicing for free. Paid plans provide more practice, deeper analysis, history, targeted drills, and progress tracking." },
+  { id: "who", question: "Who is TheUnspoken for?", answer: "TheUnspoken is for job seekers and students preparing for interviews — and for anyone who needs to communicate clearly when it matters: presentations, career conversations, leadership, persuasion, and difficult workplace conversations." },
+  { id: "free", question: "Is there a free version?", answer: "Yes. You get 5 free practices, no card needed. Paid plans provide unlimited practice, deeper analysis, history, targeted drills, and progress tracking." },
 ];
