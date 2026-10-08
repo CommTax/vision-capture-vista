@@ -57,9 +57,9 @@ export function FreeCounter() {
 export function Conversion() {
   return (
     <div className="glass glass-float rise p-6 md:p-10">
-      <div className="eyebrow mb-3">You've used today's 5 free questions</div>
+      <div className="eyebrow mb-3">You've hit your free limit</div>
       <h2 className="text-balance text-[clamp(24px,3.5vw,34px)] font-bold">You've found your pattern. Now work on it.</h2>
-      <p className="mt-2 text-[14px] text-primary">Come back tomorrow for 5 more, or unlock now.</p>
+      <p className="mt-2 text-[14px] text-primary">Unlock to keep practising</p>
       <p className="mt-3 max-w-2xl text-[15px] text-muted-foreground">Your free practices showed where your communication gets lost. Keep going with a practice path built around your response patterns — targeted drills, deeper analysis and progress you can see.</p>
       <div className="mt-6 flex flex-wrap gap-3"><Link to="/plans" className="btn btn-primary">Unlock your practice path</Link><Link to="/dashboard" className="btn btn-ghost">See my dashboard</Link></div>
     </div>
