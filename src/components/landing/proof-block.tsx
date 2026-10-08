@@ -5,7 +5,7 @@ const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 
 // Shorter, punchier quotes
 const WHAT_YOU_SAID =
-  "\u201CSo basically I've worked on a few things, and um, mostly backend…\u201D";
+  "\u201CSo basically as software engineer I've worked on a few things, and um, mostly backend, but also some other frontend stuff, you know, like product and a little bit of design, testing and I've always been kind of curious about how things come together…\u201D";
 
 const TIGHTER_VERSION =
   "\u201CI'm a backend engineer with four years in payments. I've cut API latency by 40%, and I'm looking for a team where I can own reliability end to end.\u201D";
