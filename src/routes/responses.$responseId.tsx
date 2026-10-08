@@ -6,6 +6,7 @@ import { modeName } from "@/lib/data";
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { normalizeBackendAnalysis } from "@/lib/analysis";
 import type { ResponseRecord } from "@/lib/store";
+import { toAudioUrl } from "@/lib/r2";
 
 const API_BASE =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
@@ -77,7 +78,7 @@ function Detail() {
           mode: "interview",
           response_type: "voice",
           transcript: payload.analysis?.transcribed_text || "",
-          audio_url: undefined,
+          audio_url: payload.audio_url ?? undefined,        // ← change from undefined
           duration: payload.duration_seconds || 0,
           created_at: payload.created_at || new Date().toISOString(),
           attempt: 1,
@@ -160,9 +161,12 @@ function Detail() {
         )}
       </div>
 
-      {rec.audio_url?.startsWith("http") && (
-        <audio controls src={rec.audio_url} className="w-full" />
-      )}
+{(() => {
+  const src = toAudioUrl(rec.audio_url);
+  return src ? (
+    <audio controls preload="metadata" src={src} className="w-full" />
+  ) : null;
+})()}
 
       {parent && <ComparePanel a1={parent.analysis} a2={rec.analysis} />}
 
