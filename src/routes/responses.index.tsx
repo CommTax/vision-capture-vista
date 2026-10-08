@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppShell, PageHead } from "@/components/app-shell";
+import { AppShell } from "@/components/app-shell";
 import { DIMENSIONS, MODES, PATTERNS, modeName } from "@/lib/data";
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 
@@ -22,7 +22,6 @@ function Responses() {
   // ─── All hooks first, unconditionally ───
   const { reps: rs, loading } = usePaidDashboard();
   const [mode, setMode] = useState("all");
-  const [pattern, setPattern] = useState("all");
   const [skill, setSkill] = useState("structure");
   const [range, setRange] = useState("all");
 
@@ -44,33 +43,33 @@ function Responses() {
   const filtered = rs.filter(
     (r) =>
       (mode === "all" || r.mode === mode) &&
-      (pattern === "all" || r.analysis.primary_pattern === pattern) &&
       new Date(r.created_at).getTime() >= cutoff
   );
 
   const list = filtered;
-  const sel = "field !w-auto !py-2 text-[13px]";
 
   return (
-    <>
-      <PageHead eyebrow="History" title="My Responses" />
+    <div className="space-y-6">
+      {/* Intro line */}
+      <p className="text-[15px] text-muted-foreground">
+        Review your old responses.
+      </p>
 
-      <div className="mb-6 flex flex-wrap gap-3">
+      {/* Filters — horizontal swipe on mobile, wrap on desktop */}
+      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         <select
-          className={sel}
+          className="field !w-auto shrink-0 !py-2 text-[13px]"
           value={mode}
           onChange={(e) => setMode(e.target.value)}
         >
           <option value="all">All modes</option>
           {MODES.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
+            <option key={m.id} value={m.id}>{m.name}</option>
           ))}
         </select>
 
         <select
-          className={sel}
+          className="field !w-auto shrink-0 !py-2 text-[13px]"
           value={range}
           onChange={(e) => setRange(e.target.value)}
         >
@@ -80,29 +79,24 @@ function Responses() {
         </select>
 
         <select
-          className={sel}
+          className="field !w-auto shrink-0 !py-2 text-[13px]"
           value={skill}
           onChange={(e) => setSkill(e.target.value)}
         >
           {DIMENSIONS.map((d) => (
-            <option key={d} value={d}>
-              Highlight: {d}
-            </option>
+            <option key={d} value={d}>Highlight: {d}</option>
           ))}
         </select>
 
-        <select
-          className={sel}
-          value={pattern}
-          onChange={(e) => setPattern(e.target.value)}
-        >
-          <option value="all">All patterns</option>
-          {Object.entries(PATTERNS).map(([k, p]) => (
-            <option key={k} value={k}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        {/* Clear filters — only when a filter is active */}
+        {(mode !== "all" || range !== "all" || skill !== "structure") && (
+          <button
+            onClick={() => { setMode("all"); setRange("all"); setSkill("structure"); }}
+            className="shrink-0 rounded-full border border-border px-3 py-2 font-mono text-[12px] text-muted-foreground transition hover:text-foreground"
+          >
+            Clear ✕
+          </button>
+        )}
       </div>
 
       {list.length === 0 ? (
@@ -191,6 +185,6 @@ function Responses() {
           })}
         </div>
       )}
-    </>
+    </div>
   );
 }
