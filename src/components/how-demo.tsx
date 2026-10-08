@@ -207,8 +207,8 @@ export function HowItWorksDemo() {
 
         <div className="mt-8 grid items-stretch gap-6 md:mt-10 md:grid-cols-[1.4fr_1fr]">
           {/* Product panel */}
-          <div className="how-panel min-h-[440px] md:min-h-[520px]">
-            <div className="mx-auto flex h-full max-w-[420px] items-center px-6 py-10 md:px-12">
+<div className="how-panel min-h-[360px] md:min-h-[420px]">
+  <div className="mx-auto flex h-full max-w-[380px] items-center px-6 py-8 md:px-10">
               <AnimatePresence mode="wait" initial={false} custom={dir}>
                 <motion.div
                   key={step}
