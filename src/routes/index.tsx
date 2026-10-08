@@ -169,15 +169,12 @@ function Landing() {
               {hero.body}
             </p>
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
-                {signedIn ? hero.ctaSignedIn : hero.cta}
-                <ArrowRight className="ml-1 size-4" />
-              </button>
-              <a href="#how" className="btn btn-ghost px-6 py-3 text-[15px]">
-                See how it works
-              </a>
-            </div>
+<div className="mt-9">
+  <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
+    {signedIn ? hero.ctaSignedIn : hero.cta}
+    <ArrowRight className="ml-1 size-4" />
+  </button>
+</div>
           </div>
 
           {/* Right: animated preview */}
