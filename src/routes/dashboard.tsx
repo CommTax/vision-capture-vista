@@ -240,7 +240,7 @@ function Dashboard() {
           </div>
           <div>
             <div className="text-muted-foreground">Focus</div>
-            <div className="mt-1 font-mono text-primary">{focus.toUpperCase()}</div>
+            <div className="mt-1 font-mono text-primary">{focus}</div>
           </div>
         </div>
 
@@ -292,14 +292,13 @@ function Dashboard() {
 
           return (
             <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
-              <div className="md:col-span-7">
-                <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
-                <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
-                <p className="mt-3 text-[15px] text-muted-foreground">
-                  That's why your current focus is <b className="text-primary">{focus.toUpperCase()}</b>.
-                </p>
-                <p className="mt-3 text-[14px] leading-6 text-muted-foreground">{moveText}</p>
-              </div>
+<div className="md:col-span-7">
+  <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
+  <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
+  <p className="mt-3 text-[15px] text-muted-foreground">
+    That's why your current focus is <b className="text-primary">{focus}</b>.
+  </p>
+</div>
               <div className="flex flex-col justify-center md:col-span-5">
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em]">
                   {chainText.map((c, i) => (
@@ -368,7 +367,7 @@ function Dashboard() {
               <div className="flex-1">
                 <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
                 <div className="mt-2 font-mono text-[11px] text-muted-foreground">
-                  FOCUS: <span className="text-primary">{focus.toUpperCase()}</span>
+                  FOCUS: <span className="text-primary">{focus}</span>
                 </div>
               </div>
               <span className="text-[13px] text-primary group-hover:translate-x-0.5">Start →</span>
