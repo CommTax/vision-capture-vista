@@ -170,13 +170,12 @@ function Dashboard() {
           }}
         />
 
-        {/* Top row: eyebrow left, user name right */}
-        <div className="relative flex items-start justify-between gap-4">
-          <div className="eyebrow !text-primary">Your current pattern</div>
-          <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
-            {firstName}'s
-          </div>
-        </div>
+{/* Top row: user name pill on the right */}
+<div className="relative flex items-start justify-end gap-4">
+  <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
+    {firstName}'s pattern
+  </div>
+</div>
 
         {/* Hero: pattern name */}
         <div className="relative mt-4 font-display text-[clamp(30px,5vw,42px)] font-bold leading-[1.05]">
