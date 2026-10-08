@@ -15,6 +15,7 @@ import { ScrollReveal } from "@/components/landing/scroll-reveal";
 import { MomentArt } from "@/components/moment-art";
 import type { PracticeMoment } from "@/content/types";
 
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
