@@ -218,7 +218,7 @@ function Landing() {
               search={{ mode: "custom" }}
               className="text-[13px] font-medium text-primary underline-offset-4 hover:underline"
             >
-              Or practice your own question →
+              Or practice your own response →
             </Link>
           </div>
         </ScrollReveal>
