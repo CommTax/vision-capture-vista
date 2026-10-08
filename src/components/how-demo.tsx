@@ -78,7 +78,7 @@ function ChooseView() {
         <OptionChip icon={<Mic className="size-4" />} label="Interview" active />
       </div>
 <div className="absolute -bottom-6 -right-12 z-10 hidden sm:block">
-  <OptionChip icon={<MessageSquareWarning className="size-4 text-emerald-400" />} label="Difficult conversation" />
+  <OptionChip icon={<MessageSquareWarning className="size-4 text-emerald-400" />} label="High-stakes conversation" />
 </div>
 
       <div className="relative w-full max-w-[340px] space-y-3">
