@@ -29,11 +29,50 @@ function Status({ s }: { s: SkillStatus }) {
 
 function SkillCard({ x, open, onOpen }: { x: SkillInsight; open: boolean; onOpen: () => void }) {
   return (
-    <button onClick={onOpen} className={`glass flex flex-col p-5 text-left transition hover:bg-glass-strong ${open ? "border-primary/60" : ""}`}>
-      <div className="flex items-start justify-between gap-2"><div className="font-display text-[16px] font-bold">{cap(x.skill)}</div><Status s={x.status} /></div>
-      <div className="mt-2 flex items-baseline gap-2"><span className="font-display text-[30px] font-bold">{x.score ?? "—"}</span><Delta c={x.change} /></div>
-      <p className="mt-2 flex-1 text-[13px] leading-5 text-muted-foreground">{x.evidence[0] ?? NO_EVIDENCE}</p>
-      <div className="mt-4 text-[12px]"><span className="text-muted-foreground">Practice: </span><span className="text-primary">{x.recommended_drill.name} →</span></div>
+    <button
+      onClick={onOpen}
+      className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl p-5 text-left transition duration-300 hover:-translate-y-0.5"
+      style={{
+        background: open
+          ? "linear-gradient(160deg, rgba(139,127,255,0.16) 0%, rgba(26,16,51,0.4) 50%, rgba(11,13,20,0.85) 100%)"
+          : "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 55%, rgba(11,13,20,0.6) 100%)",
+        border: open
+          ? "1px solid rgba(139,127,255,0.45)"
+          : "1px solid rgba(255,255,255,0.06)",
+        boxShadow: open
+          ? "0 22px 60px -22px rgba(139,127,255,0.4), inset 0 1px 0 rgba(255,255,255,0.06)"
+          : "0 12px 30px -22px rgba(0,0,0,0.6)",
+      }}
+    >
+      {/* Corner glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-14 -right-14 h-40 w-40 rounded-full transition-opacity duration-500"
+        style={{
+          background: "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+          filter: "blur(12px)",
+          opacity: open ? 0.9 : 0.35,
+        }}
+      />
+
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="font-display text-[16px] font-bold">{cap(x.skill)}</div>
+        <Status s={x.status} />
+      </div>
+
+      <div className="relative mt-2 flex items-baseline gap-2">
+        <span className="font-display text-[30px] font-bold">{x.score ?? "—"}</span>
+        <Delta c={x.change} />
+      </div>
+
+      <p className="relative mt-2 flex-1 text-[13px] leading-5 text-muted-foreground">
+        {x.evidence[0] ?? NO_EVIDENCE}
+      </p>
+
+      <div className="relative mt-4 flex items-center justify-between font-mono text-[11px]">
+        <span className="text-muted-foreground">Practice: <span className="text-primary">{x.recommended_drill.name}</span></span>
+        <span className="text-primary transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden>→</span>
+      </div>
     </button>
   );
 }
@@ -51,7 +90,7 @@ function Detail({ x }: { x: SkillInsight }) {
         <div className="rounded-2xl border border-border p-5">
           <div className="eyebrow mb-2">Your strongest example</div>
           {x.strongest_example ? <Link to="/responses/$responseId" params={{ responseId: x.strongest_example.response_id }} className="block">
-            <div className="text-[14px] font-medium">“{x.strongest_example.question}”</div>
+            <div className="text-[14px] font-medium">"{x.strongest_example.question}"</div>
             <div className="mt-1 font-mono text-[12px] text-primary">{cap(x.skill)} {x.strongest_example.score}</div>
             {x.strongest_example.excerpt && <p className="mt-2 text-[13px] italic text-muted-foreground">{x.strongest_example.excerpt}</p>}
           </Link> : <p className="text-[13px] text-muted-foreground">{NO_EVIDENCE}</p>}
@@ -109,33 +148,116 @@ function Skills() {
               {focus.recurring_gap && <p className="mt-2 text-[14px] leading-6 text-muted-foreground">What still gets lost: {focus.recurring_gap}</p>}
               <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>
             </section>
-            <section className="glass p-7 lg:col-span-5">
-              <div className="eyebrow mb-4">Your communication profile</div>
-              <dl className="space-y-3 text-[14px]">
-                {([["Strongest", strongest], ["Improving", improving], ["Current focus", focus], ["Needs attention", slipping]] as const).map(([l, x]) => (
-                  <div key={l} className="flex justify-between gap-3 border-b border-border pb-3 last:border-0"><dt className="text-muted-foreground">{l}</dt><dd className="font-mono">{x ? <>{cap(x.skill)} · {x.score} {l !== "Strongest" && l !== "Current focus" && <Delta c={x.change} />}</> : "—"}</dd></div>
-                ))}
-              </dl>
-              <div className="eyebrow mt-5 mb-1">What to practice now</div>
-              <p className="text-[14px]">{focus.recommended_drill.objective}</p>
-              <Link to="/practice" className="mt-3 inline-block text-[13px] text-primary">Start practice →</Link>
+
+            {/* ─── Premium communication profile card ─── */}
+            <section
+              className="relative overflow-hidden rounded-3xl p-7 lg:col-span-5"
+              style={{
+                background:
+                  "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.35) 45%, rgba(11,13,20,0.9) 100%)",
+                border: "1px solid rgba(139,127,255,0.35)",
+                boxShadow:
+                  "0 20px 60px -20px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+            >
+              {/* Corner glow */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: -80,
+                  right: -80,
+                  width: 200,
+                  height: 200,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(closest-side, rgba(139,127,255,0.35), transparent)",
+                  filter: "blur(10px)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div className="relative eyebrow mb-4 !text-primary">Your communication profile</div>
+
+              <div className="relative space-y-3">
+                {([["Strongest", strongest], ["Improving", improving], ["Current focus", focus], ["Needs attention", slipping]] as const).map(([l, x]) => {
+                  const isHero = l === "Strongest" || l === "Current focus";
+                  return (
+                    <div
+                      key={l}
+                      className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition"
+                      style={{
+                        borderColor: isHero ? "rgba(139,127,255,0.30)" : "rgba(255,255,255,0.06)",
+                        background: isHero ? "rgba(139,127,255,0.06)" : "rgba(255,255,255,0.02)",
+                      }}
+                    >
+                      <span
+                        className="font-mono text-[11px] uppercase tracking-[0.12em]"
+                        style={{ color: isHero ? "#a99bff" : "rgba(255,255,255,0.5)" }}
+                      >
+                        {l}
+                      </span>
+                      <span className="font-mono text-[13px] text-foreground">
+                        {x ? (
+                          <>
+                            {cap(x.skill)} · {x.score}
+                            {l !== "Strongest" && l !== "Current focus" && <Delta c={x.change} />}
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="relative mt-5 rounded-2xl bg-primary/10 p-4">
+                <div className="eyebrow !text-primary">What to practice now</div>
+                <p className="mt-2 text-[14px]">{focus.recommended_drill.objective}</p>
+              </div>
+
+              <Link to="/practice" className="relative mt-4 inline-block text-[13px] text-primary">
+                Start practice →
+              </Link>
             </section>
           </div>
 
-          {/* Core */}
+          {/* Core — mobile carousel */}
           <section>
-            <h2 className="text-[20px] font-bold">Core communication skills</h2>
+            <h2 className="text-[20px] font-bold flex items-baseline justify-between">
+              Core communication skills
+              <span className="font-mono text-[11px] text-muted-foreground font-normal sm:hidden">
+                Swipe →
+              </span>
+            </h2>
             <p className="mt-1 text-[13px] text-muted-foreground">Select a skill to see the evidence behind it.</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{xs.filter((x) => CORE.includes(x.skill)).map((x) => <SkillCard key={x.skill} x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />)}</div>
+
+            <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+              {xs.filter((x) => CORE.includes(x.skill)).map((x) => (
+                <div key={x.skill} className="w-[70vw] max-w-[260px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+                  <SkillCard x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />
+                </div>
+              ))}
+            </div>
           </section>
           {selected && CORE.includes(selected.skill) && <Detail x={selected} />}
 
-          {/* Outcomes */}
+          {/* Outcomes — mobile carousel */}
           <section>
             <h2 className="text-[20px] font-bold">Communication outcomes</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {xs.filter((x) => OUTCOMES.includes(x.skill)).map((x) => <SkillCard key={x.skill} x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />)}
-              <div className="glass flex flex-col p-5"><div className="font-display text-[16px] font-bold">Influence</div><p className="mt-2 text-[13px] leading-5 text-muted-foreground">Built from impact, relevance and confidence. Not scored on its own.</p></div>
+            <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+              {xs.filter((x) => OUTCOMES.includes(x.skill)).map((x) => (
+                <div key={x.skill} className="w-[70vw] max-w-[260px] shrink-0 snap-start sm:w-auto sm:max-w-none">
+                  <SkillCard x={x} open={sel === x.skill} onOpen={() => toggle(x.skill)} />
+                </div>
+              ))}
+              <div className="glass flex w-[70vw] max-w-[260px] shrink-0 snap-start flex-col p-5 sm:w-auto sm:max-w-none">
+                <div className="font-display text-[16px] font-bold">Influence</div>
+                <p className="mt-2 text-[13px] leading-5 text-muted-foreground">
+                  Built from impact, relevance and confidence. Not scored on its own.
+                </p>
+              </div>
             </div>
           </section>
           {selected && OUTCOMES.includes(selected.skill) && <Detail x={selected} />}
