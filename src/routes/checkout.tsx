@@ -14,6 +14,7 @@ import {
 } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
 
+
 export const Route = createFileRoute("/checkout")({
   validateSearch: z.object({
     product: z.enum(["practice", "sprint"]).catch("sprint"),
