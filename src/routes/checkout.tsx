@@ -19,6 +19,7 @@ export const Route = createFileRoute("/checkout")({
     product: z.enum(["practice", "sprint"]).catch("sprint"),
     d: z.enum(["14d"]).optional(),
     goal: z.string().optional(),
+    billing: z.enum(["monthly", "annual"]).optional(),
   }),
   head: () => ({
     meta: [
@@ -34,11 +35,13 @@ export const Route = createFileRoute("/checkout")({
 });
 
 type Step = "plan" | "details" | "otp" | "pay";
+type Billing = "monthly" | "annual";
 
 function Checkout() {
   const s = Route.useSearch();
   const navigate = useNavigate();
   const [product, setProduct] = useState<"practice" | "sprint">(s.product);
+  const [billing, setBilling] = useState<Billing>(s.billing ?? "monthly");
   const [goal, setGoal] = useState(s.goal ?? SPRINT_GOALS[0].id);
   const [goalText, setGoalText] = useState("");
   const [step, setStep] = useState<Step>("plan");
@@ -46,10 +49,24 @@ function Checkout() {
   const [err, setErr] = useState("");
   const [code, setCode] = useState("");
 
+  // ── Pricing display ──────────────────────────────────────────
+  const practicePriceDisplay =
+    billing === "monthly"
+      ? PLAN_CONFIG.practice.monthlyPrice
+      : PLAN_CONFIG.practice.annualPrice;
+
+  const practicePriceSubline =
+    billing === "annual" && PLAN_CONFIG.practice.annualPerMonth
+      ? `${PLAN_CONFIG.practice.annualPerMonth} · billed annually`
+      : "Charged every month until you cancel";
+
+  const sprintPrice = PLAN_CONFIG.sprint.price; // "₹1"
+
   const summary =
     product === "practice"
-      ? `Practice Pass · ${PLAN_CONFIG.practice.monthlyPrice}, renews monthly`
-      : `Sprint · 14 days · ₹1,499`;
+      ? `Practice Pass · ${practicePriceDisplay}${billing === "monthly" ? ", renews monthly" : ", billed yearly"}`
+      : `Sprint · 14 days · ${sprintPrice}`;
+
   const profile = getState().profile;
 
   const afterDetails = async () => {
@@ -158,7 +175,7 @@ function Checkout() {
               <div className="rounded-xl border border-primary bg-primary/10 p-4">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Sprint · 14 days</span>
-                  <span className="font-display font-bold">₹1,499</span>
+                  <span className="font-display font-bold">{sprintPrice}</span>
                 </div>
                 <p className="mt-1 text-[13px] text-muted-foreground">
                   Goal-based practice, personalised drills, and a progress report at the end.
@@ -166,15 +183,35 @@ function Checkout() {
               </div>
             </>
           ) : (
-            <div className="rounded-xl border border-primary bg-primary/10 p-4">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">Monthly · auto-renew</span>
-                <span className="font-display font-bold">{PLAN_CONFIG.practice.monthlyPrice}</span>
+            <>
+              {/* Monthly / Annual toggle */}
+              <div className="flex gap-2">
+                {PLAN_CONFIG.practice.billing.map((b) => (
+                  <button
+                    key={b}
+                    className="chip"
+                    data-active={billing === b}
+                    onClick={() => setBilling(b as Billing)}
+                  >
+                    {b === "monthly"
+                      ? "Monthly"
+                      : `Annual${PLAN_CONFIG.practice.annualDiscountPct ? ` · save ${PLAN_CONFIG.practice.annualDiscountPct}%` : ""}`}
+                  </button>
+                ))}
               </div>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Charged every month until you cancel. Unlimited practice, full analysis, history and drills.
-              </p>
-            </div>
+
+              <div className="rounded-xl border border-primary bg-primary/10 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">
+                    {billing === "monthly" ? "Monthly · auto-renew" : "Annual · billed yearly"}
+                  </span>
+                  <span className="font-display font-bold">{practicePriceDisplay}</span>
+                </div>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  {practicePriceSubline}. Unlimited practice, full analysis, history and drills.
+                </p>
+              </div>
+            </>
           )}
 
           <button className="btn btn-primary w-full" onClick={() => setStep("details")}>
@@ -253,11 +290,11 @@ function Checkout() {
                 ? `${profile.phone_country_code}${profile.phone ?? ""}`
                 : profile?.phone
             }
-            billing={product === "practice" ? "monthly" : undefined}
+            billing={product === "practice" ? billing : undefined}
             label={
               product === "practice"
-                ? `Subscribe · ${PLAN_CONFIG.practice.monthlyPrice}`
-                : "Pay ₹1,499"
+                ? `Subscribe · ${practicePriceDisplay}`
+                : `Pay ${sprintPrice}`
             }
             onPaid={() => navigate({ to: product === "practice" ? "/dashboard" : "/sprint" })}
           />
