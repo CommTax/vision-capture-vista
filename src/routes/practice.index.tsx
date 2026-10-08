@@ -405,7 +405,12 @@ function Practice() {
 
       {/* 3. Categories */}
       <section>
-        <h2 className="text-[22px] font-bold">Practice a situation</h2>
+        <h2 className="text-[22px] font-bold flex items-baseline justify-between">
+  Practice a situation
+  <span className="font-mono text-[11px] text-muted-foreground font-normal sm:hidden">
+    Swipe →
+  </span>
+</h2>
 <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
   {MODES.map((m) => (
     <button
