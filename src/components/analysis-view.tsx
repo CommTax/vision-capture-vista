@@ -183,14 +183,10 @@ export function AnalysisView({
             <div className="relative grid gap-8 md:grid-cols-12 md:items-center">
               {/* Left: score + pattern + summary */}
               <div className="md:col-span-7">
-                <div className="eyebrow mb-3 !text-primary">Your result</div>
-
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
-                    {a.overall}
-                  </span>
-                  <span className="text-[15px] text-muted-foreground">/ 100</span>
-                </div>
+               
+<div className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
+  {a.overall}
+</div>
 
                 <div className="mt-5">
                   <PatternShift pattern={a.primary_pattern} />
