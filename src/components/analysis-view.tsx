@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Analysis } from "@/lib/analysis";
 import { DIMENSIONS, DRILLS, PATTERNS } from "@/lib/data";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Play, Pause } from "lucide-react";
+import { toAudioUrl } from "@/lib/r2";
 
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -104,14 +105,132 @@ function DimensionCard({
   );
 }
 
+// ──────────────────────────────────────────────────────────────
+// Audio mini-player — collapsed card with play/pause + progress
+// ──────────────────────────────────────────────────────────────
+function AudioMiniPlayer({ src, durationHint }: { src: string; durationHint?: number }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(durationHint ?? 0);
+  const [errored, setErrored] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onTime = () => setCurrent(a.currentTime);
+    const onMeta = () => {
+      if (isFinite(a.duration) && a.duration > 0) setDuration(a.duration);
+    };
+    const onEnd = () => {
+      setPlaying(false);
+      setCurrent(0);
+      a.currentTime = 0;
+    };
+    const onErr = () => {
+      setErrored(true);
+      setPlaying(false);
+    };
+    a.addEventListener("timeupdate", onTime);
+    a.addEventListener("loadedmetadata", onMeta);
+    a.addEventListener("ended", onEnd);
+    a.addEventListener("error", onErr);
+    return () => {
+      a.removeEventListener("timeupdate", onTime);
+      a.removeEventListener("loadedmetadata", onMeta);
+      a.removeEventListener("ended", onEnd);
+      a.removeEventListener("error", onErr);
+    };
+  }, [src]);
+
+  function toggle() {
+    const a = audioRef.current;
+    if (!a) return;
+    if (playing) {
+      a.pause();
+      setPlaying(false);
+    } else {
+      void a
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => setErrored(true));
+    }
+  }
+
+  function seek(e: React.MouseEvent<HTMLDivElement>) {
+    const a = audioRef.current;
+    if (!a || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    a.currentTime = pct * duration;
+    setCurrent(a.currentTime);
+  }
+
+  const fmt = (s: number) => {
+    if (!isFinite(s) || s < 0) return "0:00";
+    return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  };
+
+  if (errored) {
+    return (
+      <p className="mt-3 text-[12px] text-muted-foreground">
+        Audio unavailable.
+      </p>
+    );
+  }
+
+  const progress = duration ? (current / duration) * 100 : 0;
+
+  return (
+    <div className="mt-3 flex items-center gap-3">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={playing ? "Pause" : "Play"}
+        className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90"
+      >
+        {playing ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
+      </button>
+
+      <span className="w-11 shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
+        {playing || current > 0 ? fmt(current) : fmt(duration)}
+      </span>
+
+      <div
+        onClick={seek}
+        role="slider"
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration)}
+        aria-valuenow={Math.round(current)}
+        className="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-muted"
+      >
+        <div
+          className="absolute inset-y-0 left-0 rounded-full bg-primary"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <span className="hidden font-mono text-[11px] tabular-nums text-muted-foreground sm:block">
+        {fmt(duration)}
+      </span>
+
+      <audio ref={audioRef} src={src} preload="metadata" />
+    </div>
+  );
+}
+
 export function AnalysisView({
   a,
   transcript,
   onRetry,
+  audioUrl,
+  durationSec,
 }: {
   a: Analysis;
   transcript: string;
   onRetry?: () => void;
+  audioUrl?: string | null;
+  durationSec?: number;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
@@ -120,16 +239,19 @@ export function AnalysisView({
   const P = PATTERNS[a.primary_pattern];
   const drill = DRILLS.find((d) => d.id === a.recommended_drill);
 
+  // Convert R2 key → public URL
+  const audioSrc = toAudioUrl(audioUrl);
+
   // Highest and lowest scored dimensions — used in the Diagnosis panel
-const dimScores = DIMENSIONS
-  .map((d) => ({ name: d, score: a.dimensions?.[d]?.score ?? 0 }))
-  .filter((x) => x.score > 0); // skip unscored dimensions
-const highestDim = dimScores.length
-  ? dimScores.reduce((best, cur) => (cur.score > best.score ? cur : best))
-  : null;
-const lowestDim = dimScores.length
-  ? dimScores.reduce((worst, cur) => (cur.score < worst.score ? cur : worst))
-  : null;
+  const dimScores = DIMENSIONS
+    .map((d) => ({ name: d, score: a.dimensions?.[d]?.score ?? 0 }))
+    .filter((x) => x.score > 0);
+  const highestDim = dimScores.length
+    ? dimScores.reduce((best, cur) => (cur.score > best.score ? cur : best))
+    : null;
+  const lowestDim = dimScores.length
+    ? dimScores.reduce((worst, cur) => (cur.score < worst.score ? cur : worst))
+    : null;
 
   return (
     <div className="space-y-6">
@@ -194,10 +316,9 @@ const lowestDim = dimScores.length
             <div className="relative grid gap-8 md:grid-cols-12 md:items-center">
               {/* Left: score + pattern + summary */}
               <div className="md:col-span-7">
-               
-<div className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
-  {a.overall}
-</div>
+                <div className="font-display text-[clamp(56px,9vw,88px)] font-bold leading-none tracking-tight">
+                  {a.overall}
+                </div>
 
                 <div className="mt-5">
                   <PatternShift pattern={a.primary_pattern} />
@@ -207,7 +328,7 @@ const lowestDim = dimScores.length
                   {a.summary}
                 </p>
 
-                 {onRetry && (
+                {onRetry && (
                   <div className="mt-7 flex flex-wrap gap-3">
                     <button className="btn btn-primary px-6 py-3 text-[15px]" onClick={onRetry}>
                       Try Again →
@@ -220,51 +341,50 @@ const lowestDim = dimScores.length
               </div>
 
               {/* Right: compact diagnosis panel */}
-<div className="md:col-span-5">
-  {/* Need: compute highest and lowest dimension before this JSX */}
-  <div
-    className="rounded-2xl border p-5"
-    style={{
-      background:
-        "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.55) 60%, rgba(11,13,20,0.9) 100%)",
-      borderColor: "rgba(139,127,255,0.35)",
-      boxShadow:
-        "0 20px 60px -25px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.05)",
-    }}
-  >
-    <div className="eyebrow mb-3 !text-primary">Diagnosis</div>
-    <dl className="space-y-3 text-[13px]">
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-muted-foreground">Primary pattern</dt>
-        <dd className="font-mono text-foreground">{P?.short}</dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-muted-foreground">Secondary</dt>
-        <dd className="font-mono text-foreground">
-          {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern
-            ? PATTERNS[a.secondary_pattern]?.short ?? a.secondary_pattern
-            : "—"}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-muted-foreground">Highest</dt>
-        <dd className="font-mono text-success">
-          {highestDim ? `${cap(highestDim.name)} · ${highestDim.score}` : "—"}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-muted-foreground">Lowest</dt>
-        <dd className="font-mono text-destructive">
-          {lowestDim ? `${cap(lowestDim.name)} · ${lowestDim.score}` : "—"}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-muted-foreground">Words</dt>
-        <dd className="font-mono text-foreground">{a.word_count}</dd>
-      </div>
-    </dl>
-  </div>
-</div>
+              <div className="md:col-span-5">
+                <div
+                  className="rounded-2xl border p-5"
+                  style={{
+                    background:
+                      "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.55) 60%, rgba(11,13,20,0.9) 100%)",
+                    borderColor: "rgba(139,127,255,0.35)",
+                    boxShadow:
+                      "0 20px 60px -25px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <div className="eyebrow mb-3 !text-primary">Diagnosis</div>
+                  <dl className="space-y-3 text-[13px]">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Primary pattern</dt>
+                      <dd className="font-mono text-foreground">{P?.short}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Secondary</dt>
+                      <dd className="font-mono text-foreground">
+                        {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern
+                          ? PATTERNS[a.secondary_pattern]?.short ?? a.secondary_pattern
+                          : "—"}
+                      </dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Highest</dt>
+                      <dd className="font-mono text-success">
+                        {highestDim ? `${cap(highestDim.name)} · ${highestDim.score}` : "—"}
+                      </dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Lowest</dt>
+                      <dd className="font-mono text-destructive">
+                        {lowestDim ? `${cap(lowestDim.name)} · ${lowestDim.score}` : "—"}
+                      </dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-muted-foreground">Words</dt>
+                      <dd className="font-mono text-foreground">{a.word_count}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -395,6 +515,11 @@ const lowestDim = dimScores.length
                   }`}
                 />
               </button>
+
+              {audioSrc && (
+                <AudioMiniPlayer src={audioSrc} durationHint={durationSec} />
+              )}
+
               {transcriptOpen && (
                 <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
                   {transcript}
