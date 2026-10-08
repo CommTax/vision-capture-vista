@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { DIMENSIONS, MODES, PATTERNS, modeName } from "@/lib/data";
 import { usePaidDashboard } from "@/lib/paid-dashboard";
+import { toAudioUrl } from "@/lib/r2";
 
 export const Route = createFileRoute("/responses/")({
   head: () => ({
@@ -131,6 +132,27 @@ function Responses() {
                 <div className="mt-3 font-display text-[18px] font-bold">
                   "{r.question}"
                 </div>
+
+                <div className="mt-3 font-display text-[18px] font-bold">
+  "{r.question}"
+</div>
+
+{(() => {
+  const src = toAudioUrl(r.audio_url);
+  if (!src) return null;
+  return (
+    <audio
+      controls
+      preload="metadata"
+      src={src}
+      className="mt-3 w-full"
+    />
+  );
+})()}
+
+<div className="mt-2 text-[13px] text-muted-foreground">
+  {PATTERNS[r.analysis.primary_pattern]?.name} · Attempt{" "}
+  ...
 
                 <div className="mt-2 text-[13px] text-muted-foreground">
                   {PATTERNS[r.analysis.primary_pattern]?.name} · Attempt{" "}
