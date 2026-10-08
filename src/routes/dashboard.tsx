@@ -58,36 +58,29 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 
 // ────────────────────────────────────────────────────────────
 // Pull dynamic focus copy from the user's latest analyzed drill.
-// Reads from the same Analysis fields used by the response page.
 // ────────────────────────────────────────────────────────────
 function dynamicFocus(
   rs: ResponseRecord[],
   dimension: Dimension,
 ): { why?: string; chain?: string[] } | null {
-  // Latest drill with real scores
   const latest = rs.find((r) => r.analysis && r.analysis.overall > 0);
   if (!latest) return null;
 
   const a = latest.analysis;
 
-  // "Why" line — the LLM's single most-actionable change
   const why: string | undefined =
     a.retry_instruction ||
     a.dimensions?.[dimension]?.tryThis ||
     a.summary ||
     undefined;
 
-  // Chain chips — parse from the LLM's example structure
   const chain: string[] | undefined = (() => {
     const raw = a.example_structure;
     if (!raw || typeof raw !== "string") return undefined;
-
-    // Split on arrows, bullets, newlines, or numbered list markers
     const parts = raw
       .split(/\s*[→•·]\s*|\s*\n\s*|\s*\d+\.\s+/)
       .map((s) => s.trim())
       .filter(Boolean);
-
     return parts.length >= 2 ? parts.slice(0, 3) : undefined;
   })();
 
@@ -131,7 +124,6 @@ function Dashboard() {
     email: session?.email ?? "",
   } as { name: string; email: string };
 
-  // ─── Collapsible state for recent responses ───
   const [responsesOpen, setResponsesOpen] = useState(false);
 
   useEffect(() => {
@@ -153,7 +145,6 @@ function Dashboard() {
   const primary = PATTERNS[cp.primary] ?? PATTERNS.scatterer;
   const byId = new Map(rs.map((r) => [r.id, r]));
 
-  // First name only for the card
   const firstName = (profile.name || "You").trim().split(/\s+/)[0];
 
   if (loading && rs.length === 0) {
@@ -208,24 +199,20 @@ function Dashboard() {
           }}
         />
 
-        {/* Top row: user name pill on the right */}
         <div className="relative flex items-start justify-end gap-4">
           <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
             {firstName}'s pattern
           </div>
         </div>
 
-        {/* Hero: pattern name */}
         <div className="relative mt-4 font-display text-[clamp(30px,5vw,42px)] font-bold leading-[1.05]">
           {primary.name.replace(/^The /, "").toUpperCase()}
         </div>
 
-        {/* Description */}
         <p className="relative mt-3 max-w-2xl text-[15px] leading-7 text-muted-foreground">
           {primary.desc}
         </p>
 
-        {/* Metadata row */}
         <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-border/60 pt-4 text-[12px]">
           <div>
             <div className="text-muted-foreground">Secondary</div>
@@ -241,13 +228,11 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Next move panel */}
         <div className="relative mt-5 rounded-2xl bg-primary/10 p-4">
           <div className="eyebrow !text-primary">Your next move</div>
           <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
         </div>
 
-        {/* Share row */}
         <div className="relative mt-6 flex flex-wrap items-center gap-3">
           <span className="text-[12px] text-muted-foreground">
             Share your pattern:
@@ -279,7 +264,7 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 3. Why you're seeing this — dynamic */}
+      {/* 3. Why you're seeing this — dynamic, premium layout */}
       {rs.length > 0 && rs.some((r) => r.analysis?.overall > 0) ? (
         (() => {
           const dyn = dynamicFocus(rs, cp.focus as Dimension);
@@ -287,41 +272,81 @@ function Dashboard() {
           const chainText = dyn?.chain && dyn.chain.length > 0 ? dyn.chain : f.chain;
 
           return (
-            <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
-              <div className="md:col-span-7">
-                <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
-                <p className="font-display text-[22px] font-bold leading-snug">{whyText}</p>
-                <p className="mt-3 text-[15px] text-muted-foreground">
-                  That's why your current focus is <b className="text-primary">{focus}</b>.
-                </p>
+            <section className="glass glass-float grid gap-8 border-primary/30 p-7 md:grid-cols-12 md:p-8">
+              {/* Left column — context + recommendation */}
+              <div className="md:col-span-6 flex flex-col justify-between">
+                <div>
+                  <div className="eyebrow mb-4 !text-primary">Why you're seeing this</div>
+
+                  <p className="text-[13px] leading-5 text-muted-foreground">
+                    Based on your latest response, we're recommending this focus.
+                  </p>
+
+                  <p className="mt-4 font-display text-[24px] font-bold leading-snug">
+                    {whyText}
+                  </p>
+
+                  <p className="mt-4 text-[15px] leading-6 text-muted-foreground">
+                    That's why your current focus is{" "}
+                    <b className="text-primary">{focus}</b>.
+                  </p>
+                </div>
+
+                <div className="mt-6">
+                  <Link
+                    to="/drills/$drillId"
+                    params={{ drillId: f.drills[0] }}
+                    className="btn btn-primary btn-sm self-start"
+                  >
+                    Practice {focus} →
+                  </Link>
+                </div>
               </div>
-              <div className="flex flex-col justify-center md:col-span-5">
-                <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] tracking-[0.12em]">
+
+              {/* Right column — numbered 3-step chain */}
+              <div className="md:col-span-6">
+                <div className="eyebrow mb-3">Your next move</div>
+
+                <div
+                  className="relative overflow-hidden rounded-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(160deg, rgba(139,127,255,0.08) 0%, rgba(26,16,51,0.28) 55%, rgba(11,13,20,0.6) 100%)",
+                    border: "1px solid rgba(139,127,255,0.28)",
+                  }}
+                >
                   {chainText.map((c, i) => (
-                    <span key={c + i} className="flex items-center gap-2">
-                      {i > 0 && <span className="text-primary">→</span>}
-                      <span className="rounded-full border border-primary/40 px-3 py-1.5">{c}</span>
-                    </span>
+                    <div
+                      key={c + i}
+                      className="relative flex items-start gap-4 px-5 py-4"
+                      style={{
+                        borderTop: i > 0 ? "1px solid rgba(139,127,255,0.15)" : "none",
+                      }}
+                    >
+                      <span
+                        className="shrink-0 font-mono text-[11px] tracking-[0.16em]"
+                        style={{ color: "#a99bff", paddingTop: 3 }}
+                      >
+                        0{i + 1}
+                      </span>
+                      <span className="text-[14px] leading-6 text-foreground/90">
+                        {c}
+                      </span>
+                    </div>
                   ))}
                 </div>
+
                 <p className="mt-4 text-[13px] text-muted-foreground">
                   Practice this pattern in your next response.
                 </p>
-                <Link
-                  to="/drills/$drillId"
-                  params={{ drillId: f.drills[0] }}
-                  className="btn btn-ghost btn-sm mt-4 self-start"
-                >
-                  Practice {focus} →
-                </Link>
               </div>
             </section>
           );
         })()
       ) : (
-        <section className="glass glass-float grid gap-6 border-primary/30 p-7 md:grid-cols-12 md:p-8">
+        <section className="glass glass-float grid gap-8 border-primary/30 p-7 md:grid-cols-12 md:p-8">
           <div className="md:col-span-7">
-            <div className="eyebrow mb-3 !text-primary">Why you're seeing this</div>
+            <div className="eyebrow mb-4 !text-primary">Why you're seeing this</div>
             <p className="font-display text-[22px] font-bold leading-snug">
               Once you record your first response, we'll personalize this section for you.
             </p>
@@ -331,7 +356,7 @@ function Dashboard() {
             </p>
           </div>
           <div className="flex flex-col justify-center md:col-span-5">
-            <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] uppercase tracking-[0.12em] opacity-50">
+            <div className="flex flex-wrap items-center gap-2 font-mono text-[13px] tracking-[0.08em] opacity-50">
               <span className="rounded-full border border-border px-3 py-1.5">You</span>
               <span className="text-primary">→</span>
               <span className="rounded-full border border-border px-3 py-1.5">Response</span>
