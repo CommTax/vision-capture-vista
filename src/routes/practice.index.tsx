@@ -406,24 +406,24 @@ function Practice() {
       {/* 3. Categories */}
       <section>
         <h2 className="text-[22px] font-bold">Practice a situation</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setMode((c) => (c === m.id ? null : m.id))}
-              className={`glass p-4 text-left transition ${
-                mode === m.id
-                  ? "border-primary/60 bg-primary/10"
-                  : "hover:bg-glass-strong"
-              }`}
-            >
-              <div className="font-display text-[16px] font-bold">{m.name}</div>
-              <p className="mt-1 text-[12px] text-muted-foreground">
-                {CATEGORY_BLURB[m.id] ?? m.blurb}
-              </p>
-            </button>
-          ))}
-        </div>
+<div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+  {MODES.map((m) => (
+    <button
+      key={m.id}
+      onClick={() => setMode((c) => (c === m.id ? null : m.id))}
+      className={`glass w-[75vw] max-w-[280px] shrink-0 snap-start p-4 text-left transition sm:w-auto sm:max-w-none ${
+        mode === m.id
+          ? "border-primary/60 bg-primary/10"
+          : "hover:bg-glass-strong"
+      }`}
+    >
+      <div className="font-display text-[16px] font-bold">{m.name}</div>
+      <p className="mt-1 text-[12px] text-muted-foreground">
+        {CATEGORY_BLURB[m.id] ?? m.blurb}
+      </p>
+    </button>
+  ))}
+</div>
 
         {/* 4. Library for the chosen category */}
         {mode === "custom" && ent.free && (
