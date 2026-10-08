@@ -44,9 +44,25 @@ function Plans() {
           <h2 className="text-[26px] font-bold">Ongoing practice</h2>
           <p className="mt-2 text-[14px] text-muted-foreground">Ongoing communication practice. No end date.</p>
           <div className="mt-5 flex gap-2">{PLAN_CONFIG.practice.billing.map((b) => <button key={b} className="chip" data-active={billing === b} onClick={() => setBilling(b)}>{b === "monthly" ? "Monthly" : `Annual${disc ? ` · save ${disc}%` : ""}`}</button>)}</div>
-          <div className="mt-4 font-display text-[28px] font-bold">{billing === "monthly" ? PLAN_CONFIG.practice.monthlyPrice : "Annual pricing soon"}</div>
+          <div className="mt-4 font-display text-[28px] font-bold">
+  {billing === "monthly"
+    ? PLAN_CONFIG.practice.monthlyPrice
+    : PLAN_CONFIG.practice.annualPrice}
+</div>
+{billing === "annual" && PLAN_CONFIG.practice.annualPerMonth && (
+  <p className="mt-1 text-[12px] text-muted-foreground">
+    {PLAN_CONFIG.practice.annualPerMonth} · billed annually
+  </p>
+)}
+          
           <ul className="mt-4 space-y-1.5 text-[14px] text-muted-foreground">{["Unlimited practice, voice and text", "Detailed analysis and AI coaching", "Response history and comparisons", "Skills, patterns and progress", "Targeted drills and custom practice", "Personalized next practice"].map((x) => <li key={x}>· {x}</li>)}</ul>
-          {state !== "PRACTICE_PAID" && <Link to="/checkout" search={{ product: "practice" }} className="btn btn-primary mt-6 w-full">Choose Practice Pass</Link>}
+          {state !== "PRACTICE_PAID" && <Link
+  to="/checkout"
+  search={{ product: "practice", billing }}
+  className="btn btn-primary mt-6 w-full"
+>
+  Choose Practice Pass
+</Link>
           {state === "PRACTICE_PAID" && <div className="mt-6 rounded-xl border border-primary/40 bg-primary/10 p-4 text-center text-[14px] text-primary">You're on Practice</div>}
         </section>
 
