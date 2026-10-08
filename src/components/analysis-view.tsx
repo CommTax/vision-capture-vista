@@ -120,6 +120,17 @@ export function AnalysisView({
   const P = PATTERNS[a.primary_pattern];
   const drill = DRILLS.find((d) => d.id === a.recommended_drill);
 
+  // Highest and lowest scored dimensions — used in the Diagnosis panel
+const dimScores = DIMENSIONS
+  .map((d) => ({ name: d, score: a.dimensions?.[d]?.score ?? 0 }))
+  .filter((x) => x.score > 0); // skip unscored dimensions
+const highestDim = dimScores.length
+  ? dimScores.reduce((best, cur) => (cur.score > best.score ? cur : best))
+  : null;
+const lowestDim = dimScores.length
+  ? dimScores.reduce((worst, cur) => (cur.score < worst.score ? cur : worst))
+  : null;
+
   return (
     <div className="space-y-6">
       {/* ───────── TAB SWITCHER ───────── */}
@@ -196,18 +207,7 @@ export function AnalysisView({
                   {a.summary}
                 </p>
 
-                <div className="mt-6 flex flex-wrap gap-2 text-[12px]">
-                  <span className="rounded-full bg-primary/15 px-3 py-1 text-primary">
-                    {P?.name ?? a.primary_pattern}
-                  </span>
-                  {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern && (
-                    <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">
-                      Secondary: {PATTERNS[a.secondary_pattern]?.name ?? a.secondary_pattern}
-                    </span>
-                  )}
-                </div>
-
-                {onRetry && (
+                 {onRetry && (
                   <div className="mt-7 flex flex-wrap gap-3">
                     <button className="btn btn-primary px-6 py-3 text-[15px]" onClick={onRetry}>
                       Try Again →
@@ -220,33 +220,51 @@ export function AnalysisView({
               </div>
 
               {/* Right: compact diagnosis panel */}
-              <div className="md:col-span-5">
-                <div className="rounded-2xl border border-border/60 bg-background/40 p-5 backdrop-blur-sm">
-                  <div className="eyebrow mb-3">Diagnosis</div>
-                  <dl className="space-y-3 text-[13px]">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="text-muted-foreground">Primary pattern</dt>
-                      <dd className="font-mono text-foreground">{P?.short}</dd>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="text-muted-foreground">Transition</dt>
-                      <dd className="font-mono text-primary">
-                        {P?.short} → {P?.to}
-                      </dd>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="text-muted-foreground">Time to point</dt>
-                      <dd className="font-mono text-foreground">
-                        {a.main_point_delay ? `${a.main_point_delay}s` : "—"}
-                      </dd>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="text-muted-foreground">Words</dt>
-                      <dd className="font-mono text-foreground">{a.word_count}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
+<div className="md:col-span-5">
+  {/* Need: compute highest and lowest dimension before this JSX */}
+  <div
+    className="rounded-2xl border p-5"
+    style={{
+      background:
+        "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.55) 60%, rgba(11,13,20,0.9) 100%)",
+      borderColor: "rgba(139,127,255,0.35)",
+      boxShadow:
+        "0 20px 60px -25px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.05)",
+    }}
+  >
+    <div className="eyebrow mb-3 !text-primary">Diagnosis</div>
+    <dl className="space-y-3 text-[13px]">
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-muted-foreground">Primary pattern</dt>
+        <dd className="font-mono text-foreground">{P?.short}</dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-muted-foreground">Secondary</dt>
+        <dd className="font-mono text-foreground">
+          {a.secondary_pattern && a.secondary_pattern !== a.primary_pattern
+            ? PATTERNS[a.secondary_pattern]?.short ?? a.secondary_pattern
+            : "—"}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-muted-foreground">Highest</dt>
+        <dd className="font-mono text-success">
+          {highestDim ? `${cap(highestDim.name)} · ${highestDim.score}` : "—"}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-muted-foreground">Lowest</dt>
+        <dd className="font-mono text-destructive">
+          {lowestDim ? `${cap(lowestDim.name)} · ${lowestDim.score}` : "—"}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-muted-foreground">Words</dt>
+        <dd className="font-mono text-foreground">{a.word_count}</dd>
+      </div>
+    </dl>
+  </div>
+</div>
             </div>
           </section>
 
