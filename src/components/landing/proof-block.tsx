@@ -3,12 +3,12 @@ import { ScrollReveal } from "./scroll-reveal";
 
 const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 
+// Shorter, punchier quotes
 const WHAT_YOU_SAID =
-  "\u201CSo basically I've worked on a few things, and um, mostly backend, but also some other stuff, and I think what drives me is learning…\u201D";
+  "\u201CSo basically I've worked on a few things, and um, mostly backend…\u201D";
 
 const TIGHTER_VERSION =
-  "\u201CI'm a backend engineer with four years in payments. I've cut API latency by 40%, and I'm looking for a team where I can own reliability end to end.\u201D";
-
+  "\u201CBackend engineer, four years in payments. Cut API latency 40%. Looking to own reliability end to end.\u201D";
 
 export function ProofBlock() {
   return (
@@ -21,73 +21,75 @@ export function ProofBlock() {
           One response. What got lost. What lands.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center text-[15px] text-muted-foreground md:text-[17px]">
-          Every practice returns a diagnosis, a tighter version, and one thing to fix next time.
+          Every practice returns a diagnosis, a tighter version, and one thing to fix.
         </p>
       </ScrollReveal>
 
-      <div className="mx-auto mt-12 grid max-w-4xl gap-4">
-        {/* What you said */}
+      {/* Side-by-side on desktop — Before | After */}
+      <div className="mx-auto mt-12 grid max-w-5xl gap-4 md:grid-cols-2">
+        {/* BEFORE */}
         <ScrollReveal delay={80}>
-          <div className="glass relative p-6 md:p-7">
-            <Quote className="absolute right-6 top-6 size-4 text-muted-foreground/40" />
-            <div className="eyebrow mb-3 text-muted-foreground">
-              What you said
+          <div className="glass relative flex h-full flex-col p-6 md:p-7">
+            <div className="flex items-center justify-between">
+              <div className="eyebrow text-muted-foreground">What you said</div>
+              <Quote className="size-3.5 text-muted-foreground/40" />
             </div>
-            <p className="text-[16px] italic leading-7 text-foreground/85 md:text-[17px]">
+
+            <p className="mt-4 text-[15px] italic leading-6 text-foreground/75">
               {WHAT_YOU_SAID}
             </p>
+
+            {/* Inline diagnosis — compact 2-bullet summary */}
+            <div className="mt-6 space-y-2 border-t border-destructive/20 pt-5">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-destructive">
+                <AlertTriangle className="size-3" />
+                What got lost
+              </div>
+              <ul className="space-y-1.5 text-[13.5px] leading-5 text-muted-foreground">
+                <li className="flex gap-2">
+                  <span className="mt-1.5 size-1 shrink-0 rounded-full bg-destructive/70" />
+                  <span>
+                    <strong className="font-medium text-foreground/90">
+                      Point arrived at 0:38.
+                    </strong>{" "}
+                    First 37s were warm-up.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-1.5 size-1 shrink-0 rounded-full bg-destructive/70" />
+                  <span>
+                    <strong className="font-medium text-foreground/90">
+                      Role never named.
+                    </strong>{" "}
+                    Listener can't picture where you fit.
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
         </ScrollReveal>
 
-        {/* What got lost */}
+        {/* AFTER */}
         <ScrollReveal delay={160}>
-          <div className="glass border-destructive/30 p-6 md:p-7">
-            <div className="eyebrow mb-4 flex items-center gap-2 text-destructive">
-              <AlertTriangle className="size-3.5" />
-              What got lost
+          <div className="glass-float relative flex h-full flex-col border-primary/45 p-6 md:p-7">
+            <div className="flex items-center justify-between">
+              <div className="eyebrow !text-primary">Tighter version</div>
+              <Check className="size-3.5 text-primary" />
             </div>
-            <ul className="space-y-3 text-[15px] leading-6">
-              <li className="flex gap-3">
-                <span className="mt-2 size-1 shrink-0 rounded-full bg-destructive" />
-                <span>
-                  <strong className="font-semibold text-foreground">Your point arrived at second 38.</strong>{" "}
-                  <span className="text-muted-foreground">
-                    The first 37 seconds were warm-up.
-                  </span>
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-2 size-1 shrink-0 rounded-full bg-destructive" />
-                <span>
-                  <strong className="font-semibold text-foreground">The role you want never came up.</strong>{" "}
-                  <span className="text-muted-foreground">
-                    The listener can't picture where you'd fit.
-                  </span>
-                </span>
-              </li>
-            </ul>
-          </div>
-        </ScrollReveal>
 
-        {/* Tighter version */}
-        <ScrollReveal delay={240}>
-          <div className="glass-float border-primary/45 p-6 md:p-7">
-            <div className="eyebrow mb-3 flex items-center gap-2 !text-primary">
-              <Check className="size-3.5" />
-              Tighter version
-            </div>
-            <p className="text-[16px] italic leading-7 text-foreground md:text-[17px]">
+            <p className="mt-4 text-[15px] italic leading-6 text-foreground">
               {TIGHTER_VERSION}
             </p>
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-primary/30 bg-primary/5 p-3.5">
+
+            {/* Fix next time */}
+            <div className="mt-6 flex items-start gap-2.5 border-t border-primary/20 pt-5">
               <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-primary" />
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
                   Fix next time
                 </div>
-                <p className="mt-1 text-[14px] leading-6 text-foreground/90">
-                  Open with your role and one result. You have 15 seconds to
-                  make the listener want to keep listening.
+                <p className="mt-1 text-[13.5px] leading-5 text-foreground/85">
+                  Open with your role and one result.
                 </p>
               </div>
             </div>
