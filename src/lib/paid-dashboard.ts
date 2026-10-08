@@ -3,6 +3,7 @@ import { getPaidReps, getPaidSession } from "./backend-api";
 import { normalizeBackendAnalysis } from "./analysis";
 import type { ResponseRecord } from "./store";
 
+
 export type PaidSession = {
   email?: string;
   name?: string;
