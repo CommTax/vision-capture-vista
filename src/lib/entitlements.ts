@@ -9,17 +9,19 @@ export const PLAN_CONFIG = {
   free: { attempts: 5 },
   practice: {
     trialDays: 3,
-    billing: ["monthly"] as const,
-    monthlyPrice: "₹3,999/mo",
-    /** Configure when annual pricing is decided. null = not configured, no % shown. */
-    annualDiscountPct: null as number | null,
+    billing: ["monthly", "annual"] as const,
+    monthlyPrice: "₹3 / month",
+    annualPrice: "₹24 / year",
+    annualPerMonth: "₹2 / month",
+    /** 3 → 2 is ~33% off. Shown in the Annual toggle chip. */
+    annualDiscountPct: 33 as number | null,
   },
   sprint: {
     trialDays: 3,
     durations: [
-      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1,499" },
+      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1" },
     ],
-    price: "₹1,499",
+    price: "₹1",
   },
 };
 
