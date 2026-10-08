@@ -7,18 +7,43 @@ import type { Coaching } from "./coach.server";
 import type { Entitlement, Interest, Lead, Marketing } from "./entitlements";
 
 export type Profile = { id?: string; name: string; email: string; phone?: string; phone_country_code?: string; created_at?: string; updated_at?: string; goal: string; struggle: string; experience: string; level: string; onboarded: boolean; plan: "free" | "practice" | "sprint" };
+
 export type ResponseRecord = {
-  id: string; question_id: string; question: string; mode: ModeId; response_type: "voice" | "text";
-  transcript: string; audio_url?: string; duration: number; created_at: string;
-  attempt: number; parent_id?: string; analysis: Analysis; coaching?: Coaching;
+  id: string;
+  question_id: string;
+  question: string;
+  mode: ModeId;
+  response_type: "voice" | "text";
+  transcript: string;
+  audio_url?: string;
+  duration: number;
+  created_at: string;
+  attempt: number;
+  parent_id?: string;
+  analysis: Analysis;
+  coaching?: Coaching;
+  /** Backend drill_id — lets us re-fetch a fresh audio_url later. */
+  drill_id?: string;
 };
+
 export type DrillResult = { skill: string; first_score: number; last_score: number; first_delay: number; last_delay: number; attempts: number; at: string };
+
 export type State = {
-  profile: Profile | null; responses: ResponseRecord[]; drillsDone: string[]; practiceDays: string[]; drillResults?: Record<string, DrillResult>;
+  profile: Profile | null;
+  responses: ResponseRecord[];
+  drillsDone: string[];
+  practiceDays: string[];
+  drillResults?: Record<string, DrillResult>;
   // Kept separate from identity: entitlement (access), lead (contact capture), marketing (consent).
-  entitlement?: Entitlement; freeAttemptsUsed?: number; freeDay?: string; lead?: Lead; marketing?: Marketing; interests?: Interest[];
+  entitlement?: Entitlement;
+  freeAttemptsUsed?: number;
+  freeDay?: string;
+  lead?: Lead;
+  marketing?: Marketing;
+  interests?: Interest[];
   freeResponseIds?: string[];
 };
+
 export function subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l); }; }
 
 export const STORAGE_KEY = "unspoken-state-v1";
