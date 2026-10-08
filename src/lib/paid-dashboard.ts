@@ -136,8 +136,15 @@ function mapRepToRecord(
     mode,
     response_type: responseType,
     transcript,
-    audio_url: undefined,
-    duration: Number((r.signals as Record<string, unknown> | undefined)?.duration_seconds ?? r.duration_seconds ?? 0),
+    audio_url:
+      typeof r.audio_url === "string" && r.audio_url.length > 0
+        ? r.audio_url
+        : undefined,
+    duration: Number(
+      (r.signals as Record<string, unknown> | undefined)?.duration_seconds ??
+        r.duration_seconds ??
+        0,
+    ),
     created_at: createdAt,
     attempt: Number(r.question_slot ?? 1) || 1,
     parent_id: undefined,
