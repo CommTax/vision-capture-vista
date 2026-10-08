@@ -11,12 +11,33 @@ import { ContactDetails } from "@/components/contact-details";
 import { signupFree } from "@/lib/backend-api";
 import { setFreeSession } from "@/lib/backend-auth";
 import { fetchScenarios } from "@/lib/questions-api";
-import { RefreshCw } from "lucide-react";
+import {
+  RefreshCw,
+  Briefcase,
+  MessageSquareWarning,
+  Presentation,
+  Users,
+  Megaphone,
+  Crown,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { RoleSelectorCard } from "@/components/role-selector-card";
 
 const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
 const VISIBLE_COUNT = 2;
 const API_BASE = import.meta.env.VITE_API_URL ?? "https://unspoken-backend-nqvl.onrender.com";
+
+// Per-category icon. Each category gets its own visual anchor.
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  interview:    Briefcase,
+  conversation: MessageSquareWarning,
+  presentation: Presentation,
+  group:        Users,
+  sales:        Megaphone,
+  everyday:     Crown,
+  custom:       Sparkles,
+};
 
 export const Route = createFileRoute("/practice/")({
   validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
@@ -97,6 +118,99 @@ function CustomCard({ onClick }: { onClick: () => void }) {
       </div>
       <div className="mt-4 flex items-center justify-end font-mono text-[11px]">
         <span className="text-primary">Start →</span>
+      </div>
+    </button>
+  );
+}
+
+function CategoryTile({
+  id,
+  name,
+  blurb,
+  active,
+  onClick,
+}: {
+  id: string;
+  name: string;
+  blurb: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const Icon = CATEGORY_ICON[id] ?? Sparkles;
+
+  return (
+    <button
+      onClick={onClick}
+      className="group relative flex w-[75vw] max-w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-5 text-left transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:max-w-none"
+      style={{
+        background: active
+          ? "linear-gradient(160deg, rgba(139,127,255,0.16) 0%, rgba(26,16,51,0.4) 50%, rgba(11,13,20,0.85) 100%)"
+          : "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 55%, rgba(11,13,20,0.6) 100%)",
+        border: active
+          ? "1px solid rgba(139,127,255,0.45)"
+          : "1px solid rgba(255,255,255,0.06)",
+        boxShadow: active
+          ? "0 22px 60px -22px rgba(139,127,255,0.4), inset 0 1px 0 rgba(255,255,255,0.06)"
+          : "0 12px 30px -22px rgba(0,0,0,0.6)",
+      }}
+    >
+      {/* Corner glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-14 -right-14 h-40 w-40 rounded-full transition-opacity duration-500"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+          filter: "blur(12px)",
+          opacity: active ? 0.9 : 0.35,
+        }}
+      />
+
+      {/* Icon cluster */}
+      <div className="relative mb-6 flex items-center justify-between">
+        <span
+          className="grid size-11 place-items-center rounded-xl transition-colors duration-300"
+          style={{
+            background: active ? "rgba(139,127,255,0.18)" : "rgba(255,255,255,0.05)",
+            border: active
+              ? "1px solid rgba(139,127,255,0.4)"
+              : "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <Icon
+            className="size-5 transition-colors duration-300"
+            style={{ color: active ? "#a99bff" : "#8a8f9a" }}
+          />
+        </span>
+
+        {active && (
+          <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
+            Active
+          </span>
+        )}
+      </div>
+
+      {/* Text content */}
+      <div className="relative flex-1">
+        <div className="font-display text-[17px] font-bold leading-snug">{name}</div>
+        <p className="mt-1.5 text-[12.5px] leading-5 text-muted-foreground">{blurb}</p>
+      </div>
+
+      {/* Bottom hint */}
+      <div className="relative mt-5 flex items-center justify-between">
+        <span
+          className="font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-300"
+          style={{ color: active ? "#a99bff" : "rgba(255,255,255,0.35)" }}
+        >
+          {active ? "Selected" : "Tap to start"}
+        </span>
+        <span
+          className="text-[13px] transition-transform duration-300 group-hover:translate-x-0.5"
+          style={{ color: active ? "#a99bff" : "rgba(255,255,255,0.4)" }}
+          aria-hidden
+        >
+          →
+        </span>
       </div>
     </button>
   );
@@ -406,22 +520,17 @@ function Practice() {
             Swipe →
           </span>
         </h2>
+
         <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
           {MODES.map((m) => (
-            <button
+            <CategoryTile
               key={m.id}
+              id={m.id}
+              name={m.name}
+              blurb={CATEGORY_BLURB[m.id] ?? m.blurb}
+              active={mode === m.id}
               onClick={() => setMode((c) => (c === m.id ? null : m.id))}
-              className={`glass w-[75vw] max-w-[280px] shrink-0 snap-start p-4 text-left transition sm:w-auto sm:max-w-none ${
-                mode === m.id
-                  ? "border-primary/60 bg-primary/10"
-                  : "hover:bg-glass-strong"
-              }`}
-            >
-              <div className="font-display text-[16px] font-bold">{m.name}</div>
-              <p className="mt-1 text-[12px] text-muted-foreground">
-                {CATEGORY_BLURB[m.id] ?? m.blurb}
-              </p>
-            </button>
+            />
           ))}
         </div>
 
@@ -536,6 +645,7 @@ function Practice() {
                 </span>
               )}
             </div>
+
             <div className="grid gap-3 md:grid-cols-3">
               {slots.map((s, i) => (
                 <ScenarioCard
