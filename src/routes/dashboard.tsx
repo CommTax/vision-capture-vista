@@ -57,33 +57,42 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
 }
 
 // ────────────────────────────────────────────────────────────
-// Dynamic focus extractor — reads the user's latest drill
+// Pull dynamic focus copy from the user's latest analyzed drill.
+// Reads from the same Analysis fields used by the response page.
 // ────────────────────────────────────────────────────────────
 function dynamicFocus(
   rs: ResponseRecord[],
   dimension: Dimension,
 ): { why?: string; chain?: string[]; move?: string } | null {
+  // Latest drill with real scores
   const latest = rs.find((r) => r.analysis && r.analysis.overall > 0);
   if (!latest) return null;
 
-  const a: any = latest.analysis;
+  const a = latest.analysis;
 
+  // "Why" line — the LLM's single most-actionable change
   const why: string | undefined =
-    a?.coaching?.one_thing_to_change ||
-    a?.metrics?.[`${dimension}_note`] ||
-    a?.dimensions?.[dimension]?.happened ||
+    a.retry_instruction ||
+    a.dimensions?.[dimension]?.tryThis ||
+    a.summary ||
     undefined;
 
-  const chain: string[] | undefined =
-    Array.isArray(a?.coaching?.recommended_structure) &&
-    a.coaching.recommended_structure.length >= 2
-      ? a.coaching.recommended_structure.slice(0, 3)
-      : undefined;
+  // "Move" line — same source; it's what to do next
+  const move = why;
 
-  const move: string | undefined =
-    a?.coaching?.one_thing_to_change ||
-    a?.coaching?.what_worked ||
-    undefined;
+  // Chain chips — parse from the LLM's example structure
+  const chain: string[] | undefined = (() => {
+    const raw = a.example_structure;
+    if (!raw || typeof raw !== "string") return undefined;
+
+    // Split on arrows, bullets, newlines, or numbered list markers
+    const parts = raw
+      .split(/\s*[→•·]\s*|\s*\n\s*|\s*\d+\.\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    return parts.length >= 2 ? parts.slice(0, 3) : undefined;
+  })();
 
   return { why, chain, move };
 }
