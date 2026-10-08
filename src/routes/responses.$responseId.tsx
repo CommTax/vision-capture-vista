@@ -5,8 +5,8 @@ import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { modeName } from "@/lib/data";
 import { usePaidDashboard } from "@/lib/paid-dashboard";
 import { normalizeBackendAnalysis } from "@/lib/analysis";
-import type { ResponseRecord } from "@/lib/store";
 import { toAudioUrl } from "@/lib/r2";
+import type { ResponseRecord } from "@/lib/store";
 
 const API_BASE =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
@@ -78,7 +78,7 @@ function Detail() {
           mode: "interview",
           response_type: "voice",
           transcript: payload.analysis?.transcribed_text || "",
-          audio_url: payload.audio_url ?? undefined,        // ← change from undefined
+          audio_url: payload.audio_url ?? undefined,
           duration: payload.duration_seconds || 0,
           created_at: payload.created_at || new Date().toISOString(),
           attempt: 1,
@@ -133,6 +133,9 @@ function Detail() {
 
   const level = "Mid career";
 
+  // Compute the persistent, playable audio URL once
+  const audioSrc = toAudioUrl(rec.audio_url);
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -161,17 +164,13 @@ function Detail() {
         )}
       </div>
 
-{(() => {
-  const src = toAudioUrl(rec.audio_url);
-  return src ? (
-    <audio controls preload="metadata" src={src} className="w-full" />
-  ) : null;
-})()}
+      {audioSrc && (
+        <audio controls preload="metadata" src={audioSrc} className="w-full" />
+      )}
 
       {parent && <ComparePanel a1={parent.analysis} a2={rec.analysis} />}
 
       <AnalysisView a={rec.analysis} transcript={rec.transcript} />
-
-     </div>
+    </div>
   );
 }
