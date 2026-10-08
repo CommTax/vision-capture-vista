@@ -88,7 +88,7 @@ function Drills() {
   return (
     <div className="space-y-10">
       <div>
-        <PageHead eyebrow="Targeted practice" title="Drills" />
+        <PageHead eyebrow="" title="Drills" />
         <p className="-mt-6 text-[15px] text-muted-foreground">
           Practice what your responses need most.
         </p>
