@@ -366,28 +366,6 @@ export function AnalysisView({
             </section>
           </div>
 
-          {/* 3. HELPED / IMPROVE */}
-          <section className="grid gap-6 md:grid-cols-2">
-            <div className="glass p-6">
-              <div className="eyebrow mb-3">What helped</div>
-              {a.strengths.map((s) => (
-                <div key={s} className="flex gap-2 py-1 text-[14px]">
-                  <span className="text-success">+</span>
-                  <span>{s}</span>
-                </div>
-              ))}
-            </div>
-            <div className="glass p-6">
-              <div className="eyebrow mb-3">What to improve</div>
-              {a.improvements.map((s) => (
-                <div key={s} className="flex gap-2 py-1 text-[14px]">
-                  <span className="text-primary">→</span>
-                  <span>{s}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* 4. ORIGINAL / EXAMPLE / REWORK */}
           <section className="grid gap-6 md:grid-cols-2">
             <div className="glass p-6">
