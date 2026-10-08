@@ -4,7 +4,7 @@ import type { DrillTeaser, FAQItem, HomepageContent, PracticeMoment, PricingPlan
 // ── Moments — trimmed to 3 for a focused landing page ──
 export const FALLBACK_MOMENTS: PracticeMoment[] = [
   { id: "interview", name: "Interview", description: "Walk in with your answers already tested.", category: "interview", icon: "briefcase", common: true, active: true },
-  { id: "high-stakes", name: "Difficult conversation", description: "Say it honestly. Stay calm.", category: "conversation", icon: "message", active: true },
+  { id: "high-stakes", name: "High-stakes conversation", description: "Say it honestly. Stay calm.", category: "conversation", icon: "message", active: true },
   { id: "presentation", name: "Presentation", description: "Lead with the point.", category: "presentation", icon: "presentation", active: true },
   // Kept in the data but disabled — surfaced only via "practice your own question"
   { id: "leadership", name: "Leadership", description: "Executive updates, ambiguity, difficult decisions.", category: "everyday", icon: "crown", active: false },
