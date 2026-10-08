@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/app-shell";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { HowItWorksDemo } from "@/components/how-demo";
 import { dataProvider, formatPrice } from "@/services/data-provider";
-import type { PracticeMoment } from "@/content/types";
-import { RotatingWord, TransformationReel } from "@/components/landing-visuals";
-import landingVideo from "@/assets/landing-transformation.mp4.asset.json";
+import { RotatingWord } from "@/components/landing-visuals";
+import { HeroPreview } from "@/components/landing/hero-preview";
+import { ProofBlock } from "@/components/landing/proof-block";
+import { ScrollReveal } from "@/components/landing/scroll-reveal";
 import { MomentArt } from "@/components/moment-art";
+import type { PracticeMoment } from "@/content/types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,25 +29,40 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-
+// ─────────────────────────────────────────────────────────────
 
 function MomentTile({ m }: { m: PracticeMoment }) {
   return (
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group flex w-[68vw] max-w-[240px] shrink-0 snap-start flex-col rounded-2xl border border-border bg-card p-3 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40 sm:w-[240px] md:w-auto md:max-w-none"
+      className="group glass relative flex flex-col overflow-hidden p-6 text-left transition duration-300 hover:-translate-y-0.5 hover:border-primary/40"
     >
-      <MomentArt id={m.id} />
-      <h3 className="mt-3 font-display text-[13px] font-semibold leading-snug whitespace-nowrap">{m.name}</h3>
-      <p className="mt-1 line-clamp-2 text-[11.5px] leading-4 text-muted-foreground">{m.description}</p>
-      <span className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-primary opacity-0 transition duration-300 group-hover:opacity-100">
-        Practice <ArrowUpRight className="size-3" aria-hidden="true" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-40 blur-3xl transition-opacity duration-500 group-hover:opacity-80"
+        style={{
+          background: "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+        }}
+      />
+      <div className="relative">
+        <MomentArt id={m.id} />
+      </div>
+      <h3 className="relative mt-5 font-display text-[20px] font-bold leading-snug">
+        {m.name}
+      </h3>
+      <p className="relative mt-1.5 text-[13.5px] leading-5 text-muted-foreground">
+        {m.description}
+      </p>
+      <span className="relative mt-5 inline-flex items-center gap-1 text-[12px] font-semibold text-primary opacity-70 transition-opacity duration-300 group-hover:opacity-100">
+        Practice
+        <ArrowUpRight className="size-3" aria-hidden="true" />
       </span>
     </Link>
   );
 }
 
+// ─────────────────────────────────────────────────────────────
 
 function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: string; open: boolean; onToggle: () => void }) {
   return (
@@ -63,11 +80,12 @@ function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: strin
 
 function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
+  const items = dataProvider.getFaq();
   return (
-    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14">
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">Questions</h2>
       <div className="mt-8 border-b border-border">
-        {dataProvider.getFaq().map((f, i) => (
+        {items.map((f, i) => (
           <FaqItem key={f.id} q={f.question} a={f.answer} id={`faq-${i}`} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
         ))}
       </div>
@@ -75,88 +93,184 @@ function FaqSection() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
 
+const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
+const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 
 function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
   return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}>{children}</section>;
 }
-const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
-const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
+
+// ─────────────────────────────────────────────────────────────
 
 function Landing() {
   const navigate = useNavigate();
   const home = dataProvider.getHomepageContent();
-  const { hero, transformations, contact } = home;
-  const moments = dataProvider.getPracticeMoments();
-    const plans = dataProvider.getPricingPlans();
+  const { hero, contact } = home;
+  const moments = dataProvider.getPracticeMoments().slice(0, 3);
+  const plans = dataProvider.getPricingPlans();
   const hydrated = useHydrated();
   const [signedIn, setSignedIn] = useState(false);
 
-useEffect(() => {
-  if (!hydrated) return;
+  useEffect(() => {
+    if (!hydrated) return;
+    void getBackendSession().then((session) => setSignedIn(!!session));
+  }, [hydrated]);
 
-  void getBackendSession().then((session) => {
-    setSignedIn(!!session);
-  });
-}, [hydrated]);
-
-  // Guest → land on /practice → its inline gate collects name/email/phone.
-  // Signed-in → straight to the hub.
   const tryFree = () => navigate({ to: "/practice" });
   const primaryCta = () => (signedIn ? navigate({ to: "/practice" }) : tryFree());
 
   return (
     <div className="overflow-x-clip pb-20 md:pb-0">
+      {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
           <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
-           <Link to="/" className="hover:text-primary">Home</Link><a href="#modes" className="hover:text-primary">Practice</a><a href="#how" className="hover:text-primary">How it works</a><a href="#pricing" className="hover:text-primary">Pricing</a><a href="/university/index.html" className="hover:text-primary">University</a>
+            <Link to="/" className="hover:text-primary">Home</Link>
+            <a href="#modes" className="hover:text-primary">Practice</a>
+            <a href="#how" className="hover:text-primary">How it works</a>
+            <a href="#pricing" className="hover:text-primary">Pricing</a>
+            <a href="/university/index.html" className="hover:text-primary">University</a>
           </nav>
-          <div className="flex items-center gap-3"><ThemeToggle />{signedIn ? <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link> : <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>}<button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            {signedIn ? (
+              <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link>
+            ) : (
+              <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">
+                Login
+              </Link>
+            )}
+            <button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">
+              {signedIn ? hero.ctaSignedIn : hero.cta}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-0 md:px-8 md:pt-24 md:pb-0">
-        <div className="rise max-w-5xl">
-          <h1 className="text-[clamp(36px,5.6vw,76px)] font-bold leading-[1.04]"><span className="block text-[0.82em] lg:whitespace-nowrap">{hero.headline}</span><span className="block"><RotatingWord words={hero.rotatingWords} /></span><span className="block">Responses</span></h1>
-          <p className="mt-6 max-w-[48ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
-          <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
-          <div className="mt-9"><button onClick={primaryCta} className="btn btn-primary">{signedIn ? hero.ctaSignedIn : hero.cta}</button></div>
+      {/* HERO — split layout */}
+      <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-14 md:px-8 md:pt-20 md:pb-20">
+        <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr] md:gap-16">
+          {/* Left: copy */}
+          <div className="rise">
+            <h1 className="text-[clamp(36px,5.6vw,68px)] font-bold leading-[1.04]">
+              <span className="block text-[0.82em] lg:whitespace-nowrap">
+                {hero.headline}
+              </span>
+              <span className="block">
+                <RotatingWord words={hero.rotatingWords} />
+              </span>
+              <span className="block">Responses</span>
+            </h1>
+            <p className="mt-6 max-w-[44ch] text-[17px] leading-7 md:text-[19px]">
+              {hero.body}
+            </p>
+            <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
+                {signedIn ? hero.ctaSignedIn : hero.cta}
+                <ArrowRight className="ml-1 size-4" />
+              </button>
+              <a href="#how" className="btn btn-ghost px-6 py-3 text-[15px]">
+                See how it works
+              </a>
+            </div>
+          </div>
+
+          {/* Right: animated preview */}
+          <div className="hidden md:block">
+            <HeroPreview />
+          </div>
         </div>
       </section>
 
-      {/* THE REAL PROBLEM */}
-      <Section className="!pt-14 md:!pt-20">
-        <div className="eyebrow mb-4 text-center !text-primary">The real problem</div>
-        <TransformationReel pairs={transformations} video={landingVideo.url} closing={<>Make the thing you mean <span className="text-primary">easier to hear.</span></>} />
+      {/* HOW IT WORKS — animated walkthrough (existing component) */}
+      <section id="how">
+        <HowItWorksDemo />
+      </section>
+
+      {/* PRACTICE MOMENTS — 3 cards */}
+      <Section id="modes" className="!py-14 md:!py-20">
+        <ScrollReveal>
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <div className="eyebrow !text-primary">Choose your moment</div>
+              <h2 className={`${H2} mt-2`}>Where should we start?</h2>
+            </div>
+            <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
+              Walk into the real conversation with your words already tested.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {moments.map((m, i) => (
+            <ScrollReveal key={m.id} delay={i * 80}>
+              <MomentTile m={m} />
+            </ScrollReveal>
+          ))}
+        </div>
+
+        <ScrollReveal delay={240}>
+          <div className="mt-8 text-center">
+            <Link
+              to="/practice"
+              search={{ mode: "custom" }}
+              className="text-[13px] font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Or practice your own question →
+            </Link>
+          </div>
+        </ScrollReveal>
       </Section>
 
-      {/* HOW THEUNSPOKEN WORKS */}
-      <section id="how"><HowItWorksDemo /></section>
-
-      {/* PRACTICE MOMENTS */}
-      <Section id="modes" className="!py-10 md:!py-14">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div className="product-kicker !text-primary">Choose your moment</div>
-          <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">Walk into the real conversation with your words already tested.</p>
-        </div>
-        <div className="mt-7 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-6 md:overflow-visible md:px-0 md:pb-0">
-          {moments.map((moment) => <MomentTile key={moment.id} m={moment} />)}
-        </div>
-      </Section>
+      {/* PROOF BLOCK */}
+      <ProofBlock />
 
       {/* PRICING */}
       <Section id="pricing">
-        <h2 className={H2}>Pricing</h2>
+        <ScrollReveal>
+          <h2 className={H2}>Pricing</h2>
+          <p className={`${SUB} max-w-2xl`}>
+            Start free. Upgrade when you want unlimited practice, deeper analysis, or a focused program.
+          </p>
+        </ScrollReveal>
+
         <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {plans.map((t) => (
-            <div key={t.id} className={`glass flex flex-col p-8 ${t.highlighted ? "glass-float border-primary/50" : ""}`}>
-              <div className="eyebrow">{t.name}</div><div className="mt-3 font-display text-[40px] font-bold leading-none">{formatPrice(t)}</div>
-              <ul className="mt-7 flex-1 space-y-2.5 text-[14px] text-muted-foreground">{t.features.map((x) => <li key={x}>{x}</li>)}</ul>
-              <Link to="/signup" className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}>{t.cta}</Link>
-            </div>
+          {plans.map((t, i) => (
+            <ScrollReveal key={t.id} delay={i * 80}>
+              <div
+                className={`glass relative flex h-full flex-col p-8 ${
+                  t.highlighted ? "glass-float border-primary/50" : ""
+                }`}
+              >
+                {t.badge && (
+                  <div className="absolute -top-3 left-6 rounded-full border border-primary/40 bg-primary/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
+                    {t.badge}
+                  </div>
+                )}
+                <div className="eyebrow">{t.name}</div>
+                <div className="mt-3 font-display text-[40px] font-bold leading-none">
+                  {formatPrice(t)}
+                </div>
+                <ul className="mt-7 flex-1 space-y-2.5 text-[14px] text-muted-foreground">
+                  {t.features.map((x) => (
+                    <li key={x} className="flex gap-2">
+                      <span className="text-primary">·</span>
+                      <span>{x}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/signup"
+                  className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}
+                >
+                  {t.cta}
+                </Link>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </Section>
@@ -166,23 +280,37 @@ useEffect(() => {
       {/* CONTACT */}
       <section id="contact" className="mx-auto max-w-[1200px] px-5 md:px-8">
         <a href={`mailto:${contact.email}`} className="flex items-center justify-between border-y border-border py-6">
-          <span className="font-display text-[20px] font-bold">Have a question?</span><span className="text-[14px] text-primary">Contact us →</span>
+          <span className="font-display text-[20px] font-bold">Have a question?</span>
+          <span className="text-[14px] text-primary">Contact us →</span>
         </a>
       </section>
 
       {/* FINAL CTA */}
       <Section>
-        <div className="text-center">
-          <h2 className={`${H2} mx-auto max-w-3xl`}>Practice until the important thing doesn't get lost.</h2>
-          <p className={`${SUB} mx-auto max-w-xl`}>Your next interview. Your next presentation. Your next difficult conversation. Practice it before it matters.</p>
-          <button onClick={primaryCta} className="btn btn-primary mt-9">{signedIn ? hero.ctaSignedIn : hero.cta}</button>
-        </div>
+        <ScrollReveal>
+          <div className="text-center">
+            <h2 className={`${H2} mx-auto max-w-3xl`}>
+              Practice until the important thing doesn't get lost.
+            </h2>
+            <p className={`${SUB} mx-auto max-w-xl`}>
+              Your next interview. Your next presentation. Your next difficult conversation.
+            </p>
+            <button onClick={primaryCta} className="btn btn-primary mt-9 px-6 py-3 text-[15px]">
+              {signedIn ? hero.ctaSignedIn : hero.cta}
+              <ArrowRight className="ml-1 size-4" />
+            </button>
+          </div>
+        </ScrollReveal>
       </Section>
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-6 px-5 py-10 sm:flex-row sm:items-center md:px-8">
           <Logo />
-          <div className="flex gap-6 text-[13px] text-muted-foreground"><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><a href={`mailto:${contact.email}`}>Contact</a></div>
+          <div className="flex gap-6 text-[13px] text-muted-foreground">
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <a href={`mailto:${contact.email}`}>Contact</a>
+          </div>
         </div>
       </footer>
       <MobileNav />
