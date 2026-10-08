@@ -43,7 +43,7 @@ function CageArt() {
       strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="size-[190px] text-accent/45 md:size-[230px]"
+      className="size-[170px] text-accent/35 md:size-[210px]"
       aria-hidden="true"
     >
       <rect x="70" y="30" width="120" height="110" rx="10" />
@@ -200,15 +200,37 @@ export function HowItWorksDemo() {
 
   const active = STEPS[step]!;
 
+  // Per-step accent tint for the ambient glow. Step 3 (See what got lost)
+  // is the "diagnosis" moment — tinted red for emotional emphasis.
+  const glow =
+    step === 2
+      ? "radial-gradient(closest-side, rgba(248,113,113,0.32), transparent)"
+      : "radial-gradient(closest-side, rgba(139,127,255,0.42), transparent)";
+
   return (
     <div className="product-stage py-14 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 md:px-8">
         <div className="eyebrow text-center !text-primary">How TheUnspoken works</div>
 
         <div className="mt-8 grid items-stretch gap-6 md:mt-10 md:grid-cols-[1.4fr_1fr]">
-          {/* Product panel */}
-<div className="how-panel min-h-[360px] md:min-h-[420px]">
-  <div className="mx-auto flex h-full max-w-[380px] items-center px-6 py-8 md:px-10">
+          {/* ── Product panel ───────────────────────────────── */}
+          <div className="how-panel relative min-h-[360px] overflow-hidden md:min-h-[420px]">
+            {/* Ambient glow — shifts color per step */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-32 -right-32 size-80 rounded-full opacity-70 blur-3xl transition-all duration-700"
+              style={{ background: glow }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-40 -left-32 size-96 rounded-full opacity-40 blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(139,127,255,0.3), transparent)",
+              }}
+            />
+
+            <div className="relative mx-auto flex h-full max-w-[380px] items-center px-6 py-8 md:px-10">
               <AnimatePresence mode="wait" initial={false} custom={dir}>
                 <motion.div
                   key={step}
@@ -224,11 +246,24 @@ export function HowItWorksDemo() {
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {/* Progress bar inside the panel */}
+            <div className="absolute inset-x-0 bottom-0 flex gap-1 px-6 pb-4 md:px-10">
+              {STEPS.map((_, n) => (
+                <span
+                  key={n}
+                  aria-hidden
+                  className={`h-0.5 flex-1 rounded-full transition-colors duration-500 ${
+                    n <= step ? "bg-accent/80" : "bg-border"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Step explanation + dots */}
+          {/* ── Step explanation + dots ─────────────────────── */}
           <div className="flex items-center gap-4 md:justify-end">
-            <div className="relative min-h-[150px] flex-1 md:max-w-[360px]">
+            <div className="relative min-h-[140px] flex-1 md:max-w-[360px]">
               <AnimatePresence mode="wait" initial={false} custom={dir}>
                 <motion.div
                   key={step}
@@ -238,15 +273,25 @@ export function HowItWorksDemo() {
                   animate="center"
                   exit="exit"
                   transition={{ duration: 0.45, ease: EASE }}
-                  className="absolute inset-0 flex flex-col justify-center rounded-2xl border border-border bg-card/60 p-7 backdrop-blur-sm md:p-8"
+                  className="absolute inset-0 flex flex-col justify-center rounded-2xl border border-border bg-card/60 p-6 backdrop-blur-sm md:p-7"
                 >
-                  <span className="font-mono text-[11px] tracking-[0.16em] text-accent">0{step + 1}</span>
-                  <h3 className="mt-2 text-[24px] font-bold leading-tight md:text-[27px]">{active.title}</h3>
-                  <p className="mt-2.5 text-[15px] leading-6 text-muted-foreground">{active.body}</p>
+                  <span className="font-mono text-[11px] tracking-[0.16em] text-accent">
+                    0{step + 1}
+                  </span>
+                  <h3 className="mt-2 text-[22px] font-bold leading-tight md:text-[26px]">
+                    {active.title}
+                  </h3>
+                  <p className="mt-2.5 text-[14.5px] leading-6 text-muted-foreground">
+                    {active.body}
+                  </p>
                 </motion.div>
               </AnimatePresence>
             </div>
-            <div className="flex flex-row justify-center gap-2.5 pb-1 md:flex-col md:pb-0" role="tablist" aria-label="Steps">
+            <div
+              className="flex flex-row justify-center gap-2.5 pb-1 md:flex-col md:pb-0"
+              role="tablist"
+              aria-label="Steps"
+            >
               {STEPS.map((s, n) => (
                 <button
                   key={s.title}
@@ -264,7 +309,9 @@ export function HowItWorksDemo() {
         </div>
 
         <div className="mt-8 flex justify-center md:mt-10">
-          <Link to="/practice" className="btn btn-primary px-8 py-3.5 text-[16px]">Start Practising <ArrowRight className="size-4" /></Link>
+          <Link to="/practice" className="btn btn-primary px-8 py-3.5 text-[16px]">
+            Start Practising <ArrowRight className="size-4" />
+          </Link>
         </div>
       </div>
     </div>
