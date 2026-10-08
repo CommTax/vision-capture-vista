@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-ro
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Keyboard, Mic } from "lucide-react";
+import { toAudioUrl } from "@/lib/r2";
 import { AppShell, useHydrated } from "@/components/app-shell";
 import { AnalysisView, ComparePanel } from "@/components/analysis-view";
 import { Recorder } from "@/components/recorder";
@@ -215,20 +216,33 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
       const backendRaw = await analyzePaidResponse({ drill_id });
       const a: Analysis = normalizeBackendAnalysis(backendRaw);
 
-      const rec: ResponseRecord = {
-        id: uid(),
-        question_id: q.id,
-        question: q.text,
-        mode: q.mode,
-        response_type: type,
-        transcript,
-        audio_url: audioUrl,
-        duration: a.duration || duration,
-        created_at: new Date().toISOString(),
-        attempt: attempts.length + 1,
-        parent_id: attempts[0]?.id,
-        analysis: a,
-      };
+// Prefer the R2 key from the backend over the ephemeral blob.
+const backendAudioKey =
+  (backendRaw as { audio_url?: string | null }).audio_url ?? null;
+const backendDuration =
+  (backendRaw as { duration_seconds?: number | null }).duration_seconds ?? null;
+const persistentUrl = toAudioUrl(backendAudioKey);
+
+const rec: ResponseRecord = {
+  id: uid(),
+  question_id: q.id,
+  question: q.text,
+  mode: q.mode,
+  response_type: type,
+  transcript,
+  audio_url: persistentUrl ?? audioUrl,
+  duration: backendDuration ?? a.duration ?? duration,
+  created_at: new Date().toISOString(),
+  attempt: attempts.length + 1,
+  parent_id: attempts[0]?.id,
+  analysis: a,
+  drill_id,
+};
+
+// Free the in-memory blob
+if (persistentUrl && audioUrl?.startsWith("blob:")) {
+  URL.revokeObjectURL(audioUrl);
+}
 
       const wasFree = isFree(getState());
 
@@ -454,7 +468,6 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
           <AnalysisView a={viewed.analysis} transcript={viewed.transcript} onRetry={() => retryNow(false)} />
 
-          {viewed.audio_url && <audio controls src={viewed.audio_url} className="w-full" />}
 
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <button className="btn btn-primary" onClick={() => retryNow(false)}>
