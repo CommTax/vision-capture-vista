@@ -116,6 +116,7 @@ function Responses() {
             const delta = parent
               ? r.analysis.overall - parent.analysis.overall
               : null;
+            const audioSrc = toAudioUrl(r.audio_url);
 
             return (
               <div key={r.id} className="glass flex flex-col p-6">
@@ -133,26 +134,14 @@ function Responses() {
                   "{r.question}"
                 </div>
 
-                <div className="mt-3 font-display text-[18px] font-bold">
-  "{r.question}"
-</div>
-
-{(() => {
-  const src = toAudioUrl(r.audio_url);
-  if (!src) return null;
-  return (
-    <audio
-      controls
-      preload="metadata"
-      src={src}
-      className="mt-3 w-full"
-    />
-  );
-})()}
-
-<div className="mt-2 text-[13px] text-muted-foreground">
-  {PATTERNS[r.analysis.primary_pattern]?.name} · Attempt{" "}
-  ...
+                {audioSrc && (
+                  <audio
+                    controls
+                    preload="metadata"
+                    src={audioSrc}
+                    className="mt-3 w-full"
+                  />
+                )}
 
                 <div className="mt-2 text-[13px] text-muted-foreground">
                   {PATTERNS[r.analysis.primary_pattern]?.name} · Attempt{" "}
