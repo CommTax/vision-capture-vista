@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mic, Sparkles } from "lucide-react";
 
