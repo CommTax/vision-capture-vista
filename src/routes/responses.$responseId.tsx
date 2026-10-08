@@ -167,9 +167,9 @@ function Detail() {
 
       {parent && <ComparePanel a1={parent.analysis} a2={rec.analysis} />}
 
-      <AICoach r={rec} level={level} />
-
       <AnalysisView a={rec.analysis} transcript={rec.transcript} />
+
+      <AICoach r={rec} level={level} />
     </div>
   );
 }
