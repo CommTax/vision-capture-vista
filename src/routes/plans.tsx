@@ -12,6 +12,7 @@ export const Route = createFileRoute("/plans")({
   component: () => <AppShell allowGuest><Plans /></AppShell>,
 });
 
+
 function Plans() {
   const { p } = Route.useSearch();
   const navigate = useNavigate();
