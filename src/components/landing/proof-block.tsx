@@ -8,7 +8,7 @@ const WHAT_YOU_SAID =
   "\u201CSo basically I've worked on a few things, and um, mostly backend…\u201D";
 
 const TIGHTER_VERSION =
-  "\u201CBackend engineer, four years in payments. Cut API latency 40%. Looking to own reliability end to end.\u201D";
+  "\u201CI'm a backend engineer with four years in payments. I've cut API latency by 40%, and I'm looking for a team where I can own reliability end to end.\u201D";
 
 export function ProofBlock() {
   return (
@@ -73,7 +73,7 @@ export function ProofBlock() {
         <ScrollReveal delay={160}>
           <div className="glass-float relative flex h-full flex-col border-primary/45 p-6 md:p-7">
             <div className="flex items-center justify-between">
-              <div className="eyebrow !text-primary">Tighter version</div>
+              <div className="eyebrow !text-primary">Same answer, sharper</div>
               <Check className="size-3.5 text-primary" />
             </div>
 
