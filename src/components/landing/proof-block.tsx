@@ -9,6 +9,7 @@ const WHAT_YOU_SAID =
 const TIGHTER_VERSION =
   "\u201CI'm a backend engineer with four years in payments. I've cut API latency by 40%, and I'm looking for a team where I can own reliability end to end.\u201D";
 
+
 export function ProofBlock() {
   return (
     <section className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
