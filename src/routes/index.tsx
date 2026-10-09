@@ -1,14 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
-import { ArrowUpRight, ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
+import { ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
 import { Logo, useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { StoryFlow } from "@/components/landing/story-flow";
 import { TestimonialsStrip } from "@/components/landing/testimonials-strip";
-import { MomentChipTicker } from "@/components/landing/moment-chip-ticker";
-import { CarouselDots } from "@/components/landing/carousel-dots";
+import { ExploreSheet } from "@/components/landing/explore-sheet";
 import { dataProvider } from "@/services/data-provider";
 import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
@@ -31,7 +30,7 @@ export const Route = createFileRoute("/")({
 });
 
 // ─────────────────────────────────────────────────────────────
-// Moment icons map
+// Moment icons + tints
 // ─────────────────────────────────────────────────────────────
 
 const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
@@ -43,77 +42,71 @@ const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   custom: Sparkles,
 };
 
+const MOMENT_TINTS: Record<string, string> = {
+  interview: "rgb(167, 139, 250)",   // lilac
+  "high-stakes": "rgb(110, 231, 183)", // mint
+  custom: "rgb(249, 168, 158)",      // rose
+  presentation: "rgb(251, 191, 36)", // amber
+  leadership: "rgb(139, 127, 255)",
+  persuasion: "rgb(96, 165, 250)",
+};
+
 // ─────────────────────────────────────────────────────────────
-// Moment card
+// Moment tile — tinted card with Explore action
 // ─────────────────────────────────────────────────────────────
 
-function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
+function MomentTile({
+  m,
+  tint,
+  onExplore,
+}: {
+  m: PracticeMoment;
+  tint: string;
+  onExplore: () => void;
+}) {
   const Icon = MOMENT_ICONS[m.id] ?? Briefcase;
 
   return (
-    <Link
-      to="/practice"
-      search={{ mode: m.category }}
-      className="group glass relative flex h-full flex-col overflow-hidden p-5 text-left transition duration-500 hover:-translate-y-1 hover:border-primary/50"
-      style={{ animationDelay: `${index * 80}ms` }}
+    <button
+      type="button"
+      onClick={onExplore}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border p-5 text-left transition duration-500 hover:-translate-y-1 md:p-6"
+      style={{
+        background: `linear-gradient(160deg, ${tint}18 0%, ${tint}0a 55%, rgba(20, 22, 30, 0.4) 100%)`,
+        borderColor: `${tint}35`,
+        boxShadow: `0 20px 60px -30px ${tint}30`,
+      }}
     >
-      {/* Ambient corner glow */}
+      {/* Icon plate */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute -top-20 -right-20 size-48 rounded-full opacity-40 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
+        className="grid size-10 place-items-center rounded-lg transition-transform duration-500 group-hover:scale-105 md:size-11"
         style={{
-          background: "radial-gradient(closest-side, rgba(139,127,255,0.55), transparent)",
+          background: `${tint}20`,
+          border: `1px solid ${tint}40`,
         }}
-      />
-
-      {/* Icon + title on one row */}
-      <div className="relative flex items-center gap-3.5">
-        <div
-          className="grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105"
-          style={{
-            background:
-              "linear-gradient(150deg, rgba(139,127,255,0.22) 0%, rgba(26,16,51,0.5) 60%, rgba(11,13,20,0.6) 100%)",
-            border: "1px solid rgba(139,127,255,0.35)",
-            boxShadow:
-              "0 8px 30px -14px rgba(139,127,255,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
-          }}
-        >
-          <Icon className="size-5 text-primary" />
-        </div>
-        <div className="min-w-0">
-          <h3 className="font-display text-[18px] font-bold leading-tight">
-            {m.name}
-          </h3>
-          <p className="mt-0.5 text-[12.5px] leading-5 text-muted-foreground">
-            {m.description}
-          </p>
-        </div>
+      >
+        <Icon className="size-5" style={{ color: tint }} />
       </div>
 
-      {/* Stats line */}
-      {m.stats && (
-        <div className="relative mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-          {m.stats}
-        </div>
-      )}
+      {/* Title */}
+      <h3 className="mt-5 font-display text-[19px] font-bold leading-tight md:text-[21px]">
+        {m.name}
+      </h3>
 
-      {/* Single combined ticker */}
-      {m.chips && m.chips.length > 0 && (
-        <div className="relative mt-2">
-          <MomentChipTicker chips={m.chips} speed={35} />
-        </div>
-      )}
+      {/* Description */}
+      <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground md:text-[13.5px]">
+        {m.description}
+      </p>
 
-      {/* Bottom CTA */}
-      <div className="relative mt-5 flex items-center justify-between border-t border-border/60 pt-3.5">
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-          Practice
-        </span>
-        <span className="grid size-6 place-items-center rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-          <ArrowUpRight className="size-3" />
-        </span>
+      {/* Explore */}
+      <div
+        className="mt-auto flex items-center gap-1 pt-6 text-[12.5px] font-semibold"
+        style={{ color: tint }}
+      >
+        Explore
+        <span className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -162,44 +155,15 @@ function Section({ id, className = "", children }: { id?: string; className?: st
 }
 
 // ─────────────────────────────────────────────────────────────
-// Modes section — with mobile carousel + dots
+// Modes section — tinted cards + Explore sheet
 // ─────────────────────────────────────────────────────────────
 
 function ModesSection({ moments }: { moments: PracticeMoment[] }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-
-  // Track which card is centered
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const children = Array.from(el.children) as HTMLElement[];
-      const mid = el.scrollLeft + el.clientWidth / 2;
-      let best = 0;
-      let bestDist = Infinity;
-      children.forEach((child, i) => {
-        const center = child.offsetLeft + child.offsetWidth / 2;
-        const d = Math.abs(center - mid);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const goTo = (i: number) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const target = el.children[i] as HTMLElement | undefined;
-    if (!target) return;
-    el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
-  };
+  const [exploreIndex, setExploreIndex] = useState<number | null>(null);
+  const exploringMoment = exploreIndex !== null ? moments[exploreIndex] : null;
+  const exploringTint = exploringMoment
+    ? (MOMENT_TINTS[exploringMoment.id] ?? "rgb(139, 127, 255)")
+    : "rgb(139, 127, 255)";
 
   return (
     <Section id="modes" className="!py-14 md:!py-20">
@@ -212,38 +176,24 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
         </div>
       </ScrollReveal>
 
-      {/* Dots — visible on mobile only (desktop shows all 3 in a grid) */}
-      <div className="mt-6 md:hidden">
-        <CarouselDots
-          count={moments.length}
-          active={active}
-          onSelect={goTo}
-          label="Practice modes"
-        />
-      </div>
-
-      {/* Mobile carousel */}
-      <div
-        ref={scrollerRef}
-        className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
-      >
-        {moments.map((m, i) => (
-          <div key={m.id} className="w-[78vw] shrink-0 snap-center">
-            <ScrollReveal delay={i * 80} className="h-full">
-              <MomentCard m={m} index={i} />
-            </ScrollReveal>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop grid */}
-      <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {moments.map((m, i) => (
           <ScrollReveal key={m.id} delay={i * 80} className="h-full">
-            <MomentCard m={m} index={i} />
+            <MomentTile
+              m={m}
+              tint={MOMENT_TINTS[m.id] ?? "rgb(139, 127, 255)"}
+              onExplore={() => setExploreIndex(i)}
+            />
           </ScrollReveal>
         ))}
       </div>
+
+      <ExploreSheet
+        moment={exploringMoment}
+        open={exploreIndex !== null}
+        onClose={() => setExploreIndex(null)}
+        tint={exploringTint}
+      />
     </Section>
   );
 }
