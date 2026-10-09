@@ -281,8 +281,8 @@ function BeatTwo() {
 
         {/* Diagnosis */}
         <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
-          Your point is there.{" "}
-          <span className="text-primary">It&apos;s just buried.</span>
+          Your point is.{" "}
+          <span className="text-primary">just scattered & buried.</span>
         </h3>
         <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
           Your point arrived at <span className="text-foreground">0:33</span>. The first
@@ -304,7 +304,7 @@ function BeatThree() {
         {/* Header */}
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary md:text-[11px]">
-            Pattern Awarness & Revised Response
+            Pattern Awareness & Revised Response
           </span>
           <span className="font-mono text-[10px] text-muted-foreground md:text-[11px]">
             0:11
