@@ -7,6 +7,7 @@ type Props = {
   speed?: number;
 };
 
+
 /** Category → dot color. Kept muted to fit the dark theme. */
 const DOT_COLOR: Record<PracticeMomentChipCategory | "default", string> = {
   role:      "rgb(251, 191, 36)",   // amber
