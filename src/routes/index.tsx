@@ -216,9 +216,9 @@ function Landing() {
                 {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
                 <ArrowRight className="ml-1 size-4" />
               </button>
-              <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                No card required · Free practices · Voice or text
-              </p>
+<p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
+  no card required · free practices · voice or text
+</p>
             </div>
           </div>
           <div className="hidden md:block"><HeroPreview /></div>
@@ -236,8 +236,7 @@ function Landing() {
         <ScrollReveal>
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <div className="eyebrow !text-primary">Choose your moment</div>
-              <h2 className={`${H2} mt-2`}>Where should we start?</h2>
+<div className="eyebrow !text-primary">Where should we start?</div>
             </div>
             <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
               Walk into the real conversation with your words already tested.
@@ -264,19 +263,7 @@ function Landing() {
             </ScrollReveal>
           ))}
         </div>
-
-        <ScrollReveal delay={240}>
-          <div className="mt-8 text-center">
-            <Link
-              to="/practice"
-              search={{ mode: "custom" }}
-              className="text-[13px] font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Or practice your own response →
-            </Link>
-          </div>
-        </ScrollReveal>
-      </Section>
+     </Section>
 
       {/* PRICING */}
       <Section id="pricing">
@@ -335,9 +322,9 @@ function Landing() {
               {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
               <ArrowRight className="ml-1 size-4" />
             </button>
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-              No card required · Free practices · Voice or text
-            </p>
+<p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
+  no card required · free practices · voice or text
+</p>
           </div>
         </ScrollReveal>
       </Section>
