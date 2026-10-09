@@ -138,7 +138,7 @@ function FaqItem({
 }) {
   return (
     <div
-      className="sticky"
+      className="sticky mb-3 last:mb-0"
       style={{
         top: `${72 + index * 14}px`,
         zIndex: index + 1,
@@ -209,25 +209,22 @@ function FaqSection() {
         Questions
       </h2>
 
-      {/* Sticky stack — items pile up as the user scrolls */}
       <div className="mx-auto mt-10 max-w-3xl pb-24">
         {items.map((f, i) => (
-          <div key={f.id} className="mb-3 last:mb-0">
-            <FaqItem
-              q={f.question}
-              a={f.answer}
-              id={`faq-${i}`}
-              open={open === i}
-              onToggle={() => setOpen(open === i ? null : i)}
-              index={i}
-            />
-          </div>
+          <FaqItem
+            key={f.id}
+            q={f.question}
+            a={f.answer}
+            id={`faq-${i}`}
+            open={open === i}
+            onToggle={() => setOpen(open === i ? null : i)}
+            index={i}
+          />
         ))}
       </div>
     </section>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // Layout helpers
