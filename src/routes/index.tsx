@@ -276,6 +276,21 @@ function Landing() {
         </ScrollReveal>
       </Section>
 
+      {/* Mobile: snap-scroll carousel */}
+<div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 md:hidden">
+  {moments.map(m => (
+    <div className="w-[85vw] shrink-0 snap-center">
+      <MomentCard m={m} />
+    </div>
+  ))}
+</div>
+
+{/* Desktop: grid */}
+<div className="hidden md:grid md:grid-cols-3 md:gap-4">
+  {moments.map(m => <MomentCard m={m} />)}
+</div>
+      
+
       {/* PRICING */}
       <Section id="pricing">
         <ScrollReveal>
