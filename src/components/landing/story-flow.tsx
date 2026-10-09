@@ -8,8 +8,8 @@ import {
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
-const AUTO_ADVANCE_MS = 7000;
-const IDLE_RESUME_MS = 12000;
+const AUTO_ADVANCE_MS = 5000;
+const IDLE_RESUME_MS = 10000;
 
 // ─────────────────────────────────────────────────────────────
 // Media / reduced-motion
@@ -153,7 +153,7 @@ function BeatOne() {
         {/* Left — headline */}
         <div>
           <h2 className="text-[clamp(34px,5.5vw,68px)] font-bold leading-[1.05] tracking-tight">
-            It sees
+            The Unspoken sees
             <br />
             what you don&apos;t.
           </h2>
