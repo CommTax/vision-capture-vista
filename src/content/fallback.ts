@@ -11,27 +11,19 @@ export const FALLBACK_MOMENTS: PracticeMoment[] = [
     icon: "briefcase",
     common: true,
     active: true,
-    chipRows: [
-      {
-        label: "Role specific",
-        items: [
-          "Scrum Master",
-          "Project Manager",
-          "Product Owner",
-          "Sales Manager",
-        ],
-        moreLabel: "+12 more",
-      },
-      {
-        label: "Question types",
-        items: [
-          "Situational",
-          "Behavioural",
-          "Functional",
-          "Technical",
-          "Self-awareness",
-        ],
-      },
+    stats: "16 roles · 5 question types",
+    chips: [
+      // Roles first
+      "Scrum Master",
+      "Product Owner",
+      "Project Manager",
+      "Sales Manager",
+      // Then question types
+      "Situational",
+      "Behavioural",
+      "Functional",
+      "Technical",
+      "Self-awareness",
     ],
   },
   {
@@ -41,26 +33,18 @@ export const FALLBACK_MOMENTS: PracticeMoment[] = [
     category: "conversation",
     icon: "message",
     active: true,
-    chipRows: [
-      {
-        label: "Situation specific",
-        items: [
-          "Sales pitch",
-          "Idea buy-in",
-          "Addressing a crowd",
-          "Self-presentation",
-        ],
-        moreLabel: "+6 more",
-      },
-      {
-        label: "Common scenarios",
-        items: [
-          "Disagree with manager",
-          "Give hard feedback",
-          "Push back on scope",
-          "Deliver bad news",
-        ],
-      },
+    stats: "10 situations · 4 common scenarios",
+    chips: [
+      // Situations first
+      "Sales pitch",
+      "Idea buy-in",
+      "Addressing a crowd",
+      "Self-presentation",
+      // Then scenarios
+      "Disagree with manager",
+      "Give hard feedback",
+      "Push back on scope",
+      "Deliver bad news",
     ],
   },
   {
@@ -70,19 +54,14 @@ export const FALLBACK_MOMENTS: PracticeMoment[] = [
     category: "custom",
     icon: "sparkles",
     active: true,
-    chipRows: [
-      {
-        label: "Because not everything fits a template",
-        items: ["Your exact scenario", "Your audience", "Your words"],
-      },
-      {
-        label: "Some examples",
-        items: [
-          "A difficult performance review",
-          "A pitch you're not sure about",
-          "A conversation you've been avoiding",
-        ],
-      },
+    stats: "Anything you need to prepare for",
+    chips: [
+      "Your exact scenario",
+      "Your audience",
+      "Your words",
+      "A difficult performance review",
+      "A pitch you're not sure about",
+      "A conversation you've been avoiding",
     ],
   },
   // Kept in the data but disabled — surfaced only via "practice your own question"
