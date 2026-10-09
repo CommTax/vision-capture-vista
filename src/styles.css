@@ -324,3 +324,19 @@
   }
   .ticker-track::-webkit-scrollbar { display: none; }
 }
+/* ── Moment chip ticker ─────────────────────────────────── */
+@keyframes ticker-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.ticker-track {
+  animation: ticker-scroll var(--ticker-speed, 30s) linear infinite;
+  will-change: transform;
+}
+
+/* No animation under reduced motion — the component falls back
+   to a static horizontal scroll row. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
