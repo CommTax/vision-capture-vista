@@ -93,7 +93,7 @@ function MomentTile({ m, index }: { m: PracticeMoment; index: number }) {
       </p>
 
       {/* Bottom CTA row */}
-      <div className="relative mt-auto flex items-center justify-between border-t border-border/60 pt-4 mt-7">
+      <div className="relative mt-7 flex items-center justify-between border-t border-border/60 pt-4">
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           Practice
         </span>
@@ -193,7 +193,7 @@ function Landing() {
               </Link>
             )}
             <button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">
-              {signedIn ? hero.ctaSignedIn : hero.cta}
+              {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
             </button>
           </div>
         </div>
@@ -219,9 +219,12 @@ function Landing() {
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
             <div className="mt-9">
               <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
-                {signedIn ? hero.ctaSignedIn : hero.cta}
+                {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
                 <ArrowRight className="ml-1 size-4" />
               </button>
+              <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                No card required · Free practices · Voice or text
+              </p>
             </div>
           </div>
 
@@ -232,12 +235,11 @@ function Landing() {
         </div>
       </section>
 
-{/* TESTIMONIALS STRIP */}
-<TestimonialsStrip />
-      
-{/* STORY FLOW — six beats replacing walkthrough + proof block */}
-<StoryFlow />
-      </section>
+      {/* TESTIMONIALS STRIP */}
+      <TestimonialsStrip />
+
+      {/* STORY FLOW — six beats replacing walkthrough + proof block */}
+      <StoryFlow />
 
       {/* PRACTICE MOMENTS — 3 premium cards */}
       <Section id="modes" className="!py-14 md:!py-20">
@@ -273,9 +275,6 @@ function Landing() {
           </div>
         </ScrollReveal>
       </Section>
-
-      {/* PROOF BLOCK */}
-      <ProofBlock />
 
       {/* PRICING */}
       <Section id="pricing">
@@ -344,9 +343,12 @@ function Landing() {
               Your next interview. Your next presentation. Your next difficult conversation.
             </p>
             <button onClick={primaryCta} className="btn btn-primary mt-9 px-6 py-3 text-[15px]">
-              {signedIn ? hero.ctaSignedIn : hero.cta}
+              {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
               <ArrowRight className="ml-1 size-4" />
             </button>
+            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              No card required · Free practices · Voice or text
+            </p>
           </div>
         </ScrollReveal>
       </Section>
