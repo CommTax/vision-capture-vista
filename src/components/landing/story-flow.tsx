@@ -335,70 +335,8 @@ function BeatThree() {
         </h3>
         <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
           Clean. One idea. One outcome.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Beat 4 — That landed + 3 checks (centered column)
-// ─────────────────────────────────────────────────────────────
-
-function BeatFour() {
-  const checks = [
-    { label: "No tangents", sub: "Every sentence moved toward the point." },
-    { label: "No hedges", sub: "Stated directly — no 'I think', no 'kind of'." },
-    { label: "One outcome", sub: "40% latency reduction. That's the number." },
-  ];
-
-  return (
-    <div className="flex h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-2xl text-center">
-        <p className="text-[12px] italic leading-5 text-muted-foreground md:text-[13px] md:leading-6">
-          TheUnspoken
-        </p>
-        <h2 className="mt-2 font-display text-[clamp(28px,5vw,52px)] font-bold leading-tight">
-          That landed.
-        </h2>
-        <p className="mt-3 text-[13.5px] leading-6 text-muted-foreground md:text-[15px]">
           Same experience. A clearer signal.
         </p>
-
-        <ul className="mx-auto mt-8 max-w-md space-y-3.5 border-t border-border pt-8 text-left">
-          {checks.map((item, i) => (
-            <li
-              key={item.label}
-              className="check-in flex items-start gap-3"
-              style={{ animationDelay: `${200 + i * 180}ms` }}
-            >
-              <span
-                className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
-                aria-hidden
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-2.5"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </span>
-              <div>
-                <p className="text-[13.5px] font-medium leading-5 text-foreground md:text-[14.5px]">
-                  {item.label}
-                </p>
-                <p className="text-[12.5px] leading-5 text-muted-foreground md:text-[13.5px]">
-                  {item.sub}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
@@ -412,8 +350,7 @@ const BEATS = [
   { id: "b1", node: <BeatOne /> },
   { id: "b2", node: <BeatTwo /> },
   { id: "b3", node: <BeatThree /> },
-  { id: "b4", node: <BeatFour /> },
-];
+ ];
 
 // ─────────────────────────────────────────────────────────────
 // Horizontal scroller
