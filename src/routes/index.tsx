@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
 import { ArrowUpRight, ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
 import { Logo, useHydrated } from "@/components/app-shell";
@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme";
 import { StoryFlow } from "@/components/landing/story-flow";
 import { TestimonialsStrip } from "@/components/landing/testimonials-strip";
 import { MomentChipTicker } from "@/components/landing/moment-chip-ticker";
+import { CarouselDots } from "@/components/landing/carousel-dots";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
@@ -29,6 +30,8 @@ export const Route = createFileRoute("/")({
 });
 
 // ─────────────────────────────────────────────────────────────
+// Moment icons map
+// ─────────────────────────────────────────────────────────────
 
 const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   interview: Briefcase,
@@ -38,6 +41,10 @@ const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   persuasion: MessageSquareWarning,
   custom: Sparkles,
 };
+
+// ─────────────────────────────────────────────────────────────
+// Moment card
+// ─────────────────────────────────────────────────────────────
 
 function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
   const Icon = MOMENT_ICONS[m.id] ?? Briefcase;
@@ -108,6 +115,7 @@ function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
     </Link>
   );
 }
+
 // ─────────────────────────────────────────────────────────────
 // FAQ
 // ─────────────────────────────────────────────────────────────
@@ -150,6 +158,93 @@ const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 
 function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
   return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}>{children}</section>;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Modes section — with mobile carousel + dots
+// ─────────────────────────────────────────────────────────────
+
+function ModesSection({ moments }: { moments: PracticeMoment[] }) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  // Track which card is centered
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const children = Array.from(el.children) as HTMLElement[];
+      const mid = el.scrollLeft + el.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      children.forEach((child, i) => {
+        const center = child.offsetLeft + child.offsetWidth / 2;
+        const d = Math.abs(center - mid);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const goTo = (i: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const target = el.children[i] as HTMLElement | undefined;
+    if (!target) return;
+    el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+  };
+
+  return (
+    <Section id="modes" className="!py-14 md:!py-20">
+      <ScrollReveal>
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <h2 className={H2}>Where should we start?</h2>
+          <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
+            Walk into the real conversation with your words already tested.
+          </p>
+        </div>
+      </ScrollReveal>
+
+      {/* Dots — visible on mobile only (desktop shows all 3 in a grid) */}
+      <div className="mt-6 md:hidden">
+        <CarouselDots
+          count={moments.length}
+          active={active}
+          onSelect={goTo}
+          label="Practice modes"
+        />
+      </div>
+
+      {/* Mobile carousel */}
+      <div
+        ref={scrollerRef}
+        className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
+      >
+        {moments.map((m, i) => (
+          <div key={m.id} className="w-[78vw] shrink-0 snap-center">
+            <ScrollReveal delay={i * 80} className="h-full">
+              <MomentCard m={m} index={i} />
+            </ScrollReveal>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop grid */}
+      <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
+        {moments.map((m, i) => (
+          <ScrollReveal key={m.id} delay={i * 80} className="h-full">
+            <MomentCard m={m} index={i} />
+          </ScrollReveal>
+        ))}
+      </div>
+    </Section>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -216,9 +311,9 @@ function Landing() {
                 {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
                 <ArrowRight className="ml-1 size-4" />
               </button>
-<p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
-  no card required · free practices · voice or text
-</p>
+              <p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
+                no card required · free practices · voice or text
+              </p>
             </div>
           </div>
           <div className="hidden md:block"><HeroPreview /></div>
@@ -231,38 +326,8 @@ function Landing() {
       {/* STORY FLOW */}
       <StoryFlow />
 
-{/* PRACTICE MOMENTS — 3 premium cards */}
-<Section id="modes" className="!py-14 md:!py-20">
-  <ScrollReveal>
-    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-      <h2 className={H2}>Where should we start?</h2>
-      <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
-        Walk into the real conversation with your words already tested.
-      </p>
-    </div>
-  </ScrollReveal>
-
-  {/* Mobile carousel */}
-  <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
-    {moments.map((m, i) => (
-      <div key={m.id} className="w-[85vw] shrink-0 snap-center">
-        <ScrollReveal delay={i * 80} className="h-full">
-          <MomentCard m={m} index={i} />
-        </ScrollReveal>
-      </div>
-    ))}
-  </div>
-
-  {/* Desktop grid */}
-  <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
-    {moments.map((m, i) => (
-      <ScrollReveal key={m.id} delay={i * 80} className="h-full">
-        <MomentCard m={m} index={i} />
-      </ScrollReveal>
-    ))}
-  </div>
-</Section>
-      
+      {/* PRACTICE MOMENTS */}
+      <ModesSection moments={moments} />
 
       {/* PRICING */}
       <Section id="pricing">
@@ -321,9 +386,9 @@ function Landing() {
               {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
               <ArrowRight className="ml-1 size-4" />
             </button>
-<p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
-  no card required · free practices · voice or text
-</p>
+            <p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
+              no card required · free practices · voice or text
+            </p>
           </div>
         </ScrollReveal>
       </Section>
