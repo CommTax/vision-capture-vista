@@ -3,6 +3,16 @@ import type { ModeId } from "@/lib/data";
 
 export type IconKey = "briefcase" | "trending" | "message" | "presentation" | "crown" | "handshake" | "sparkles";
 
+/** One row of chips under a practice moment card on the landing page. */
+export interface PracticeMomentChipRow {
+  /** Small label above the row, e.g. "Role specific". */
+  label: string;
+  /** The chips themselves. */
+  items: string[];
+  /** Optional trailing chip, e.g. "+12 more". Rendered distinctly. */
+  moreLabel?: string;
+}
+
 export interface PracticeMoment {
   id: string;
   name: string;
@@ -12,6 +22,8 @@ export interface PracticeMoment {
   icon: IconKey;
   common?: boolean;
   active: boolean;
+  /** Optional chip rows shown on the landing card (2 rows max on desktop). */
+  chipRows?: PracticeMomentChipRow[];
 }
 
 export interface Metric {
