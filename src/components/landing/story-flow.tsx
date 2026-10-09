@@ -304,7 +304,7 @@ function BeatThree() {
         {/* Header */}
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary md:text-[11px]">
-            Try again
+            Pattern Awarness & Revised Response
           </span>
           <span className="font-mono text-[10px] text-muted-foreground md:text-[11px]">
             0:11
