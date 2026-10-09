@@ -96,28 +96,40 @@ function BeatTwo() {
           </div>
         </div>
 
-        {/* Right — annotations */}
-        <div className="flex flex-col justify-center gap-2">
-          {ANNOTATIONS.map((a) => (
-            <div key={a.label} className="flex items-center gap-3.5">
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ background: a.color }}
-              />
-              <div className="flex flex-1 items-baseline justify-between gap-4">
-                <span
-                  className="font-mono text-[11px] uppercase tracking-[0.14em]"
-                  style={{ color: a.color }}
-                >
-                  {a.label}
-                </span>
-                <span className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground">
-                  {a.time}
-                </span>
-              </div>
-            </div>
-          ))}
+{/* Right — annotations, connected by a flow line */}
+<div className="relative flex flex-col justify-center">
+  {/* Vertical connector — behind the dots */}
+  <div
+    aria-hidden
+    className="absolute left-[5px] top-2 bottom-2 w-px"
+    style={{
+      background:
+        "linear-gradient(to bottom, rgb(96,165,250) 0%, rgb(251,191,36) 20%, rgb(249,115,111) 40%, rgb(167,139,250) 60%, rgb(56,189,248) 80%, rgb(52,211,153) 100%)",
+    }}
+  />
+
+  <div className="relative flex flex-col gap-3">
+    {ANNOTATIONS.map((a) => (
+      <div key={a.label} className="flex items-center gap-3.5">
+        <span
+          className="size-2.5 shrink-0 rounded-full ring-2 ring-background"
+          style={{ background: a.color }}
+        />
+        <div className="flex flex-1 items-baseline justify-between gap-4">
+          <span
+            className="font-mono text-[11px] uppercase tracking-[0.14em]"
+            style={{ color: a.color }}
+          >
+            {a.label}
+          </span>
+          <span className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground">
+            {a.time}
+          </span>
         </div>
+      </div>
+    ))}
+  </div>
+</div>
       </div>
     </div>
   );
@@ -216,46 +228,13 @@ function BeatFive() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Beat 6 — Final CTA
-// ─────────────────────────────────────────────────────────────
-
-function BeatSix() {
-  return (
-    <div className="flex h-full flex-col justify-center">
-      <div className="text-center">
-        <h2 className="mx-auto max-w-3xl text-balance text-[clamp(26px,4vw,48px)] font-bold leading-[1.1]">
-          Practice the moment.
-          <br />
-          See what got lost.
-          <br />
-          Say it again.
-        </h2>
-
-        <div className="mt-8">
-          <Link
-            to="/practice"
-            className="btn btn-primary px-7 py-3.5 text-[16px]"
-          >
-            Try TheUnspoken <ArrowRight className="ml-1 size-4" />
-          </Link>
-          <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-            No card required · Free practices · Voice or text
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const BEATS = [
   { id: "b1", node: <BeatOne /> },
   { id: "b2", node: <BeatTwo /> },
   { id: "b3", node: <BeatThree /> },
   { id: "b4", node: <BeatFour /> },
   { id: "b5", node: <BeatFive /> },
-  { id: "b6", node: <BeatSix /> },
-];
+ ];
 
 // ─────────────────────────────────────────────────────────────
 // Horizontal scroller (desktop + mobile, no reduced motion)
@@ -353,7 +332,7 @@ function HorizontalStory() {
         aria-roledescription="carousel"
         aria-label="Six-panel product story"
         className="
-          flex h-[70vh] min-h-[420px] w-full snap-x snap-mandatory
+          flex h-[62vh] min-h-[380px] w-full snap-x snap-mandatory
           overflow-x-auto overflow-y-hidden
           scroll-smooth outline-none
           [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
@@ -403,7 +382,7 @@ function HorizontalStory() {
 
       {/* Dots */}
       <div
-        className="mt-6 flex items-center justify-center gap-2.5"
+        className="mt-4 flex items-center justify-center gap-2.5"
         role="tablist"
         aria-label="Story panels"
       >
@@ -456,7 +435,7 @@ export function StoryFlow() {
   return (
     <section id="how" className="relative">
       {/* Section header */}
-      <div className="mx-auto max-w-2xl px-5 pt-10 pb-6 text-center md:px-8 md:pt-14 md:pb-10">
+      <div className="mx-auto max-w-2xl px-5 pt-8 pb-0 text-center md:px-8 md:pt-12 md:pb-0">
         <div className="eyebrow !text-primary">
           Three things cost you the role.
         </div>
