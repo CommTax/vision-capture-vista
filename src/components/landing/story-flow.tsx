@@ -756,15 +756,12 @@ export function StoryFlow() {
 
   return (
     <section id="how" className="relative">
-      <div className="mx-auto max-w-2xl px-5 pt-8 pb-0 text-center md:px-8 md:pt-12 md:pb-0">
-        <div className="eyebrow !text-primary">
-          Three things cost you the role.
-        </div>
-        <p className="mt-3 text-balance text-[clamp(20px,2.6vw,28px)] font-bold leading-tight text-muted-foreground">
-          It&apos;s rarely the ideas.{" "}
-          <span className="text-foreground">It&apos;s how they land.</span>
-        </p>
-      </div>
+<div className="mx-auto max-w-2xl px-5 pt-8 pb-0 text-center md:px-8 md:pt-12 md:pb-0">
+  <p className="text-balance text-[clamp(20px,2.6vw,28px)] font-bold leading-tight text-muted-foreground">
+    It&apos;s rarely the ideas.{" "}
+    <span className="text-foreground">It&apos;s how they land.</span>
+  </p>
+</div>
 
       {reduced ? <VerticalStory /> : <HorizontalStory />}
     </section>
