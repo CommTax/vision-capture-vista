@@ -9,11 +9,12 @@ import { StoryFlow } from "@/components/landing/story-flow";
 import { TestimonialsStrip } from "@/components/landing/testimonials-strip";
 import { MomentChipTicker } from "@/components/landing/moment-chip-ticker";
 import { CarouselDots } from "@/components/landing/carousel-dots";
-import { dataProvider, formatPrice } from "@/services/data-provider";
+import { dataProvider } from "@/services/data-provider";
 import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
 import { ScrollReveal } from "@/components/landing/scroll-reveal";
 import type { PracticeMoment } from "@/content/types";
+import { StackedPricing } from "@/components/landing/stacked-pricing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -338,32 +339,7 @@ function Landing() {
           </p>
         </ScrollReveal>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {plans.map((t, i) => (
-            <ScrollReveal key={t.id} delay={i * 80} className="h-full">
-              <div className={`glass relative flex h-full flex-col p-8 ${t.highlighted ? "glass-float border-primary/50" : ""}`}>
-                {t.badge && (
-                  <div className="absolute -top-3 left-6 rounded-full border border-primary/40 bg-primary/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
-                    {t.badge}
-                  </div>
-                )}
-                <div className="eyebrow">{t.name}</div>
-                <div className="mt-3 font-display text-[40px] font-bold leading-none">{formatPrice(t)}</div>
-                <ul className="mt-7 flex-1 space-y-2.5 text-[14px] text-muted-foreground">
-                  {t.features.map((x) => (
-                    <li key={x} className="flex gap-2">
-                      <span className="text-primary">·</span>
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/signup" className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}>
-                  {t.cta}
-                </Link>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
+        <StackedPricing plans={plans} />
       </Section>
 
       <FaqSection />
