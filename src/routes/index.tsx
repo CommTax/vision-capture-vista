@@ -46,7 +46,7 @@ function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
     <Link
       to="/practice"
       search={{ mode: m.category }}
-      className="group glass relative flex h-full flex-col overflow-hidden p-6 text-left transition duration-500 hover:-translate-y-1 hover:border-primary/50"
+      className="group glass relative flex h-full flex-col overflow-hidden p-5 text-left transition duration-500 hover:-translate-y-1 hover:border-primary/50"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* Ambient corner glow */}
@@ -58,58 +58,56 @@ function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
         }}
       />
 
-      {/* Icon plate */}
-      <div className="relative">
+      {/* Icon + title on one row */}
+      <div className="relative flex items-center gap-3.5">
         <div
-          className="relative grid size-14 place-items-center rounded-2xl transition-transform duration-500 group-hover:scale-105"
+          className="grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105"
           style={{
             background:
               "linear-gradient(150deg, rgba(139,127,255,0.22) 0%, rgba(26,16,51,0.5) 60%, rgba(11,13,20,0.6) 100%)",
             border: "1px solid rgba(139,127,255,0.35)",
             boxShadow:
-              "0 12px 40px -18px rgba(139,127,255,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
+              "0 8px 30px -14px rgba(139,127,255,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
           }}
         >
-          <Icon className="size-6 text-primary" />
+          <Icon className="size-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-display text-[18px] font-bold leading-tight">
+            {m.name}
+          </h3>
+          <p className="mt-0.5 text-[12.5px] leading-5 text-muted-foreground">
+            {m.description}
+          </p>
         </div>
       </div>
 
-      {/* Title + description */}
-      <h3 className="relative mt-6 font-display text-[22px] font-bold leading-snug">
-        {m.name}
-      </h3>
-      <p className="relative mt-1.5 text-[14px] leading-6 text-muted-foreground">
-        {m.description}
-      </p>
+      {/* Stats line */}
+      {m.stats && (
+        <div className="relative mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          {m.stats}
+        </div>
+      )}
 
-      {/* Chip rows */}
-      {m.chipRows && m.chipRows.length > 0 && (
-        <div className="relative mt-6 space-y-5">
-          {m.chipRows.map((row) => (
-            <MomentChipTicker
-              key={row.label}
-              label={row.label}
-              items={row.items}
-              moreLabel={row.moreLabel}
-              speed={30}
-            />
-          ))}
+      {/* Single combined ticker */}
+      {m.chips && m.chips.length > 0 && (
+        <div className="relative mt-2">
+          <MomentChipTicker chips={m.chips} speed={35} />
         </div>
       )}
 
       {/* Bottom CTA */}
-      <div className="relative mt-6 flex items-center justify-between border-t border-border/60 pt-4">
+      <div className="relative mt-5 flex items-center justify-between border-t border-border/60 pt-3.5">
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           Practice
         </span>
-        <span className="grid size-7 place-items-center rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-          <ArrowUpRight className="size-3.5" />
+        <span className="grid size-6 place-items-center rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+          <ArrowUpRight className="size-3" />
         </span>
       </div>
     </Link>
   );
 }
-
 // ─────────────────────────────────────────────────────────────
 // FAQ
 // ─────────────────────────────────────────────────────────────
