@@ -299,3 +299,28 @@
     animation: none;
   }
 }
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  gap: 0.5rem;
+  width: max-content;
+  animation: ticker-scroll var(--ticker-speed, 22s) linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ticker-track::-webkit-scrollbar { display: none; }
+}
