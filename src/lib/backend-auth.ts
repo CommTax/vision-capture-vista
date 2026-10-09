@@ -1,5 +1,6 @@
 import { apiGet, apiPost } from "./backend";
-import { clearUserState } from "./store";
+import { clearUserState, getState } from "./store";
+import { saveContact } from "./entitlements";
 
 const SESSION_KEY = "unspoken-session-token";
 const PLAN_HINT_KEY = "unspoken-plan-hint";
@@ -162,10 +163,54 @@ export function logoutBackend() {
 /**
  * Store a free-user session. Same slot as a paid session — the token
  * identifies the user; the plan on the server decides their cap.
+ *
+ * If contact info is provided AND differs from what's already in the
+ * store, we re-save it. Same-contact no-ops are skipped so we don't
+ * churn the store on repeated `Edit → Continue` cycles.
  */
-export function setFreeSession(token: string) {
-  // Clear any previous user's state first.
-  clearUserState();
+export function setFreeSession(
+  token: string,
+  contact?: {
+    name: string;
+    email: string;
+    phone: string;
+    phone_country_code: string;
+  },
+) {
+  const previous = getState().profile;
+
+  // Are we looking at the same user? Compare by email (case-insensitive).
+  const isSameUser =
+    !!previous?.email &&
+    !!contact?.email &&
+    previous.email.toLowerCase() === contact.email.toLowerCase();
+
+  if (!isSameUser) {
+    // New user (or unknown identity) → wipe and set up fresh.
+    clearUserState();
+    setSessionToken(token);
+    setPlanHint({ is_paid: false, plan: "free" });
+
+    if (contact) {
+      saveContact(contact);
+    }
+    return;
+  }
+
+  // Same user — refresh the token/hint. Only re-save the contact if a
+  // field actually changed, so `Edit → Continue` without changes is a
+  // no-op on the store.
   setSessionToken(token);
   setPlanHint({ is_paid: false, plan: "free" });
+
+  if (contact) {
+    const nameChanged = (previous?.name ?? "") !== contact.name;
+    const phoneChanged = (previous?.phone ?? "") !== contact.phone;
+    const codeChanged =
+      (previous?.phone_country_code ?? "") !== contact.phone_country_code;
+
+    if (nameChanged || phoneChanged || codeChanged) {
+      saveContact(contact);
+    }
+  }
 }
