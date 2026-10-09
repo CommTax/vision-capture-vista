@@ -3,13 +3,92 @@ import type { DrillTeaser, FAQItem, HomepageContent, PracticeMoment, PricingPlan
 
 // ── Moments — trimmed to 3 for a focused landing page ──
 export const FALLBACK_MOMENTS: PracticeMoment[] = [
-  { id: "interview", name: "Interview", description: "Walk in with your answers already tested.", category: "interview", icon: "briefcase", common: true, active: true },
-  { id: "high-stakes", name: "High-stakes conversation", description: "Say it honestly. Stay calm.", category: "conversation", icon: "message", active: true },
-  { id: "presentation", name: "Presentation", description: "Lead with the point.", category: "presentation", icon: "presentation", active: true },
+  {
+    id: "interview",
+    name: "Interview",
+    description: "Walk in with your answers already tested.",
+    category: "interview",
+    icon: "briefcase",
+    common: true,
+    active: true,
+    chipRows: [
+      {
+        label: "Role specific",
+        items: [
+          "Scrum Master",
+          "Project Manager",
+          "Product Owner",
+          "Sales Manager",
+        ],
+        moreLabel: "+12 more",
+      },
+      {
+        label: "Question types",
+        items: [
+          "Situational",
+          "Behavioural",
+          "Functional",
+          "Technical",
+          "Self-awareness",
+        ],
+      },
+    ],
+  },
+  {
+    id: "high-stakes",
+    name: "High-stakes conversation",
+    description: "Say it honestly. Stay calm.",
+    category: "conversation",
+    icon: "message",
+    active: true,
+    chipRows: [
+      {
+        label: "Situation specific",
+        items: [
+          "Sales pitch",
+          "Idea buy-in",
+          "Addressing a crowd",
+          "Self-presentation",
+        ],
+        moreLabel: "+6 more",
+      },
+      {
+        label: "Common scenarios",
+        items: [
+          "Disagree with manager",
+          "Give hard feedback",
+          "Push back on scope",
+          "Deliver bad news",
+        ],
+      },
+    ],
+  },
+  {
+    id: "custom",
+    name: "Your own situation",
+    description: "Anything you need to prepare for.",
+    category: "custom",
+    icon: "sparkles",
+    active: true,
+    chipRows: [
+      {
+        label: "Because not everything fits a template",
+        items: ["Your exact scenario", "Your audience", "Your words"],
+      },
+      {
+        label: "Some examples",
+        items: [
+          "A difficult performance review",
+          "A pitch you're not sure about",
+          "A conversation you've been avoiding",
+        ],
+      },
+    ],
+  },
   // Kept in the data but disabled — surfaced only via "practice your own question"
+  { id: "presentation", name: "Presentation", description: "Lead with the point.", category: "presentation", icon: "presentation", active: false },
   { id: "leadership", name: "Leadership", description: "Executive updates, ambiguity, difficult decisions.", category: "everyday", icon: "crown", active: false },
   { id: "persuasion", name: "Persuasion", description: "Influence stakeholders and get buy-in.", category: "sales", icon: "handshake", active: false },
-  { id: "custom", name: "Custom", description: "Practice any situation.", category: "custom", icon: "sparkles", active: false },
 ];
 
 export const FALLBACK_HOMEPAGE: HomepageContent = {
@@ -20,7 +99,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     rotatingWords: ["Rambling", "Scattered", "Unclear", "Forgettable"],
     body: "Practice the moment. See what got lost. Say it again.",
     audience: "For job seekers & students preparing for interviews.",
-    cta: "Try TheUnspoken Free",
+    cta: "Try TheUnspoken",
     ctaSignedIn: "Start Practicing",
     mobileHeadline: "Practice for moments that matter.",
     mobileBody: "Practice a real response. See what got lost. Fix one thing. Try again.",
