@@ -2,137 +2,110 @@ import { useEffect, useRef, useState } from "react";
 import { ScrollReveal } from "./scroll-reveal";
 import { CarouselDots } from "./carousel-dots";
 
-type ChatStyle = "imessage" | "slack" | "whatsapp" | "email";
+// ─────────────────────────────────────────────────────────────
+// REAL TESTIMONIALS — DRAFTS
+// These are suggested wordings sent to the users for approval.
+// Do not publish until each user confirms. Once approved, mark
+// `approved: true` and optionally swap in a screenshot.
+// ─────────────────────────────────────────────────────────────
 
 type Testimonial = {
   id: string;
   name: string;
-  role: string;
+  /** Short pain-point label shown as the card eyebrow. */
+  problem: string;
   quote: string;
-  style: ChatStyle;
+  /** Stable color for the avatar circle. */
+  tint: string;
+  /** Flip to true once the user has approved their quote. */
+  approved?: boolean;
 };
-
-// ─────────────────────────────────────────────────────────────
-// PLACEHOLDER TESTIMONIALS
-// Replace quote/name/role with real ones when available.
-// Do NOT publish without user permission.
-// ─────────────────────────────────────────────────────────────
 
 const TESTIMONIALS: Testimonial[] = [
   {
-    id: "t1",
-    name: "Priya S.",
-    role: "Product Manager",
+    id: "arun",
+    name: "Arun",
+    problem: "The rambling problem",
     quote:
-      "I had a PM interview in three days. I practised the same question five times. The Unspoken showed me I was leading with context every single time. I fixed it. Got the offer.",
-    style: "slack",
+      "I always had the right points in my head, but I struggled to get to them without giving too much background. TheUnspoken helped me see exactly where I was losing the message — and how to get to the point faster.",
+    tint: "rgb(139, 127, 255)", // violet
   },
   {
-    id: "t2",
-    name: "Arjun M.",
-    role: "Senior Engineer",
+    id: "srikanth",
+    name: "Srikanth",
+    problem: "The scattered-answer problem",
     quote:
-      "I rehearsed my salary negotiation six times. On the call, I said the number without apologising. First time in my career.",
-    style: "imessage",
+      "I used to explain things in the order they came to mind, not in the order people needed to hear them. The feedback helped me recognize that pattern and make my answers more structured, direct, and easier to follow.",
+    tint: "rgb(96, 165, 250)", // sky
   },
   {
-    id: "t3",
-    name: "Neha K.",
-    role: "Marketing Lead",
+    id: "mian",
+    name: "Mian",
+    problem: "The confidence problem",
     quote:
-      "My presentations always felt fine in my head. Watching my structure score go from 42 to 68 after two retries — that was the moment it clicked.",
-    style: "whatsapp",
+      "I didn't realize how often I softened my own point with phrases like \u201CI think\u201D and \u201Cmaybe.\u201D Seeing those habits in my actual responses made the feedback feel personal and practical. I could work on the way I communicate, not just read another set of tips.",
+    tint: "rgb(251, 191, 36)", // amber
   },
   {
-    id: "t4",
-    name: "Rahul V.",
-    role: "Consultant",
-    quote: "The filler-word detection was brutal. In a good way.",
-    style: "email",
+    id: "priya",
+    name: "Priya",
+    problem: "The interview-preparation problem",
+    quote:
+      "Practising an answer is one thing. Understanding how it actually comes across is another. TheUnspoken helped me see where my answer needed more focus and gave me a clear reason to try again. Each retry felt more purposeful.",
+    tint: "rgb(249, 115, 111)", // coral
+  },
+  {
+    id: "romeo",
+    name: "Romeo",
+    problem: "The impact problem",
+    quote:
+      "I knew what I wanted to communicate, but I wasn't always making the important part stand out. What I liked was seeing the difference between what I said and what really came through. It gave me something specific to improve instead of leaving me guessing.",
+    tint: "rgb(52, 211, 153)", // emerald
   },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Screenshot-style wrappers
+// Testimonial card — uniform height, clean style
 // ─────────────────────────────────────────────────────────────
 
-function SlackCard({ name, role, quote }: { name: string; role: string; quote: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-center gap-2">
-        <span
-          className="grid size-7 place-items-center rounded-md text-[11px] font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #611f69 0%, #e01e5a 100%)" }}
-        >
-          {name.charAt(0)}
-        </span>
-        <div className="min-w-0">
-          <div className="truncate text-[12px] font-semibold text-foreground">{name}</div>
-          <div className="truncate font-mono text-[10px] text-muted-foreground">{role}</div>
-        </div>
-      </div>
-      <p className="mt-3 text-[13px] leading-5 text-foreground/90">{quote}</p>
-    </div>
-  );
-}
-
-function IMessageCard({ name, quote }: { name: string; quote: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-2 flex items-center gap-1.5">
-        <span className="size-2 rounded-full bg-muted-foreground/40" />
-        <span className="size-2 rounded-full bg-muted-foreground/40" />
-        <span className="size-2 rounded-full bg-muted-foreground/40" />
-      </div>
-      <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-primary/90 px-3 py-2 text-[12.5px] leading-5 text-primary-foreground">
-        {quote}
-      </div>
-      <div className="mt-2 text-right font-mono text-[10px] text-muted-foreground">
-        {name} · Just now
-      </div>
-    </div>
-  );
-}
-
-function WhatsAppCard({ name, quote }: { name: string; quote: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-center gap-2 border-b border-border pb-2">
-        <span className="grid size-6 place-items-center rounded-full bg-[#25d366]/20 text-[10px] font-semibold text-[#25d366]">
-          {name.charAt(0)}
-        </span>
-        <span className="text-[11px] font-medium text-foreground">{name}</span>
-      </div>
-      <div className="mt-2 rounded-lg bg-[#dcf8c6]/10 px-2.5 py-1.5 text-[12.5px] leading-5 text-foreground/90">
-        {quote}
-        <div className="mt-0.5 text-right font-mono text-[9px] text-muted-foreground">10:14 ✓✓</div>
-      </div>
-    </div>
-  );
-}
-
-function EmailCard({ name, role, quote }: { name: string; role: string; quote: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-baseline justify-between gap-2 border-b border-border pb-2">
-        <div className="min-w-0">
-          <div className="truncate text-[12px] font-semibold text-foreground">{name}</div>
-          <div className="truncate font-mono text-[10px] text-muted-foreground">{role}</div>
-        </div>
-        <span className="shrink-0 font-mono text-[9px] text-muted-foreground">2:47 PM</span>
-      </div>
-      <p className="mt-2 text-[12.5px] leading-5 text-foreground/85">{quote}</p>
-    </div>
-  );
-}
-
 function TestimonialCard({ t }: { t: Testimonial }) {
-  switch (t.style) {
-    case "slack":    return <SlackCard    name={t.name} role={t.role} quote={t.quote} />;
-    case "imessage": return <IMessageCard name={t.name}              quote={t.quote} />;
-    case "whatsapp": return <WhatsAppCard name={t.name}              quote={t.quote} />;
-    case "email":    return <EmailCard    name={t.name} role={t.role} quote={t.quote} />;
-  }
+  return (
+    <article className="glass flex h-full flex-col rounded-2xl border border-border p-5 md:p-6">
+      {/* Header — avatar + name + problem label */}
+      <div className="flex items-center gap-3">
+        <span
+          className="grid size-9 shrink-0 place-items-center rounded-full text-[13px] font-semibold text-white"
+          style={{
+            background: t.tint,
+            boxShadow: `0 0 0 1px ${t.tint}40`,
+          }}
+          aria-hidden
+        >
+          {t.name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <div className="truncate text-[13.5px] font-semibold text-foreground">
+            {t.name}
+          </div>
+          <div className="truncate font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground/80">
+            {t.problem}
+          </div>
+        </div>
+      </div>
+
+      {/* Quote — clamped to keep heights uniform */}
+      <p className="mt-4 line-clamp-6 text-[13.5px] leading-6 text-foreground/85">
+        {t.quote}
+      </p>
+
+      {/* Footer — only shown if approved */}
+      {t.approved && (
+        <div className="mt-4 border-t border-border pt-3 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/60">
+          Approved
+        </div>
+      )}
+    </article>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -143,7 +116,6 @@ export function TestimonialsStrip() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
-  // Track which card is centered
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -188,7 +160,7 @@ export function TestimonialsStrip() {
           </div>
         </ScrollReveal>
 
-        {/* Dots — visible on mobile only (desktop shows all 4 in a grid) */}
+        {/* Dots — mobile only */}
         <div className="mt-6 md:hidden">
           <CarouselDots
             count={TESTIMONIALS.length}
@@ -198,10 +170,14 @@ export function TestimonialsStrip() {
           />
         </div>
 
-        {/* Scroll strip — narrower cards on mobile so the next one peeks */}
+        {/* Scroll strip — mobile: horizontal scroll. Desktop: 5-column grid. */}
         <div
           ref={scrollerRef}
-          className="-mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:mt-8 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0"
+          className="
+            -mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2
+            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+            md:mx-0 md:mt-8 md:grid md:grid-cols-5 md:gap-4 md:overflow-visible md:px-0
+          "
         >
           {TESTIMONIALS.map((t, i) => (
             <ScrollReveal
