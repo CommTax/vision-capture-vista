@@ -1,13 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ComponentType } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
-import { ArrowUpRight, ArrowRight, Briefcase, MessageSquareWarning, Presentation } from "lucide-react";
-import { Logo } from "@/components/app-shell";
-import { useHydrated } from "@/components/app-shell";
+import { ArrowUpRight, ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
+import { Logo, useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
 import { StoryFlow } from "@/components/landing/story-flow";
 import { TestimonialsStrip } from "@/components/landing/testimonials-strip";
+import { MomentChipTicker } from "@/components/landing/moment-chip-ticker";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
@@ -29,19 +29,17 @@ export const Route = createFileRoute("/")({
 });
 
 // ─────────────────────────────────────────────────────────────
-// Premium mode tile — icon plate + glow + footer CTA
-// ─────────────────────────────────────────────────────────────
 
 const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   interview: Briefcase,
   "high-stakes": MessageSquareWarning,
-  presentation: Presentation,
+  presentation: Briefcase,
   leadership: Briefcase,
   persuasion: MessageSquareWarning,
-  custom: Presentation,
+  custom: Sparkles,
 };
 
-function MomentTile({ m, index }: { m: PracticeMoment; index: number }) {
+function MomentCard({ m, index = 0 }: { m: PracticeMoment; index?: number }) {
   const Icon = MOMENT_ICONS[m.id] ?? Briefcase;
 
   return (
@@ -73,14 +71,6 @@ function MomentTile({ m, index }: { m: PracticeMoment; index: number }) {
           }}
         >
           <Icon className="size-6 text-primary" />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(139,127,255,0.35), transparent)",
-            }}
-          />
         </div>
       </div>
 
@@ -92,8 +82,23 @@ function MomentTile({ m, index }: { m: PracticeMoment; index: number }) {
         {m.description}
       </p>
 
-      {/* Bottom CTA row */}
-      <div className="relative mt-7 flex items-center justify-between border-t border-border/60 pt-4">
+      {/* Chip rows */}
+      {m.chipRows && m.chipRows.length > 0 && (
+        <div className="relative mt-6 space-y-5">
+          {m.chipRows.map((row) => (
+            <MomentChipTicker
+              key={row.label}
+              label={row.label}
+              items={row.items}
+              moreLabel={row.moreLabel}
+              speed={30}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Bottom CTA */}
+      <div className="relative mt-6 flex items-center justify-between border-t border-border/60 pt-4">
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           Practice
         </span>
@@ -188,9 +193,7 @@ function Landing() {
             {signedIn ? (
               <Link to="/dashboard" className="btn btn-ghost btn-sm">Login</Link>
             ) : (
-              <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">
-                Login
-              </Link>
+              <Link to="/signup" search={{ mode: "signin" }} className="btn btn-ghost btn-sm">Login</Link>
             )}
             <button onClick={primaryCta} className="btn btn-primary btn-sm hidden sm:inline-flex">
               {signedIn ? hero.ctaSignedIn : "Try TheUnspoken"}
@@ -199,23 +202,16 @@ function Landing() {
         </div>
       </header>
 
-      {/* HERO — split layout */}
+      {/* HERO */}
       <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-14 md:px-8 md:pt-20 md:pb-20">
         <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr] md:gap-16">
-          {/* Left: copy */}
           <div className="rise">
             <h1 className="text-[clamp(36px,5.6vw,68px)] font-bold leading-[1.04]">
-              <span className="block text-[0.82em] lg:whitespace-nowrap">
-                {hero.headline}
-              </span>
-              <span className="block">
-                <RotatingWord words={hero.rotatingWords} />
-              </span>
+              <span className="block text-[0.82em] lg:whitespace-nowrap">{hero.headline}</span>
+              <span className="block"><RotatingWord words={hero.rotatingWords} /></span>
               <span className="block">Responses</span>
             </h1>
-            <p className="mt-6 max-w-[44ch] text-[17px] leading-7 md:text-[19px]">
-              {hero.body}
-            </p>
+            <p className="mt-6 max-w-[44ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
             <div className="mt-9">
               <button onClick={primaryCta} className="btn btn-primary px-6 py-3 text-[15px]">
@@ -227,21 +223,17 @@ function Landing() {
               </p>
             </div>
           </div>
-
-          {/* Right: animated preview */}
-          <div className="hidden md:block">
-            <HeroPreview />
-          </div>
+          <div className="hidden md:block"><HeroPreview /></div>
         </div>
       </section>
 
-      {/* TESTIMONIALS STRIP */}
+      {/* TESTIMONIALS */}
       <TestimonialsStrip />
 
-      {/* STORY FLOW — six beats replacing walkthrough + proof block */}
+      {/* STORY FLOW */}
       <StoryFlow />
 
-      {/* PRACTICE MOMENTS — 3 premium cards */}
+      {/* PRACTICE MOMENTS */}
       <Section id="modes" className="!py-14 md:!py-20">
         <ScrollReveal>
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -255,10 +247,22 @@ function Landing() {
           </div>
         </ScrollReveal>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {/* Mobile carousel */}
+        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
+          {moments.map((m, i) => (
+            <div key={m.id} className="w-[85vw] shrink-0 snap-center">
+              <ScrollReveal delay={i * 80} className="h-full">
+                <MomentCard m={m} index={i} />
+              </ScrollReveal>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop grid */}
+        <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
           {moments.map((m, i) => (
             <ScrollReveal key={m.id} delay={i * 80} className="h-full">
-              <MomentTile m={m} index={i} />
+              <MomentCard m={m} index={i} />
             </ScrollReveal>
           ))}
         </div>
@@ -276,21 +280,6 @@ function Landing() {
         </ScrollReveal>
       </Section>
 
-      {/* Mobile: snap-scroll carousel */}
-<div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 md:hidden">
-  {moments.map(m => (
-    <div className="w-[85vw] shrink-0 snap-center">
-      <MomentCard m={m} />
-    </div>
-  ))}
-</div>
-
-{/* Desktop: grid */}
-<div className="hidden md:grid md:grid-cols-3 md:gap-4">
-  {moments.map(m => <MomentCard m={m} />)}
-</div>
-      
-
       {/* PRICING */}
       <Section id="pricing">
         <ScrollReveal>
@@ -303,20 +292,14 @@ function Landing() {
         <div className="mt-12 grid gap-4 md:grid-cols-3">
           {plans.map((t, i) => (
             <ScrollReveal key={t.id} delay={i * 80} className="h-full">
-              <div
-                className={`glass relative flex h-full flex-col p-8 ${
-                  t.highlighted ? "glass-float border-primary/50" : ""
-                }`}
-              >
+              <div className={`glass relative flex h-full flex-col p-8 ${t.highlighted ? "glass-float border-primary/50" : ""}`}>
                 {t.badge && (
                   <div className="absolute -top-3 left-6 rounded-full border border-primary/40 bg-primary/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
                     {t.badge}
                   </div>
                 )}
                 <div className="eyebrow">{t.name}</div>
-                <div className="mt-3 font-display text-[40px] font-bold leading-none">
-                  {formatPrice(t)}
-                </div>
+                <div className="mt-3 font-display text-[40px] font-bold leading-none">{formatPrice(t)}</div>
                 <ul className="mt-7 flex-1 space-y-2.5 text-[14px] text-muted-foreground">
                   {t.features.map((x) => (
                     <li key={x} className="flex gap-2">
@@ -325,10 +308,7 @@ function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/signup"
-                  className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}
-                >
+                <Link to="/signup" className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}>
                   {t.cta}
                 </Link>
               </div>
@@ -339,7 +319,6 @@ function Landing() {
 
       <FaqSection />
 
-      {/* CONTACT */}
       <section id="contact" className="mx-auto max-w-[1200px] px-5 md:px-8">
         <a href={`mailto:${contact.email}`} className="flex items-center justify-between border-y border-border py-6">
           <span className="font-display text-[20px] font-bold">Have a question?</span>
@@ -347,13 +326,10 @@ function Landing() {
         </a>
       </section>
 
-      {/* FINAL CTA */}
       <Section>
         <ScrollReveal>
           <div className="text-center">
-            <h2 className={`${H2} mx-auto max-w-3xl`}>
-              Practice until the important thing doesn't get lost.
-            </h2>
+            <h2 className={`${H2} mx-auto max-w-3xl`}>Practice until the important thing doesn't get lost.</h2>
             <p className={`${SUB} mx-auto max-w-xl`}>
               Your next interview. Your next presentation. Your next difficult conversation.
             </p>
