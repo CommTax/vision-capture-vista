@@ -70,41 +70,49 @@ function MomentTile({
     <button
       type="button"
       onClick={onExplore}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border p-5 text-left transition duration-500 hover:-translate-y-1 md:p-6"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border p-5 text-left transition duration-500 hover:-translate-y-1"
       style={{
-        background: `linear-gradient(160deg, ${tint}18 0%, ${tint}0a 55%, rgba(20, 22, 30, 0.4) 100%)`,
-        borderColor: `${tint}35`,
-        boxShadow: `0 20px 60px -30px ${tint}30`,
+        background: `linear-gradient(160deg, ${tint}22 0%, ${tint}0f 60%, rgba(20, 22, 30, 0.15) 100%)`,
+        borderColor: `${tint}45`,
+        boxShadow: `0 1px 0 0 rgba(255,255,255,0.05) inset, 0 24px 60px -32px ${tint}55`,
       }}
     >
-      {/* Icon plate */}
+      {/* Corner tint glow */}
       <div
-        className="grid size-10 place-items-center rounded-lg transition-transform duration-500 group-hover:scale-105 md:size-11"
-        style={{
-          background: `${tint}20`,
-          border: `1px solid ${tint}40`,
-        }}
-      >
-        <Icon className="size-5" style={{ color: tint }} />
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-60 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: tint }}
+      />
+
+      {/* Icon + title on one row */}
+      <div className="relative flex items-center gap-3.5">
+        <div
+          className="grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105"
+          style={{
+            background: `${tint}25`,
+            border: `1px solid ${tint}50`,
+            boxShadow: `0 8px 24px -12px ${tint}80, inset 0 1px 0 rgba(255,255,255,0.08)`,
+          }}
+        >
+          <Icon className="size-5" style={{ color: tint }} />
+        </div>
+        <h3 className="min-w-0 font-display text-[19px] font-bold leading-tight md:text-[20px]">
+          {m.name}
+        </h3>
       </div>
 
-      {/* Title */}
-      <h3 className="mt-5 font-display text-[19px] font-bold leading-tight md:text-[21px]">
-        {m.name}
-      </h3>
-
       {/* Description */}
-      <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground md:text-[13.5px]">
+      <p className="relative mt-3 text-[13px] leading-5 text-muted-foreground md:text-[13.5px]">
         {m.description}
       </p>
 
-      {/* Explore */}
+      {/* Explore CTA */}
       <div
-        className="mt-auto flex items-center gap-1 pt-6 text-[12.5px] font-semibold"
+        className="relative mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-300"
         style={{ color: tint }}
       >
         Explore
-        <span className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>
+        <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
       </div>
     </button>
   );
@@ -114,15 +122,67 @@ function MomentTile({
 // FAQ
 // ─────────────────────────────────────────────────────────────
 
-function FaqItem({ q, a, id, open, onToggle }: { q: string; a: string; id: string; open: boolean; onToggle: () => void }) {
+function FaqItem({
+  q,
+  a,
+  id,
+  open,
+  onToggle,
+}: {
+  q: string;
+  a: string;
+  id: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <div className="border-t border-border">
-      <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={id} className="flex w-full items-center justify-between gap-6 py-5 text-left">
-        <span className="font-display text-[17px] font-bold leading-snug">{q}</span>
-        <span aria-hidden="true" className={`shrink-0 font-mono text-[16px] text-primary transition-transform duration-300 ${open ? "rotate-45" : ""}`}>+</span>
+    <div
+      className={`
+        overflow-hidden rounded-2xl border transition-all duration-300
+        ${
+          open
+            ? "border-primary/40 bg-primary/5 shadow-[0_20px_50px_-30px_rgba(139,127,255,0.5)]"
+            : "border-border bg-card/40 hover:border-primary/30"
+        }
+      `}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={id}
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left md:py-5"
+      >
+        <span className="font-display text-[15.5px] font-bold leading-snug md:text-[17px]">
+          {q}
+        </span>
+        <span
+          aria-hidden="true"
+          className={`
+            grid size-6 shrink-0 place-items-center rounded-full border font-mono text-[14px] transition-all duration-300
+            ${
+              open
+                ? "rotate-45 border-primary/60 bg-primary/15 text-primary"
+                : "border-border text-muted-foreground"
+            }
+          `}
+        >
+          +
+        </span>
       </button>
-      <div id={id} role="region" aria-hidden={!open} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="overflow-hidden"><p className="max-w-[72ch] pb-5 text-[14px] leading-6 text-muted-foreground">{a}</p></div>
+      <div
+        id={id}
+        role="region"
+        aria-hidden={!open}
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="px-5 pb-4 text-[13.5px] leading-6 text-muted-foreground md:pb-5 md:text-[14px]">
+            {a}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -132,11 +192,23 @@ function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
   const items = dataProvider.getFaq();
   return (
-    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
-      <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">Questions</h2>
-      <div className="mt-8 border-b border-border">
+    <section
+      id="faq"
+      className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20"
+    >
+      <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
+        Questions
+      </h2>
+      <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3">
         {items.map((f, i) => (
-          <FaqItem key={f.id} q={f.question} a={f.answer} id={`faq-${i}`} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
+          <FaqItem
+            key={f.id}
+            q={f.question}
+            a={f.answer}
+            id={`faq-${i}`}
+            open={open === i}
+            onToggle={() => setOpen(open === i ? null : i)}
+          />
         ))}
       </div>
     </section>
