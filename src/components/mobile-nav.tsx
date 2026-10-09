@@ -45,10 +45,11 @@ export function MobileNav() {
         ] },
       ];
 
+  // Home + Practice are always present. The third tab is conditional:
+  // signed in → Drills; signed out → University (labelled "Learn").
   const tabs = [
     { to: signedIn ? "/dashboard" : "/", label: "Home", icon: Home },
     { to: "/practice", label: "Practice", icon: Mic },
-    { to: "/drills", label: "Learn", icon: BookOpen },
   ] as const;
 
   const go = (i: Item) => {
@@ -65,6 +66,24 @@ export function MobileNav() {
             <Icon className="size-5" aria-hidden />{label}
           </Link>
         ))}
+
+        {signedIn ? (
+          <Link
+            to="/drills"
+            className="flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground"
+            activeProps={{ className: "text-primary" }}
+          >
+            <BookOpen className="size-5" aria-hidden />Drill
+          </Link>
+        ) : (
+          <a
+            href="/university/index.html"
+            className="flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground"
+          >
+            <BookOpen className="size-5" aria-hidden />Learn
+          </a>
+        )}
+
         <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open} className="flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground">
           <Menu className="size-5" aria-hidden />More
         </button>
