@@ -60,6 +60,88 @@ const ANNOTATIONS: Annotation[] = [
   { key: "intent",       label: "Intent",       time: "0:34 – 0:38", color: "rgb(52, 211, 153)"  },
 ];
 
+/**
+ * Soft wireframe of a floating card with a central waveform orb.
+ * Pure CSS + SVG — no external assets, no dependencies.
+ * Matches the reference illustration with muted violet accents.
+ */
+function HeroCardIllustration() {
+  return (
+    <div className="relative aspect-square w-full max-w-[340px]">
+      {/* Ambient glow behind everything */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full opacity-70 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(139,127,255,0.4), transparent 70%)",
+        }}
+      />
+
+      {/* Soft floating cards — layered behind the main frame */}
+      <div
+        aria-hidden
+        className="absolute left-2 top-6 h-[78%] w-[68%] rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm"
+        style={{
+          transform: "rotate(-8deg)",
+          boxShadow: "0 20px 60px -30px rgba(139,127,255,0.3)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute right-2 top-10 h-[74%] w-[62%] rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm"
+        style={{
+          transform: "rotate(6deg)",
+          boxShadow: "0 20px 60px -30px rgba(139,127,255,0.3)",
+        }}
+      />
+
+      {/* Main frame — the front card */}
+      <div className="relative flex h-full w-full items-center justify-center">
+        <div
+          className="relative flex aspect-[3/4] w-[62%] items-center justify-center rounded-3xl border border-border bg-card/70 backdrop-blur-md"
+          style={{
+            boxShadow:
+              "0 30px 80px -30px rgba(139,127,255,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
+        >
+          {/* Central waveform orb */}
+          <div
+            className="relative grid size-20 place-items-center rounded-full"
+            style={{
+              background:
+                "linear-gradient(150deg, rgba(139,127,255,0.35) 0%, rgba(139,127,255,0.15) 100%)",
+              boxShadow: "0 0 60px 10px rgba(139,127,255,0.35)",
+            }}
+          >
+            {/* Waveform bars inside the orb */}
+            <div className="flex h-6 items-center gap-[3px]">
+              {[6, 12, 18, 24, 18, 14, 10, 16, 12, 8].map((h, i) => (
+                <span
+                  key={i}
+                  className="w-[3px] rounded-full bg-primary"
+                  style={{ height: h }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Faint grid overlay for depth */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // Beat 1 — Promise
 // ─────────────────────────────────────────────────────────────
@@ -67,11 +149,24 @@ const ANNOTATIONS: Annotation[] = [
 function BeatOne() {
   return (
     <div className="flex h-full flex-col justify-center">
-      <h2 className="text-center text-[clamp(34px,6vw,72px)] font-bold leading-[1.05] tracking-tight">
-        It sees
-        <br />
-        what you don&apos;t.
-      </h2>
+      <div className="mx-auto grid w-full max-w-5xl items-center gap-10 md:grid-cols-[1.1fr_0.9fr] md:gap-14">
+        {/* Left — headline */}
+        <div>
+          <h2 className="text-[clamp(34px,5.5vw,68px)] font-bold leading-[1.05] tracking-tight">
+            It sees
+            <br />
+            what you don&apos;t.
+          </h2>
+          <p className="mt-5 max-w-md text-[15px] leading-6 text-muted-foreground md:text-[16px]">
+            Practice the moment. See what got lost. Say it again.
+          </p>
+        </div>
+
+        {/* Right — wireframe illustration */}
+        <div className="flex items-center justify-center">
+          <HeroCardIllustration />
+        </div>
+      </div>
     </div>
   );
 }
@@ -88,10 +183,29 @@ function BeatTwo() {
       <div className="mx-auto grid w-full max-w-5xl gap-8 md:grid-cols-[1.35fr_1fr] md:gap-12">
         {/* Left — quote with colored underline segments */}
         <div>
-          <div className="flex items-center justify-between">
-            <span className="eyebrow text-muted-foreground">You said</span>
-            <span className="font-mono text-[11px] text-muted-foreground">00:38</span>
-          </div>
+<div className="relative flex items-center justify-between pl-9">
+  {/* Mic badge */}
+  <div
+    aria-hidden
+    className="absolute left-0 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-primary/15 text-primary"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-3"
+    >
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8" />
+    </svg>
+  </div>
+
+  <span className="eyebrow text-muted-foreground">You said</span>
+  <span className="font-mono text-[11px] text-muted-foreground">00:38</span>
+</div>
 
           <div className="glass mt-3 rounded-2xl p-5 md:p-6">
             <p className="text-[15px] leading-8 text-foreground/85 md:text-[16px]">
