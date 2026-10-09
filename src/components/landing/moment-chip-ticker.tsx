@@ -1,20 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import type { PracticeMomentChipRow } from "@/content/types";
+import { useEffect, useState } from "react";
 
-type Props = PracticeMomentChipRow & {
+type Props = {
+  chips: string[];
   /** Seconds per loop. Longer = slower. */
   speed?: number;
 };
 
 /**
- * A single horizontal chip row that loops infinitely like a ticker.
- * Chips are duplicated so the animation wraps seamlessly.
- * Pauses on hover (desktop). On reduced-motion, becomes a static
- * horizontally-scrollable row (no animation).
+ * Single-line looping chip ticker.
+ * Chips duplicate so the animation wraps seamlessly.
+ * Pauses on hover. On reduced-motion, becomes a static scroll row.
  */
-export function MomentChipTicker({ label, items, moreLabel, speed = 30 }: Props) {
+export function MomentChipTicker({ chips, speed = 35 }: Props) {
   const [reduced, setReduced] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,66 +22,44 @@ export function MomentChipTicker({ label, items, moreLabel, speed = 30 }: Props)
     return () => mq.removeEventListener("change", on);
   }, []);
 
-  const chips = [...items, ...(moreLabel ? [moreLabel] : [])];
+  if (chips.length === 0) return null;
 
-  // Reduced motion: static, no looping
+  // Reduced motion: static, horizontally scrollable
   if (reduced) {
     return (
-      <div>
-        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-          {label}
-        </div>
-        <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {chips.map((chip, i) => (
-            <Chip key={`${chip}-${i}`} label={chip} faded={!!moreLabel && i === chips.length - 1} />
-          ))}
-        </div>
+      <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {chips.map((chip) => (
+          <Chip key={chip} label={chip} />
+        ))}
       </div>
     );
   }
 
-  // Animated: duplicate content for seamless loop
   return (
-    <div>
-      <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </div>
+    <div
+      className="group/ticker relative overflow-hidden"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent 0, black 10px, black calc(100% - 10px), transparent 100%)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent 0, black 10px, black calc(100% - 10px), transparent 100%)",
+      }}
+    >
       <div
-        className="group/ticker relative overflow-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%)",
-        }}
+        className="ticker-track flex w-max gap-1.5 group-hover/ticker:[animation-play-state:paused]"
+        style={{ "--ticker-speed": `${speed}s` } as React.CSSProperties}
       >
-        <div
-          ref={trackRef}
-          className="ticker-track flex w-max gap-1.5 group-hover/ticker:[animation-play-state:paused]"
-          style={{ "--ticker-speed": `${speed}s` } as React.CSSProperties}
-        >
-          {[...chips, ...chips].map((chip, i) => (
-            <Chip
-              key={`${chip}-${i}`}
-              label={chip}
-              faded={!!moreLabel && chip === moreLabel}
-            />
-          ))}
-        </div>
+        {[...chips, ...chips].map((chip, i) => (
+          <Chip key={`${chip}-${i}`} label={chip} />
+        ))}
       </div>
     </div>
   );
 }
 
-function Chip({ label, faded }: { label: string; faded?: boolean }) {
+function Chip({ label }: { label: string }) {
   return (
-    <span
-      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-[0.06em] ${
-        faded
-          ? "border-dashed border-border text-muted-foreground/60"
-          : "border-border bg-background/40 text-muted-foreground"
-      }`}
-    >
+    <span className="shrink-0 whitespace-nowrap rounded-full border border-border bg-background/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.06em] text-muted-foreground">
       {label}
     </span>
   );
