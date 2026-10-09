@@ -5,7 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { ContactDetails } from "@/components/contact-details";
 import { PayButton } from "@/components/razorpay-pay";
 import { PLAN_CONFIG, SPRINT_GOALS, type SprintDurationId } from "@/lib/entitlements";
-import { getState } from "@/lib/store";
+import { getState, useStore } from "@/lib/store";
 import {
   lookupEmail,
   signupFree,
@@ -68,7 +68,8 @@ function Checkout() {
       ? `Practice Pass · ${practicePriceDisplay}${billing === "monthly" ? ", renews monthly" : ", billed yearly"}`
       : `Sprint · 14 days · ${sprintPrice}`;
 
-  const profile = getState().profile;
+  // Read profile reactively so it updates after `saveContact`.
+  const profile = useStore((s) => s.profile);
 
   const afterDetails = async () => {
     const p = getState().profile;
@@ -97,7 +98,14 @@ function Checkout() {
         stage: p.level ?? undefined,
       });
 
-      if (res.session_token) setFreeSession(res.session_token);
+      if (res.session_token) {
+        setFreeSession(res.session_token, {
+          name: p.name ?? "",
+          email: p.email,
+          phone: p.phone ?? "",
+          phone_country_code: p.phone_country_code ?? "+91",
+        });
+      }
       setStep("pay");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Couldn't continue. Please try again.");
@@ -268,19 +276,38 @@ function Checkout() {
         <section className="glass space-y-4 p-6 md:p-8">
           <div className="eyebrow">Review and pay</div>
           <h2 className="text-[24px] font-bold">{summary}</h2>
-          <div className="space-y-1 rounded-xl border border-border p-4 text-[14px]">
-            <div>{profile?.name}</div>
-            <div className="text-muted-foreground">{profile?.email}</div>
-            <div className="text-muted-foreground">
-              {profile?.phone_country_code} {profile?.phone}
+
+          {/* Contact details card — reads reactively from the store */}
+          <div className="rounded-xl border border-border p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1 space-y-1 text-[14px]">
+                {profile?.name ? (
+                  <div className="font-medium text-foreground">{profile.name}</div>
+                ) : null}
+                {profile?.email ? (
+                  <div className="truncate text-muted-foreground">{profile.email}</div>
+                ) : null}
+                {profile?.phone || profile?.phone_country_code ? (
+                  <div className="text-muted-foreground">
+                    {profile.phone_country_code} {profile.phone}
+                  </div>
+                ) : null}
+                {!profile?.name && !profile?.email && (
+                  <div className="italic text-muted-foreground">
+                    No contact details on file
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="shrink-0 text-[12px] font-medium text-primary underline underline-offset-4"
+                onClick={() => setStep("details")}
+              >
+                Edit
+              </button>
             </div>
-            <button
-              className="mt-1 text-[12px] text-primary underline"
-              onClick={() => setStep("details")}
-            >
-              Edit
-            </button>
           </div>
+
           <PayButton
             plan={product === "practice" ? "pass" : "sprint"}
             sprint={product === "sprint" ? goal : undefined}
