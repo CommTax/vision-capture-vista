@@ -231,39 +231,38 @@ function Landing() {
       {/* STORY FLOW */}
       <StoryFlow />
 
-      {/* PRACTICE MOMENTS */}
-      <Section id="modes" className="!py-14 md:!py-20">
-        <ScrollReveal>
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <div>
-<div className="eyebrow !text-primary">Where should we start?</div>
-            </div>
-            <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
-              Walk into the real conversation with your words already tested.
-            </p>
-          </div>
+{/* PRACTICE MOMENTS — 3 premium cards */}
+<Section id="modes" className="!py-14 md:!py-20">
+  <ScrollReveal>
+    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <h2 className={H2}>Where should we start?</h2>
+      <p className="max-w-[34ch] text-[15px] leading-6 text-muted-foreground">
+        Walk into the real conversation with your words already tested.
+      </p>
+    </div>
+  </ScrollReveal>
+
+  {/* Mobile carousel */}
+  <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
+    {moments.map((m, i) => (
+      <div key={m.id} className="w-[85vw] shrink-0 snap-center">
+        <ScrollReveal delay={i * 80} className="h-full">
+          <MomentCard m={m} index={i} />
         </ScrollReveal>
+      </div>
+    ))}
+  </div>
 
-        {/* Mobile carousel */}
-        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
-          {moments.map((m, i) => (
-            <div key={m.id} className="w-[85vw] shrink-0 snap-center">
-              <ScrollReveal delay={i * 80} className="h-full">
-                <MomentCard m={m} index={i} />
-              </ScrollReveal>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop grid */}
-        <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
-          {moments.map((m, i) => (
-            <ScrollReveal key={m.id} delay={i * 80} className="h-full">
-              <MomentCard m={m} index={i} />
-            </ScrollReveal>
-          ))}
-        </div>
-     </Section>
+  {/* Desktop grid */}
+  <div className="mt-8 hidden gap-4 md:grid md:grid-cols-3">
+    {moments.map((m, i) => (
+      <ScrollReveal key={m.id} delay={i * 80} className="h-full">
+        <MomentCard m={m} index={i} />
+      </ScrollReveal>
+    ))}
+  </div>
+</Section>
+      
 
       {/* PRICING */}
       <Section id="pricing">
