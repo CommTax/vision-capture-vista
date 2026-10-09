@@ -132,10 +132,6 @@ export function TestimonialsStrip() {
         <ScrollReveal>
           <div className="text-center">
             <div className="eyebrow !text-primary">In their words</div>
-            <p className="mt-2 text-[15px] text-muted-foreground md:text-[16px]">
-              Practice sessions that changed something real.
-              <span className="text-muted-foreground/60"> — Early user feedback</span>
-            </p>
           </div>
         </ScrollReveal>
 
