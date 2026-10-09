@@ -144,6 +144,8 @@ export const FALLBACK_DRILL_TEASERS: DrillTeaser[] = [
 ];
 
 // ── Pricing — outcome-first bullets, real future prices ──
+// Order matters: Free → Sprint → Practice (rendered left-to-right on desktop,
+// top-to-bottom on mobile).
 export const FALLBACK_PRICING: PricingPlan[] = [
   {
     id: "free",
@@ -160,21 +162,6 @@ export const FALLBACK_PRICING: PricingPlan[] = [
     active: true,
   },
   {
-    id: "practice",
-    name: "Practice",
-    price: 499,
-    currency: "INR",
-    billingPeriod: "month",
-    features: [
-      "Unlimited practice, voice or text",
-      "Drills that target your weakest area",
-      "Track your progress over time",
-    ],
-    cta: "Keep improving",
-    highlighted: false,
-    active: true,
-  },
-  {
     id: "sprint",
     name: "Sprint",
     price: 1499,
@@ -188,6 +175,21 @@ export const FALLBACK_PRICING: PricingPlan[] = [
     cta: "Start Sprint",
     highlighted: true,
     badge: "Best for upcoming interviews",
+    active: true,
+  },
+  {
+    id: "practice",
+    name: "Practice",
+    price: 2999,
+    currency: "INR",
+    billingPeriod: "month",
+    features: [
+      "Unlimited practice, voice or text",
+      "Drills that target your weakest area",
+      "Track your progress over time",
+    ],
+    cta: "Keep improving",
+    highlighted: false,
     active: true,
   },
 ];
