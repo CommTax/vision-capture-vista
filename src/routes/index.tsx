@@ -121,67 +121,76 @@ function MomentTile({
 // ─────────────────────────────────────────────────────────────
 // FAQ
 // ─────────────────────────────────────────────────────────────
-
 function FaqItem({
   q,
   a,
   id,
   open,
   onToggle,
+  index,
 }: {
   q: string;
   a: string;
   id: string;
   open: boolean;
   onToggle: () => void;
+  index: number;
 }) {
   return (
     <div
-      className={`
-        overflow-hidden rounded-2xl border transition-all duration-300
-        ${
-          open
-            ? "border-primary/40 bg-primary/5 shadow-[0_20px_50px_-30px_rgba(139,127,255,0.5)]"
-            : "border-border bg-card/40 hover:border-primary/30"
-        }
-      `}
+      className="sticky"
+      style={{
+        top: `${72 + index * 14}px`,
+        zIndex: index + 1,
+      }}
     >
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={id}
-        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left md:py-5"
-      >
-        <span className="font-display text-[15.5px] font-bold leading-snug md:text-[17px]">
-          {q}
-        </span>
-        <span
-          aria-hidden="true"
-          className={`
-            grid size-6 shrink-0 place-items-center rounded-full border font-mono text-[14px] transition-all duration-300
-            ${
-              open
-                ? "rotate-45 border-primary/60 bg-primary/15 text-primary"
-                : "border-border text-muted-foreground"
-            }
-          `}
-        >
-          +
-        </span>
-      </button>
       <div
-        id={id}
-        role="region"
-        aria-hidden={!open}
-        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
+        className={`
+          overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300
+          ${
+            open
+              ? "border-primary/40 bg-popover shadow-[0_20px_50px_-30px_rgba(139,127,255,0.5)]"
+              : "border-border bg-popover/95 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.4)]"
+          }
+        `}
       >
-        <div className="overflow-hidden">
-          <p className="px-5 pb-4 text-[13.5px] leading-6 text-muted-foreground md:pb-5 md:text-[14px]">
-            {a}
-          </p>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          aria-controls={id}
+          className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left md:py-5"
+        >
+          <span className="font-display text-[15.5px] font-bold leading-snug md:text-[17px]">
+            {q}
+          </span>
+          <span
+            aria-hidden="true"
+            className={`
+              grid size-6 shrink-0 place-items-center rounded-full border font-mono text-[14px] transition-all duration-300
+              ${
+                open
+                  ? "rotate-45 border-primary/60 bg-primary/15 text-primary"
+                  : "border-border text-muted-foreground"
+              }
+            `}
+          >
+            +
+          </span>
+        </button>
+        <div
+          id={id}
+          role="region"
+          aria-hidden={!open}
+          className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <p className="px-5 pb-4 text-[13.5px] leading-6 text-muted-foreground md:pb-5 md:text-[14px]">
+              {a}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -199,21 +208,26 @@ function FaqSection() {
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
         Questions
       </h2>
-      <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3">
+
+      {/* Sticky stack — items pile up as the user scrolls */}
+      <div className="mx-auto mt-10 max-w-3xl pb-24">
         {items.map((f, i) => (
-          <FaqItem
-            key={f.id}
-            q={f.question}
-            a={f.answer}
-            id={`faq-${i}`}
-            open={open === i}
-            onToggle={() => setOpen(open === i ? null : i)}
-          />
+          <div key={f.id} className="mb-3 last:mb-0">
+            <FaqItem
+              q={f.question}
+              a={f.answer}
+              id={`faq-${i}`}
+              open={open === i}
+              onToggle={() => setOpen(open === i ? null : i)}
+              index={i}
+            />
+          </div>
         ))}
       </div>
     </section>
   );
 }
+
 
 // ─────────────────────────────────────────────────────────────
 // Layout helpers
