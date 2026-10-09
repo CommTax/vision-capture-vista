@@ -449,66 +449,114 @@ const CLEAN_QUOTE =
 function BeatFour() {
   return (
     <div className="flex h-full flex-col justify-center">
-      <div className="mx-auto grid w-full max-w-4xl gap-8 md:grid-cols-[1.3fr_1fr] md:gap-12">
+      <div className="mx-auto grid w-full max-w-5xl gap-8 md:grid-cols-[1.35fr_1fr] md:gap-12">
+        {/* Left — clean response */}
         <div>
-          <div className="flex items-center justify-between">
+          {/* Header with mic badge (mirrors Beat 2) */}
+          <div className="relative flex items-center justify-between pl-9">
+            <div
+              aria-hidden
+              className="absolute left-0 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-primary/15 text-primary"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-3"
+              >
+                <rect x="9" y="2" width="6" height="12" rx="3" />
+                <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8" />
+              </svg>
+            </div>
             <span className="eyebrow !text-primary">Try again</span>
             <span className="font-mono text-[11px] text-muted-foreground">00:05</span>
           </div>
 
+          {/* Quote card — mirrors Beat 2's glass + waveform structure */}
           <div className="glass-float mt-3 rounded-2xl border-primary/40 p-5 md:p-6">
-            <p className="text-[15px] leading-7 text-foreground md:text-[16px]">
+            <p className="text-[15px] leading-8 text-foreground md:text-[16px]">
               {CLEAN_QUOTE}
             </p>
-            <div className="mt-5 flex h-7 items-end gap-[3px] border-t border-primary/20 pt-3">
-              {Array.from({ length: 42 }, (_, i) => {
-                const h = Math.abs(Math.sin(i * 0.9) * 12) + 5;
-                return (
-                  <span
-                    key={i}
-                    className="flex-1 rounded-sm bg-primary/60"
-                    style={{ height: h }}
-                  />
-                );
-              })}
+
+            {/* Waveform — single-color (primary), same bar count */}
+            <div className="mt-6 flex items-center gap-3 border-t border-primary/20 pt-4">
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                <svg viewBox="0 0 12 12" fill="currentColor" className="size-3">
+                  <path d="M3 2l7 4-7 4V2z" />
+                </svg>
+              </span>
+              <div className="flex h-6 flex-1 items-end gap-[2px]">
+                {Array.from({ length: 55 }, (_, i) => {
+                  const h = Math.abs(Math.sin(i * 0.9) * 12) + 3;
+                  return (
+                    <span
+                      key={i}
+                      className="flex-1 rounded-sm bg-primary/70"
+                      style={{ height: h }}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
+
+          {/* Trailing note */}
+          <p className="mt-4 text-[13px] leading-6 text-muted-foreground">
+            Clean. One idea. One outcome.
+          </p>
         </div>
 
+        {/* Right — outcome + checks */}
         <div className="flex flex-col justify-center">
-          <p className="font-display text-[clamp(26px,4vw,40px)] font-bold leading-tight">
+          <p className="text-[13px] italic leading-6 text-muted-foreground">
+            TheUnspoken
+          </p>
+          <p className="mt-2 font-display text-[clamp(28px,4vw,44px)] font-bold leading-tight">
             That landed.
           </p>
-          <p className="mt-3 text-[15px] leading-6 text-muted-foreground">
+          <p className="mt-3 max-w-sm text-[14.5px] leading-6 text-muted-foreground">
             Same experience. A clearer signal.
           </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-// ─────────────────────────────────────────────────────────────
-// Beat 5 — Numbers
-// ─────────────────────────────────────────────────────────────
-
-function BeatFive() {
-  return (
-    <div className="flex h-full flex-col justify-center">
-      <div className="text-center">
-        <div className="flex items-baseline justify-center gap-4 md:gap-8">
-          <span className="font-display text-[clamp(52px,9vw,110px)] font-bold leading-none text-muted-foreground/35 line-through decoration-destructive/60 decoration-2">
-            23s
-          </span>
-          <ArrowRight className="size-6 text-muted-foreground md:size-8" />
-          <span className="font-display text-[clamp(52px,9vw,110px)] font-bold leading-none text-primary">
-            5s
-          </span>
+          {/* Three checks — animated in on reveal */}
+          <ul className="mt-6 space-y-3 border-t border-border pt-6 text-[13.5px] leading-6">
+            {[
+              { label: "No tangents", sub: "Every sentence moved toward the point." },
+              { label: "No hedges", sub: "Stated directly — no 'I think', no 'kind of'." },
+              { label: "One outcome", sub: "40% latency reduction. That's the number." },
+            ].map((item, i) => (
+              <li
+                key={item.label}
+                className="check-in flex items-start gap-3"
+                style={{ animationDelay: `${200 + i * 180}ms` }}
+              >
+                <span
+                  className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
+                  aria-hidden
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="size-2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="font-medium text-foreground">{item.label}</p>
+                  <p className="text-muted-foreground">{item.sub}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-        <p className="mx-auto mt-6 max-w-md text-[15px] leading-6 text-muted-foreground">
-          Same answer. Same person.{" "}
-          <span className="text-foreground/80">18 seconds faster to the point.</span>
-        </p>
       </div>
     </div>
   );
@@ -523,7 +571,6 @@ const BEATS = [
   { id: "b2", node: <BeatTwo /> },
   { id: "b3", node: <BeatThree /> },
   { id: "b4", node: <BeatFour /> },
-  { id: "b5", node: <BeatFive /> },
 ];
 
 // ─────────────────────────────────────────────────────────────
