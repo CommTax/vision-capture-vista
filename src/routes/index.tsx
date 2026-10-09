@@ -6,11 +6,11 @@ import { Logo } from "@/components/app-shell";
 import { useHydrated } from "@/components/app-shell";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme";
-import { HowItWorksDemo } from "@/components/how-demo";
+import { StoryFlow } from "@/components/landing/story-flow";
+import { TestimonialsStrip } from "@/components/landing/testimonials-strip";
 import { dataProvider, formatPrice } from "@/services/data-provider";
 import { RotatingWord } from "@/components/landing-visuals";
 import { HeroPreview } from "@/components/landing/hero-preview";
-import { ProofBlock } from "@/components/landing/proof-block";
 import { ScrollReveal } from "@/components/landing/scroll-reveal";
 import type { PracticeMoment } from "@/content/types";
 
@@ -232,9 +232,11 @@ function Landing() {
         </div>
       </section>
 
-      {/* HOW IT WORKS — animated walkthrough */}
-      <section id="how">
-        <HowItWorksDemo />
+{/* TESTIMONIALS STRIP */}
+<TestimonialsStrip />
+      
+{/* STORY FLOW — six beats replacing walkthrough + proof block */}
+<StoryFlow />
       </section>
 
       {/* PRACTICE MOMENTS — 3 premium cards */}
