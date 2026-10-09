@@ -1,22 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { ScrollReveal } from "./scroll-reveal";
-import { CarouselDots } from "./carousel-dots";
 
 // ─────────────────────────────────────────────────────────────
 // REAL TESTIMONIALS — DRAFTS
-// Suggested wordings sent to the users for approval.
-// Do not publish until each user confirms. Once approved, set
-// `approved: true` on that testimonial.
+// All quotes are suggested wordings awaiting approval.
+// Publish only after each user confirms.
 // ─────────────────────────────────────────────────────────────
 
 type Testimonial = {
   id: string;
   name: string;
   quote: string;
-  /** Stable color for the avatar circle. */
   tint: string;
-  /** Flip to true once the user has approved their quote. */
-  approved?: boolean;
+  /** Shown on the primary row (up to 3). */
+  primary: boolean;
 };
 
 const TESTIMONIALS: Testimonial[] = [
@@ -24,47 +21,52 @@ const TESTIMONIALS: Testimonial[] = [
     id: "arun",
     name: "Arun",
     quote:
-      "I always had the right points in my head, but I struggled to get to them without giving too much background. TheUnspoken helped me see exactly where I was losing the message — and how to get to the point faster.",
-    tint: "rgb(139, 127, 255)", // violet
+      "I had the right points in my head, but too much background kept burying them. TheUnspoken showed me where I was losing the message.",
+    tint: "rgb(167, 139, 250)", // lilac
+    primary: true,
   },
   {
     id: "srikanth",
     name: "Srikanth",
     quote:
-      "I used to explain things in the order they came to mind, not in the order people needed to hear them. The feedback helped me recognize that pattern and make my answers more structured, direct, and easier to follow.",
+      "I explained things in the order they came to mind. The feedback helped me structure them the way people needed to hear.",
     tint: "rgb(96, 165, 250)", // sky
-  },
-  {
-    id: "mian",
-    name: "Mian",
-    quote:
-      "I didn't realize how often I softened my own point with phrases like \u201CI think\u201D and \u201Cmaybe.\u201D Seeing those habits in my actual responses made the feedback feel personal and practical. I could work on the way I communicate, not just read another set of tips.",
-    tint: "rgb(251, 191, 36)", // amber
+    primary: true,
   },
   {
     id: "priya",
     name: "Priya",
     quote:
-      "Practising an answer is one thing. Understanding how it actually comes across is another. TheUnspoken helped me see where my answer needed more focus and gave me a clear reason to try again. Each retry felt more purposeful.",
+      "Practising is one thing. Understanding how it lands is another. Each retry felt more purposeful.",
     tint: "rgb(249, 115, 111)", // coral
+    primary: true,
+  },
+  {
+    id: "mian",
+    name: "Mian",
+    quote:
+      "I didn't realise how often I softened my own point with \u201CI think\u201D and \u201Cmaybe.\u201D Seeing those habits made the feedback feel personal.",
+    tint: "rgb(251, 191, 36)", // amber
+    primary: false,
   },
   {
     id: "romeo",
     name: "Romeo",
     quote:
-      "I knew what I wanted to communicate, but I wasn't always making the important part stand out. What I liked was seeing the difference between what I said and what really came through. It gave me something specific to improve instead of leaving me guessing.",
+      "I wasn't making the important part stand out. TheUnspoken showed me the difference between what I said and what came through.",
     tint: "rgb(52, 211, 153)", // emerald
+    primary: false,
   },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Testimonial card — full quote, no truncation
+// Card — compact, one-line quote style
 // ─────────────────────────────────────────────────────────────
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
     <article className="glass flex h-full flex-col rounded-2xl border border-border p-5 md:p-6">
-      {/* Header — avatar + name only */}
+      {/* Header: avatar + name only */}
       <div className="flex items-center gap-3">
         <span
           className="grid size-9 shrink-0 place-items-center rounded-full text-[13px] font-semibold text-white"
@@ -81,7 +83,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
         </div>
       </div>
 
-      {/* Full quote — no line-clamp */}
+      {/* Quote */}
       <p className="mt-4 text-[13.5px] leading-6 text-foreground/85">
         {t.quote}
       </p>
@@ -94,39 +96,10 @@ function TestimonialCard({ t }: { t: Testimonial }) {
 // ─────────────────────────────────────────────────────────────
 
 export function TestimonialsStrip() {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
+  const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const children = Array.from(el.children) as HTMLElement[];
-      const mid = el.scrollLeft + el.clientWidth / 2;
-      let best = 0;
-      let bestDist = Infinity;
-      children.forEach((child, i) => {
-        const center = child.offsetLeft + child.offsetWidth / 2;
-        const d = Math.abs(center - mid);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const goTo = (i: number) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const target = el.children[i] as HTMLElement | undefined;
-    if (!target) return;
-    el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
-  };
+  const primary = TESTIMONIALS.filter((t) => t.primary);
+  const secondary = TESTIMONIALS.filter((t) => !t.primary);
 
   return (
     <section className="border-y border-border bg-card/20">
@@ -141,34 +114,46 @@ export function TestimonialsStrip() {
           </div>
         </ScrollReveal>
 
-        {/* Dots — mobile only */}
-        <div className="mt-6 md:hidden">
-          <CarouselDots
-            count={TESTIMONIALS.length}
-            active={active}
-            onSelect={goTo}
-            label="Testimonials"
-          />
-        </div>
-
-        {/* Scroll strip — mobile: horizontal scroll. Desktop: horizontal scroll too. */}
-        <div
-          ref={scrollerRef}
-          className="
-            -mx-5 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2
-            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-            md:mx-0 md:mt-10 md:gap-4 md:px-0
-          "
-        >
-          {TESTIMONIALS.map((t, i) => (
-            <ScrollReveal
-              key={t.id}
-              delay={i * 80}
-              className="w-[72vw] max-w-[320px] shrink-0 snap-center md:w-[320px] md:max-w-none"
-            >
+        {/* Primary row: 3 cards */}
+        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {primary.map((t, i) => (
+            <ScrollReveal key={t.id} delay={i * 80} className="h-full">
               <TestimonialCard t={t} />
             </ScrollReveal>
           ))}
+        </div>
+
+        {/* More stories — reveal */}
+        <div className="mt-4">
+          <div
+            className={`grid grid-cols-1 gap-4 overflow-hidden transition-all duration-500 md:grid-cols-2 ${
+              showAll ? "mt-4 max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+            aria-hidden={!showAll}
+          >
+            {secondary.map((t) => (
+              <div key={t.id} className="h-full">
+                <TestimonialCard t={t} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary underline-offset-4 transition hover:underline"
+            >
+              {showAll ? "Show less" : `More stories · ${secondary.length}`}
+              <span
+                className={`transition-transform duration-300 ${
+                  showAll ? "rotate-180" : ""
+                }`}
+              >
+                ↓
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
