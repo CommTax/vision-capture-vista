@@ -105,28 +105,28 @@ function TimelineBars({
       )}
 
       {/* The bar itself */}
-      <div className="flex h-10 w-full overflow-hidden rounded-md md:h-11">
+      <div className="flex h-12 w-full overflow-hidden rounded-md md:h-11">
         {segments.map((seg, i) => {
           const widthPct = (seg.weight / total) * 100;
           const isAlt = i % 2 === 1;
           return (
-            <div
-              key={seg.label}
-              className="relative flex items-center px-2.5 md:px-3"
-              style={{
-                width: `${widthPct}%`,
-                background: isAlt ? barBgAlt : barBg,
-                color: barText,
-                borderRight:
-                  i < segments.length - 1
-                    ? "1px solid rgba(0,0,0,0.18)"
-                    : "none",
-              }}
-            >
-              <span className="truncate text-[11px] font-semibold tracking-[0.01em] md:text-[12.5px]">
-                {seg.label}
-              </span>
-            </div>
+<div
+  key={seg.label}
+  className="relative flex items-center px-1.5 md:px-3"
+  style={{
+    width: `${widthPct}%`,
+    background: isAlt ? barBgAlt : barBg,
+    color: barText,
+    borderRight:
+      i < segments.length - 1
+        ? "1px solid rgba(0,0,0,0.18)"
+        : "none",
+  }}
+>
+  <span className="text-[10px] font-semibold leading-[1.15] tracking-[0.01em] md:text-[12.5px] md:leading-[1.2]">
+    {seg.label}
+  </span>
+</div>
           );
         })}
       </div>
@@ -232,9 +232,6 @@ function BeatOne() {
             <br />
             what you don&apos;t.
           </h2>
-          <p className="mt-4 max-w-md text-[14px] leading-6 text-muted-foreground md:mt-5 md:text-[16px]">
-            Practice the moment. See what got lost. Say it again.
-          </p>
         </div>
         <div className="flex items-center justify-center">
           <div className="w-full max-w-[200px] md:max-w-[340px]">
