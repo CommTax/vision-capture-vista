@@ -1,13 +1,13 @@
+import { useEffect, useRef, useState } from "react";
 import { ScrollReveal } from "./scroll-reveal";
+import { CarouselDots } from "./carousel-dots";
 
 type ChatStyle = "imessage" | "slack" | "whatsapp" | "email";
 
 type Testimonial = {
   id: string;
-  /** Who the "screenshot" is from. Placeholder for now — replace with real names. */
   name: string;
   role: string;
-  /** The quote. Placeholder — swap for real. */
   quote: string;
   style: ChatStyle;
 };
@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Screenshot-style wrappers — mimic the look of a DM/review
+// Screenshot-style wrappers
 // ─────────────────────────────────────────────────────────────
 
 function SlackCard({ name, role, quote }: { name: string; role: string; quote: string }) {
@@ -140,6 +140,41 @@ function TestimonialCard({ t }: { t: Testimonial }) {
 // ─────────────────────────────────────────────────────────────
 
 export function TestimonialsStrip() {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  // Track which card is centered
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const children = Array.from(el.children) as HTMLElement[];
+      const mid = el.scrollLeft + el.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      children.forEach((child, i) => {
+        const center = child.offsetLeft + child.offsetWidth / 2;
+        const d = Math.abs(center - mid);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const goTo = (i: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const target = el.children[i] as HTMLElement | undefined;
+    if (!target) return;
+    el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+  };
+
   return (
     <section className="border-y border-border bg-card/20">
       <div className="mx-auto max-w-[1200px] px-5 py-12 md:px-8 md:py-16">
@@ -153,13 +188,26 @@ export function TestimonialsStrip() {
           </div>
         </ScrollReveal>
 
-        {/* Horizontal scroll on mobile, grid on desktop */}
-        <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
+        {/* Dots — visible on mobile only (desktop shows all 4 in a grid) */}
+        <div className="mt-6 md:hidden">
+          <CarouselDots
+            count={TESTIMONIALS.length}
+            active={active}
+            onSelect={goTo}
+            label="Testimonials"
+          />
+        </div>
+
+        {/* Scroll strip — narrower cards on mobile so the next one peeks */}
+        <div
+          ref={scrollerRef}
+          className="-mx-5 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:mt-8 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0"
+        >
           {TESTIMONIALS.map((t, i) => (
             <ScrollReveal
               key={t.id}
               delay={i * 80}
-              className="w-[80vw] max-w-[320px] shrink-0 snap-start md:w-auto md:max-w-none"
+              className="w-[72vw] max-w-[320px] shrink-0 snap-center md:w-auto md:max-w-none"
             >
               <TestimonialCard t={t} />
             </ScrollReveal>
