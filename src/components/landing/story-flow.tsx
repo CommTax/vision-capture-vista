@@ -3,16 +3,14 @@ import {
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const AUTO_ADVANCE_MS = 5000;
 const IDLE_RESUME_MS = 10000;
 
 // ─────────────────────────────────────────────────────────────
-// Media / reduced-motion
+// Reduced motion hook
 // ─────────────────────────────────────────────────────────────
 
 function usePrefersReducedMotion() {
@@ -28,43 +26,137 @@ function usePrefersReducedMotion() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// The scattered response — split into segments.
+// Timeline bar — the horizontal segmented strip.
+// Uniform brown/tan palette, high-contrast labels.
 // ─────────────────────────────────────────────────────────────
 
-type Segment = { text: string; key: string };
-
-const SEGMENTS: Segment[] = [
-  { key: "context",      text: "So basically, I've worked on a few things," },
-  { key: "qualifier",    text: " and um, mostly backend," },
-  { key: "tangent",      text: " but also some other frontend stuff and product," },
-  { key: "hedge",        text: " and I think what drives me" },
-  { key: "side-thought", text: " is learning and how things come together," },
-  { key: "intent",       text: " and I'm really interested in building…" },
-];
-
-type Annotation = {
-  key: string;
+type Segment = {
   label: string;
   time: string;
-  color: string;
+  /** Flex-grow weight. Segments scale proportionally. */
+  weight: number;
+  /** Optional: mark this segment as where the point lands. */
+  pointLands?: boolean;
 };
 
-const ANNOTATIONS: Annotation[] = [
-  { key: "context",      label: "Context",      time: "0:00 – 0:08", color: "rgb(96, 165, 250)"  },
-  { key: "qualifier",    label: "Qualifier",    time: "0:08 – 0:14", color: "rgb(251, 191, 36)"  },
-  { key: "tangent",      label: "Tangent",      time: "0:14 – 0:22", color: "rgb(249, 115, 111)" },
-  { key: "hedge",        label: "Hedge",        time: "0:22 – 0:28", color: "rgb(167, 139, 250)" },
-  { key: "side-thought", label: "Side thought", time: "0:28 – 0:34", color: "rgb(56, 189, 248)"  },
-  { key: "intent",       label: "Intent",       time: "0:34 – 0:38", color: "rgb(52, 211, 153)"  },
+const SCATTERED_SEGMENTS: Segment[] = [
+  { label: "Context",      time: "0:00–0:08", weight: 8 },
+  { label: "Qualifier",    time: "0:08–0:12", weight: 4 },
+  { label: "Tangent",      time: "0:12–0:20", weight: 8 },
+  { label: "Hedge",        time: "0:20–0:28", weight: 8 },
+  { label: "Side thought", time: "0:28–0:33", weight: 5 },
+  { label: "Intent",       time: "0:33–0:38", weight: 5, pointLands: true },
 ];
 
+const CLEAN_SEGMENTS: Segment[] = [
+  { label: "Role",   time: "0:00–0:04", weight: 4 },
+  { label: "Result", time: "0:04–0:07", weight: 3, pointLands: true },
+  { label: "Ask",    time: "0:07–0:11", weight: 4 },
+];
+
+function TimelineBars({
+  segments,
+  pointLabel,
+  pointAt,
+  variant = "muted",
+}: {
+  segments: Segment[];
+  pointLabel?: string;
+  /** Percentage (0-100) where the marker line should sit. */
+  pointAt?: number;
+  variant?: "muted" | "accent";
+}) {
+  const total = segments.reduce((sum, s) => sum + s.weight, 0);
+
+  // Colors — muted brown/tan for scattered, slightly brighter for clean
+  const barBg =
+    variant === "accent"
+      ? "rgb(190, 130, 80)"
+      : "rgb(150, 115, 82)";
+  const barBgAlt =
+    variant === "accent"
+      ? "rgb(205, 145, 95)"
+      : "rgb(135, 105, 75)";
+  const barText = "rgb(245, 240, 235)";
+  const pointColor = "rgb(235, 150, 70)";
+
+  return (
+    <div className="relative">
+      {/* Marker above the bar */}
+      {pointLabel && pointAt !== undefined && (
+        <div
+          className="pointer-events-none absolute -top-7 z-10"
+          style={{
+            left: `${pointAt}%`,
+            transform: "translateX(-50%)",
+          }}
+        >
+          <div
+            className="whitespace-nowrap font-medium text-[11px] md:text-[12px]"
+            style={{ color: pointColor }}
+          >
+            {pointLabel}
+          </div>
+          <div
+            className="mx-auto mt-0.5 w-px"
+            style={{ background: pointColor, height: "14px" }}
+          />
+        </div>
+      )}
+
+      {/* The bar itself */}
+      <div className="flex h-10 w-full overflow-hidden rounded-md md:h-11">
+        {segments.map((seg, i) => {
+          const widthPct = (seg.weight / total) * 100;
+          const isAlt = i % 2 === 1;
+          return (
+            <div
+              key={seg.label}
+              className="relative flex items-center px-2.5 md:px-3"
+              style={{
+                width: `${widthPct}%`,
+                background: isAlt ? barBgAlt : barBg,
+                color: barText,
+                borderRight:
+                  i < segments.length - 1
+                    ? "1px solid rgba(0,0,0,0.18)"
+                    : "none",
+              }}
+            >
+              <span className="truncate text-[11px] font-semibold tracking-[0.01em] md:text-[12.5px]">
+                {seg.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Timestamps below, aligned under each segment */}
+      <div className="mt-1.5 flex w-full">
+        {segments.map((seg) => {
+          const widthPct = (seg.weight / total) * 100;
+          return (
+            <div
+              key={seg.label}
+              className="font-mono text-[9px] leading-none text-muted-foreground/70 md:text-[10px]"
+              style={{ width: `${widthPct}%` }}
+            >
+              {seg.time}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
-// Illustration
+// Beat 1 — Promise + illustration
 // ─────────────────────────────────────────────────────────────
 
 function HeroCardIllustration() {
   return (
-    <div className="relative aspect-square w-full max-w-[340px]">
+    <div className="relative aspect-square w-full max-w-[280px] md:max-w-[340px]">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full opacity-70 blur-3xl"
@@ -73,7 +165,6 @@ function HeroCardIllustration() {
             "radial-gradient(closest-side, rgba(139,127,255,0.4), transparent 70%)",
         }}
       />
-
       <div
         aria-hidden
         className="absolute left-2 top-6 h-[78%] w-[68%] rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm"
@@ -90,7 +181,6 @@ function HeroCardIllustration() {
           boxShadow: "0 20px 60px -30px rgba(139,127,255,0.3)",
         }}
       />
-
       <div className="relative flex h-full w-full items-center justify-center">
         <div
           className="relative flex aspect-[3/4] w-[62%] items-center justify-center rounded-3xl border border-border bg-card/70 backdrop-blur-md"
@@ -117,7 +207,6 @@ function HeroCardIllustration() {
               ))}
             </div>
           </div>
-
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.04]"
@@ -133,17 +222,12 @@ function HeroCardIllustration() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Beat 1 — Promise
-// ─────────────────────────────────────────────────────────────
-
 function BeatOne() {
   return (
     <div className="flex h-full flex-col justify-center">
       <div className="mx-auto grid w-full max-w-5xl items-center gap-6 md:grid-cols-[1.1fr_0.9fr] md:gap-14">
-        {/* Left — headline */}
         <div>
-          <h2 className="text-[clamp(28px,5vw,68px)] font-bold leading-[1.05] tracking-tight">
+          <h2 className="text-[clamp(28px,5vw,64px)] font-bold leading-[1.05] tracking-tight">
             The Unspoken sees
             <br />
             what you don&apos;t.
@@ -152,10 +236,8 @@ function BeatOne() {
             Practice the moment. See what got lost. Say it again.
           </p>
         </div>
-
-        {/* Right — wireframe illustration (smaller on mobile) */}
         <div className="flex items-center justify-center">
-          <div className="w-full max-w-[180px] md:max-w-[340px]">
+          <div className="w-full max-w-[200px] md:max-w-[340px]">
             <HeroCardIllustration />
           </div>
         </div>
@@ -165,376 +247,161 @@ function BeatOne() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Beat 2 — Annotated scattered response (interactive)
+// Beat 2 — Scattered response with horizontal timeline bars
 // ─────────────────────────────────────────────────────────────
 
 function BeatTwo() {
-  const [activeKey, setActiveKey] = useState<string | null>(null);
-
   return (
     <div className="flex h-full flex-col justify-center">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 md:grid-cols-[1.35fr_1fr] md:gap-12">
-        {/* Left — quote with colored underline segments */}
-        <div>
-          <div className="relative flex items-center justify-between pl-9">
-            <div
-              aria-hidden
-              className="absolute left-0 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-primary/15 text-primary"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="size-3"
-              >
-                <rect x="9" y="2" width="6" height="12" rx="3" />
-                <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8" />
-              </svg>
-            </div>
-
-            <span className="eyebrow text-muted-foreground">You said</span>
-            <span className="font-mono text-[11px] text-muted-foreground">00:38</span>
-          </div>
-
-          <div className="glass mt-3 rounded-2xl p-4 md:p-6">
-            <p className="text-[14px] leading-7 text-foreground/85 md:text-[16px] md:leading-8">
-              {SEGMENTS.map((seg, i) => {
-                const ann = ANNOTATIONS.find((a) => a.key === seg.key);
-                const color = ann?.color ?? "currentColor";
-                const isActive = activeKey === seg.key;
-                const isDimmed = activeKey !== null && !isActive;
-                return (
-                  <span
-                    key={seg.key}
-                    onMouseEnter={() => setActiveKey(seg.key)}
-                    onMouseLeave={() => setActiveKey(null)}
-                    className="cursor-default transition-opacity duration-300"
-                    style={{
-                      opacity: isDimmed ? 0.35 : 1,
-                      borderBottom: `2px solid ${color}`,
-                      paddingBottom: "2px",
-                      boxShadow: isActive ? `0 4px 0 -2px ${color}40` : undefined,
-                    }}
-                  >
-                    {seg.text}
-                    {i < SEGMENTS.length - 1 ? " " : ""}
-                  </span>
-                );
-              })}
-            </p>
-
-            <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-foreground/10 text-foreground">
-                <svg viewBox="0 0 12 12" fill="currentColor" className="size-3">
-                  <path d="M3 2l7 4-7 4V2z" />
-                </svg>
-              </span>
-              <div className="flex h-5 flex-1 items-end gap-[2px] md:h-6">
-                {Array.from({ length: 55 }, (_, i) => {
-                  const h = Math.abs(Math.sin(i * 0.71) * 12) + 3;
-                  const segIndex = Math.floor((i / 55) * SEGMENTS.length);
-                  const segKey = SEGMENTS[segIndex]?.key;
-                  const ann = ANNOTATIONS.find((a) => a.key === segKey);
-                  const color = ann?.color ?? "rgb(180, 120, 90)";
-                  const isDimmed = activeKey !== null && activeKey !== segKey;
-                  return (
-                    <span
-                      key={i}
-                      className="flex-1 rounded-sm transition-opacity duration-300"
-                      style={{
-                        height: h,
-                        background: color,
-                        opacity: isDimmed ? 0.2 : 0.75,
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+      <div className="mx-auto w-full max-w-3xl">
+        {/* Header */}
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground md:text-[11px]">
+            You said
+          </span>
+          <span className="font-mono text-[10px] text-muted-foreground md:text-[11px]">
+            0:38
+          </span>
         </div>
 
-        {/* Right — connected annotations */}
-        <div className="relative flex flex-col justify-center">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute left-[5px] top-3 bottom-3 w-px"
-              style={{
-                background:
-                  "linear-gradient(to bottom, " +
-                  ANNOTATIONS.map(
-                    (a, i) =>
-                      `${a.color} ${(i / (ANNOTATIONS.length - 1)) * 100}%`,
-                  ).join(", ") +
-                  ")",
-                opacity: 0.4,
-              }}
-            />
+        {/* Quote — italic serif feel */}
+        <p className="text-[14.5px] italic leading-7 text-muted-foreground/90 md:text-[16px] md:leading-8">
+          So basically, I&apos;ve worked on a few things, and um, mostly backend, but also
+          some other frontend stuff and product, and I think what drives me is learning
+          and how things come together,{" "}
+          <span className="text-primary">and I&apos;m really interested in building…</span>
+        </p>
 
-            <div className="relative flex flex-col gap-3 md:gap-4">
-              {ANNOTATIONS.map((a) => {
-                const isActive = activeKey === a.key;
-                const isDimmed = activeKey !== null && !isActive;
-                return (
-                  <button
-                    key={a.key}
-                    type="button"
-                    onMouseEnter={() => setActiveKey(a.key)}
-                    onMouseLeave={() => setActiveKey(null)}
-                    onFocus={() => setActiveKey(a.key)}
-                    onBlur={() => setActiveKey(null)}
-                    className="flex items-center gap-3.5 text-left transition-opacity duration-300"
-                    style={{ opacity: isDimmed ? 0.4 : 1 }}
-                  >
-                    <span
-                      className="size-2.5 shrink-0 rounded-full ring-2 ring-background transition-transform duration-300"
-                      style={{
-                        background: a.color,
-                        transform: isActive ? "scale(1.4)" : "scale(1)",
-                      }}
-                    />
-                    <div className="flex flex-1 items-baseline justify-between gap-4">
-                      <span
-                        className="font-mono text-[10px] uppercase tracking-[0.14em] md:text-[11px]"
-                        style={{ color: a.color }}
-                      >
-                        {a.label}
-                      </span>
-                      <span className="font-mono text-[9px] tracking-[0.08em] text-muted-foreground md:text-[10px]">
-                        {a.time}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <p className="mt-5 text-[12px] leading-5 text-muted-foreground md:mt-8 md:text-[13px] md:leading-6">
-            Your point is there.
-            <br />
-            It&apos;s just buried.
-          </p>
+        {/* Timeline */}
+        <div className="mt-8 md:mt-10">
+          <TimelineBars
+            segments={SCATTERED_SEGMENTS}
+            pointLabel="Your point · 0:33"
+            pointAt={85}
+            variant="muted"
+          />
         </div>
+
+        {/* Diagnosis */}
+        <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
+          Your point is there.{" "}
+          <span className="text-primary">It&apos;s just buried.</span>
+        </h3>
+        <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
+          Your point arrived at <span className="text-foreground">0:33</span>. The first
+          33 seconds were setup.
+        </p>
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Beat 3 — Diagnosis with timeline visualization
+// Beat 3 — Clean retry with horizontal timeline bars
 // ─────────────────────────────────────────────────────────────
-
-const TIMELINE_DOTS: { key: string; color: string; at: number }[] = [
-  { key: "context",      color: "rgb(96, 165, 250)",  at: 0.05 },
-  { key: "qualifier",    color: "rgb(251, 191, 36)",  at: 0.22 },
-  { key: "tangent",      color: "rgb(249, 115, 111)", at: 0.42 },
-  { key: "hedge",        color: "rgb(167, 139, 250)", at: 0.58 },
-  { key: "side-thought", color: "rgb(56, 189, 248)",  at: 0.78 },
-  { key: "intent",       color: "rgb(52, 211, 153)",  at: 0.92 },
-];
 
 function BeatThree() {
   return (
     <div className="flex h-full flex-col justify-center">
-      <div className="mx-auto grid w-full max-w-5xl items-center gap-6 md:grid-cols-[1.35fr_1fr] md:gap-12">
-        {/* Left — vertical timeline */}
-        <div className="relative flex h-[200px] items-stretch md:h-[340px]">
-          <div className="relative flex flex-1 gap-5">
-            <div className="relative w-6 shrink-0">
-              <div
-                aria-hidden
-                className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2"
-                style={{
-                  background:
-                    "linear-gradient(to bottom, " +
-                    TIMELINE_DOTS.map(
-                      (d) => `${d.color} ${d.at * 100}%`,
-                    ).join(", ") +
-                    ")",
-                  opacity: 0.35,
-                }}
-              />
-
-              {TIMELINE_DOTS.map((d) => (
-                <span
-                  key={d.key}
-                  aria-hidden
-                  className="absolute left-1/2 size-2.5 -translate-x-1/2 rounded-full ring-2 ring-background"
-                  style={{
-                    background: d.color,
-                    top: `calc(${d.at * 100}% - 5px)`,
-                  }}
-                />
-              ))}
-            </div>
-
-            <div className="relative flex flex-1 flex-col justify-around py-2">
-              {Array.from({ length: 8 }, (_, i) => {
-                const w = 55 + Math.sin(i * 1.3) * 30;
-                return (
-                  <div
-                    key={i}
-                    className="h-3 rounded-sm bg-muted-foreground/15 md:h-3.5"
-                    style={{ width: `${Math.max(30, Math.min(95, w))}%` }}
-                  />
-                );
-              })}
-
-              <div
-                className="absolute left-[28%] top-[38%] flex items-center gap-2.5 rounded-xl border border-primary/40 bg-background/95 px-3 py-2 shadow-[0_12px_40px_-12px_rgba(139,127,255,0.5)] backdrop-blur md:px-3.5 md:py-2.5"
-                style={{ pointerEvents: "none" }}
-              >
-                <Clock className="size-3.5 shrink-0 text-primary md:size-4" strokeWidth={2} />
-                <div>
-                  <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-primary md:text-[9px]">
-                    Your point arrived at
-                  </div>
-                  <div className="font-display text-[16px] font-bold leading-none text-foreground md:text-[18px]">
-                    0:23
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="mx-auto w-full max-w-3xl">
+        {/* Header */}
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary md:text-[11px]">
+            Try again
+          </span>
+          <span className="font-mono text-[10px] text-muted-foreground md:text-[11px]">
+            0:11
+          </span>
         </div>
 
-        {/* Right — diagnosis */}
-        <div>
-          <p className="text-[12px] italic leading-5 text-muted-foreground md:text-[13px] md:leading-6">
-            TheUnspoken
-          </p>
-          <h2 className="mt-2 text-balance text-[clamp(24px,4vw,42px)] font-bold leading-tight">
-            Your point is
-            <br />
-            still buried.
-          </h2>
-          <p className="mt-3 max-w-md text-[13.5px] leading-6 text-muted-foreground md:mt-4 md:text-[14.5px]">
-            You know what you want to say. But your answer makes the listener work for it.
-          </p>
+        {/* Quote */}
+        <p className="text-[14.5px] italic leading-7 text-foreground/90 md:text-[16px] md:leading-8">
+          I&apos;m a backend engineer with four years in payments. I&apos;ve reduced API
+          latency by 40%, and I&apos;m looking for a role where I can own reliability end
+          to end.
+        </p>
+
+        {/* Timeline */}
+        <div className="mt-8 md:mt-10">
+          <TimelineBars
+            segments={CLEAN_SEGMENTS}
+            pointLabel="Your point · 0:04"
+            pointAt={30}
+            variant="accent"
+          />
         </div>
+
+        {/* Diagnosis */}
+        <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
+          Your point arrived at{" "}
+          <span className="text-primary">0:04</span>.
+        </h3>
+        <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
+          Clean. One idea. One outcome.
+        </p>
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Beat 4 — Clean retry
+// Beat 4 — That landed + 3 checks (centered column)
 // ─────────────────────────────────────────────────────────────
 
-const CLEAN_QUOTE =
-  "I'm a backend engineer with four years in payments. I've reduced API latency by 40%, and I'm looking for a role where I can own reliability end to end.";
-
 function BeatFour() {
+  const checks = [
+    { label: "No tangents", sub: "Every sentence moved toward the point." },
+    { label: "No hedges", sub: "Stated directly — no 'I think', no 'kind of'." },
+    { label: "One outcome", sub: "40% latency reduction. That's the number." },
+  ];
+
   return (
     <div className="flex h-full flex-col justify-center">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 md:grid-cols-[1.35fr_1fr] md:gap-12">
-        {/* Left — clean response */}
-        <div>
-          <div className="relative flex items-center justify-between pl-9">
-            <div
-              aria-hidden
-              className="absolute left-0 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-primary/15 text-primary"
+      <div className="mx-auto w-full max-w-2xl text-center">
+        <p className="text-[12px] italic leading-5 text-muted-foreground md:text-[13px] md:leading-6">
+          TheUnspoken
+        </p>
+        <h2 className="mt-2 font-display text-[clamp(28px,5vw,52px)] font-bold leading-tight">
+          That landed.
+        </h2>
+        <p className="mt-3 text-[13.5px] leading-6 text-muted-foreground md:text-[15px]">
+          Same experience. A clearer signal.
+        </p>
+
+        <ul className="mx-auto mt-8 max-w-md space-y-3.5 border-t border-border pt-8 text-left">
+          {checks.map((item, i) => (
+            <li
+              key={item.label}
+              className="check-in flex items-start gap-3"
+              style={{ animationDelay: `${200 + i * 180}ms` }}
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="size-3"
+              <span
+                className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
+                aria-hidden
               >
-                <rect x="9" y="2" width="6" height="12" rx="3" />
-                <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8" />
-              </svg>
-            </div>
-            <span className="eyebrow !text-primary">Try again</span>
-            <span className="font-mono text-[11px] text-muted-foreground">00:05</span>
-          </div>
-
-          <div className="glass-float mt-3 rounded-2xl border-primary/40 p-4 md:p-6">
-            <p className="text-[14px] leading-7 text-foreground md:text-[16px] md:leading-8">
-              {CLEAN_QUOTE}
-            </p>
-
-            <div className="mt-5 flex items-center gap-3 border-t border-primary/20 pt-4">
-              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
-                <svg viewBox="0 0 12 12" fill="currentColor" className="size-3">
-                  <path d="M3 2l7 4-7 4V2z" />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
               </span>
-              <div className="flex h-5 flex-1 items-end gap-[2px] md:h-6">
-                {Array.from({ length: 55 }, (_, i) => {
-                  const h = Math.abs(Math.sin(i * 0.9) * 12) + 3;
-                  return (
-                    <span
-                      key={i}
-                      className="flex-1 rounded-sm bg-primary/70"
-                      style={{ height: h }}
-                    />
-                  );
-                })}
+              <div>
+                <p className="text-[13.5px] font-medium leading-5 text-foreground md:text-[14.5px]">
+                  {item.label}
+                </p>
+                <p className="text-[12.5px] leading-5 text-muted-foreground md:text-[13.5px]">
+                  {item.sub}
+                </p>
               </div>
-            </div>
-          </div>
-
-          <p className="mt-3 text-[12px] leading-5 text-muted-foreground md:mt-4 md:text-[13px] md:leading-6">
-            Clean. One idea. One outcome.
-          </p>
-        </div>
-
-        {/* Right — outcome + checks */}
-        <div className="flex flex-col justify-center">
-          <p className="text-[12px] italic leading-5 text-muted-foreground md:text-[13px] md:leading-6">
-            TheUnspoken
-          </p>
-          <p className="mt-2 font-display text-[clamp(26px,4vw,44px)] font-bold leading-tight">
-            That landed.
-          </p>
-          <p className="mt-3 max-w-sm text-[13.5px] leading-6 text-muted-foreground md:text-[14.5px]">
-            Same experience. A clearer signal.
-          </p>
-
-          <ul className="mt-5 space-y-2.5 border-t border-border pt-5 text-[12.5px] leading-5 md:mt-6 md:space-y-3 md:pt-6 md:text-[13.5px] md:leading-6">
-            {[
-              { label: "No tangents", sub: "Every sentence moved toward the point." },
-              { label: "No hedges", sub: "Stated directly — no 'I think', no 'kind of'." },
-              { label: "One outcome", sub: "40% latency reduction. That's the number." },
-            ].map((item, i) => (
-              <li
-                key={item.label}
-                className="check-in flex items-start gap-3"
-                style={{ animationDelay: `${200 + i * 180}ms` }}
-              >
-                <span
-                  className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
-                  aria-hidden
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="size-2.5"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-                <div>
-                  <p className="font-medium text-foreground">{item.label}</p>
-                  <p className="text-muted-foreground">{item.sub}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -621,78 +488,9 @@ function HorizontalStory() {
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
+      {/* Dots — above the strip so they're visible */}
       <div
-        ref={scrollerRef}
-        onWheel={markInteraction}
-        onTouchStart={markInteraction}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            markInteraction();
-            goTo(Math.max(0, active - 1));
-          }
-          if (e.key === "ArrowRight") {
-            e.preventDefault();
-            markInteraction();
-            goTo(Math.min(BEATS.length - 1, active + 1));
-          }
-        }}
-        tabIndex={0}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="Product story"
-        className="
-          flex h-auto min-h-[70vh] w-full snap-x snap-mandatory
-          overflow-x-auto overflow-y-hidden
-          scroll-smooth outline-none
-          [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-          md:h-[62vh] md:min-h-[420px]
-        "
-      >
-        {BEATS.map((beat, i) => (
-          <div
-            key={beat.id}
-            className="
-              flex h-full min-h-[70vh] w-[92vw] shrink-0 snap-center items-center
-              px-5 py-8 sm:w-[88vw]
-              md:min-h-0 md:w-[82vw] md:px-10 md:py-0
-              lg:w-[min(1100px,82vw)]
-            "
-            aria-roledescription="slide"
-            aria-label={`${i + 1} of ${BEATS.length}`}
-          >
-            <div className="w-full">{beat.node}</div>
-          </div>
-        ))}
-      </div>
-
-      <button
-        type="button"
-        onClick={() => {
-          markInteraction();
-          goTo(Math.max(0, active - 1));
-        }}
-        disabled={!canPrev}
-        aria-label="Previous"
-        className="absolute left-2 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
-      >
-        <ChevronLeft className="size-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          markInteraction();
-          goTo(Math.min(BEATS.length - 1, active + 1));
-        }}
-        disabled={!canNext}
-        aria-label="Next"
-        className="absolute right-2 top-1/2 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
-      >
-        <ChevronRight className="size-4" />
-      </button>
-
-      <div
-        className="mt-4 flex items-center justify-center gap-2.5"
+        className="mb-3 flex items-center justify-center gap-2.5 md:mb-4"
         role="tablist"
         aria-label="Story panels"
       >
@@ -715,6 +513,76 @@ function HorizontalStory() {
           />
         ))}
       </div>
+
+      <div
+        ref={scrollerRef}
+        onWheel={markInteraction}
+        onTouchStart={markInteraction}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            markInteraction();
+            goTo(Math.max(0, active - 1));
+          }
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            markInteraction();
+            goTo(Math.min(BEATS.length - 1, active + 1));
+          }
+        }}
+        tabIndex={0}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Product story"
+        className="
+          flex h-auto min-h-[56vh] w-full snap-x snap-mandatory
+          overflow-x-auto overflow-y-hidden
+          scroll-smooth outline-none
+          [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+          md:h-[62vh] md:min-h-[420px]
+        "
+      >
+        {BEATS.map((beat, i) => (
+          <div
+            key={beat.id}
+            className="
+              flex h-full min-h-[56vh] w-[92vw] shrink-0 snap-center items-center
+              px-5 py-6 sm:w-[88vw]
+              md:min-h-0 md:w-[82vw] md:px-10 md:py-0
+              lg:w-[min(1100px,82vw)]
+            "
+            aria-roledescription="slide"
+            aria-label={`${i + 1} of ${BEATS.length}`}
+          >
+            <div className="w-full">{beat.node}</div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          markInteraction();
+          goTo(Math.max(0, active - 1));
+        }}
+        disabled={!canPrev}
+        aria-label="Previous"
+        className="absolute left-2 top-[calc(50%+16px)] hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
+      >
+        <ChevronLeft className="size-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          markInteraction();
+          goTo(Math.min(BEATS.length - 1, active + 1));
+        }}
+        disabled={!canNext}
+        aria-label="Next"
+        className="absolute right-2 top-[calc(50%+16px)] hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
+      >
+        <ChevronRight className="size-4" />
+      </button>
     </div>
   );
 }
@@ -743,7 +611,7 @@ export function StoryFlow() {
         </p>
       </div>
 
-      <div className="py-6 md:py-8">
+      <div className="py-2 md:py-8">
         {reduced ? <VerticalStory /> : <HorizontalStory />}
       </div>
     </section>
