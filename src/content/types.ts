@@ -3,6 +3,19 @@ import type { ModeId } from "@/lib/data";
 
 export type IconKey = "briefcase" | "trending" | "message" | "presentation" | "crown" | "handshake" | "sparkles";
 
+/** Category for a practice-moment chip, used to tint the leading dot. */
+export type PracticeMomentChipCategory =
+  | "role"
+  | "type"
+  | "situation"
+  | "scenario"
+  | "custom";
+
+export interface PracticeMomentChip {
+  label: string;
+  category?: PracticeMomentChipCategory;
+}
+
 export interface PracticeMoment {
   id: string;
   name: string;
@@ -14,8 +27,8 @@ export interface PracticeMoment {
   active: boolean;
   /** Short count line shown above the ticker, e.g. "16 roles · 5 question types". */
   stats?: string;
-  /** Combined chip list for the single-line ticker. Roles first, then types. */
-  chips?: string[];
+  /** Combined chip list for the single-line ticker. */
+  chips?: PracticeMomentChip[];
 }
 
 export interface Metric {
