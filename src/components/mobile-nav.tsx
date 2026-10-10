@@ -41,17 +41,10 @@ type NavState = "guest" | "free" | "paid";
  * stable on the first paint (no flicker while the store hydrates).
  */
 function useNavState(): NavState {
-  // Synchronous — read the token once on mount.
   const [token] = useState<string | null>(() => getSessionToken());
-
-  // useEntitlement reads the cached plan hint synchronously on first
-  // render, so `free` is accurate from the first paint.
   const { free } = useEntitlement();
 
-  // No token → guest. Regardless of any stale store state.
   if (!token) return "guest";
-
-  // Token exists → at minimum a free user. Paid if the plan hint says so.
   return free ? "free" : "paid";
 }
 
@@ -108,17 +101,16 @@ export function MobileNav() {
         ]
       : navState === "free"
         ? [
-{
-  title: "Practice",
-  items: [
-    { label: "Dashboard", to: "/dashboard" },
-    { label: "My Responses", to: "/responses" },
-    { label: "Drills", to: "/drills" },
-    { label: "Skills", to: "/skills" },
-    { label: "Format", to: "/format", highlight: true },
-    { label: "Progress", to: "/progress" },
-  ],
-},
+            {
+              title: "Practice",
+              items: [
+                { label: "Dashboard", to: "/dashboard" },
+                { label: "My Responses", to: "/responses" },
+                { label: "Drills", to: "/drills", locked: true },
+                { label: "Skills", to: "/skills", locked: true },
+                { label: "Progress", to: "/progress", locked: true },
+              ],
+            },
             {
               title: "Account",
               items: [
@@ -146,6 +138,7 @@ export function MobileNav() {
                 { label: "My Responses", to: "/responses" },
                 { label: "Drills", to: "/drills" },
                 { label: "Skills", to: "/skills" },
+                { label: "Format", to: "/format", highlight: true },
                 { label: "Progress", to: "/progress" },
               ],
             },
@@ -183,7 +176,6 @@ export function MobileNav() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
 
-          // "More" opens the drawer
           if ("more" in tab && tab.more) {
             return (
               <button
@@ -200,7 +192,6 @@ export function MobileNav() {
             );
           }
 
-          // External href (guest → Learn → University)
           if ("href" in tab && tab.href) {
             return (
               <a
@@ -214,7 +205,6 @@ export function MobileNav() {
             );
           }
 
-          // Internal route (TanStack Link)
           return (
             <Link
               key={tab.label}
