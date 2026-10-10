@@ -102,6 +102,53 @@ export interface HomepageContent {
   howItWorks: HowItWorksStep[];
   feedback: FeedbackExample;
   comparison: ComparisonExample;
+
+  // ─────────────────────────────────────────────────────────────
+// Format Section — Pillars of Communication
+// Appended to src/content/types.ts
+// ─────────────────────────────────────────────────────────────
+
+export type PillarId = "structure" | "conciseness" | "tone" | "presence";
+
+export type BitesCategoryId =
+  | "structure"
+  | "thinking"
+  | "impact"
+  | "expression"
+  | "connection";
+
+export interface Technique {
+  id: string;
+  category: BitesCategoryId;
+  tags: string[];
+  title: string;
+  hook: string;
+  brief: string;
+  what: string;
+  why: string;
+  how: string[];
+  exampleWeak?: string;
+  exampleStrong?: string;
+  bestFor: string;
+  illo: string;
+  active: boolean;
+}
+
+export interface Pillar {
+  id: PillarId;
+  number: number;
+  title: string;
+  icon: IconKey;
+  description: string;
+  categories: BitesCategoryId[];
+}
+
+export interface BitesCategory {
+  id: BitesCategoryId;
+  label: string;
+  icon: IconKey;
+}
+  
   pattern: PatternExample;
   contact: ContactInfo;
 }
