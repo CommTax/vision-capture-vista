@@ -59,9 +59,8 @@ export const dataProvider = {
     withFallback<DrillTeaser[]>(null, FALLBACK_DRILL_TEASERS).filter((d) => d.active),
   getDrills: (): Drill[] => DRILLS,
 
-  // ── Format Section — Pillars of Communication ──
-  getPillars: (): Pillar[] =>
-    withFallback<Pillar[]>(null, FALLBACK_PILLARS),
+  // ── Format Section ──
+  getPillars: (): Pillar[] => withFallback<Pillar[]>(null, FALLBACK_PILLARS),
   getBitesCategories: (): BitesCategory[] =>
     withFallback<BitesCategory[]>(null, FALLBACK_BITES_CATEGORIES),
   getTechniques: (): Technique[] =>
