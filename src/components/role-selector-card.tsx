@@ -11,10 +11,16 @@ const API_BASE =
 export function RoleSelectorCard({
   selected,
   isPaid,
+  locked = false,
+  lockMessage,
   onChange,
 }: {
   selected: string | null;
   isPaid: boolean;
+  /** When true, the role is fixed and cannot be changed. */
+  locked?: boolean;
+  /** Optional message shown above the locked role. */
+  lockMessage?: string;
   onChange: (roleName: string) => void;
 }) {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -37,6 +43,35 @@ export function RoleSelectorCard({
     };
   }, []);
 
+  // ─── Locked view — user cannot change their role ─────────────
+  if (locked) {
+    return (
+      <div className="glass p-5">
+        <div className="eyebrow mb-3 !text-primary">Your role</div>
+        <p className="mb-4 text-[13px] text-muted-foreground">
+          {lockMessage ??
+            "Your role is locked. Upgrade to Practice Pass to switch any time."}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="chip inline-flex items-center gap-1.5 border-primary/60 bg-primary/10">
+            <Check className="size-3" />
+            {selected ?? "Not set"}
+          </span>
+          <Link
+            to="/plans"
+            className="chip flex items-center gap-1 opacity-70"
+            title="Switch roles on Practice Pass"
+          >
+            <Lock className="size-3" />
+            Switch role
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Editable view — full picker ─────────────────────────────
   if (loading) {
     return (
       <div className="glass p-5 text-[13px] text-muted-foreground">
