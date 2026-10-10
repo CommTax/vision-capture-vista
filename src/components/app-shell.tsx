@@ -68,18 +68,19 @@ export function AppShell({ children, allowGuest = false }: { children: ReactNode
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
-          <nav className="hidden items-center gap-7 text-[13px] text-muted-foreground md:flex">
-            {[...NAV, ...(has("sprint") ? [{ to: "/sprint", label: "Sprint" } as const] : [])].map((n) => (
-              <Link key={n.to} to={n.to} className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>{n.label}</Link>
-            ))}
-            {/* University — static HTML page, not a router route */}
-            <a
-              href="/university/index.html"
-              className="hover:text-foreground"
-            >
-              University
-            </a>
-          </nav>
+<nav className="hidden items-center gap-7 text-[13px] text-muted-foreground md:flex">
+  {NAV.map((n) => (
+    <Link key={n.to} to={n.to} className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>{n.label}</Link>
+  ))}
+  {!signedIn && (
+    <a
+      href="/university/index.html"
+      className="hover:text-foreground"
+    >
+      University
+    </a>
+  )}
+</nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link to="/plans" className="hidden rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground hover:text-foreground sm:inline">{STATE_LABEL[state]}</Link>
