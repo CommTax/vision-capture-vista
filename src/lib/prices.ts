@@ -25,8 +25,8 @@ export const PRICES: Record<PlanKey, PlanDisplay> = {
     product: "sprint",
     label: "Sprint",
     description: "14-day focused practice. Daily reps with a clear goal.",
-    amount_paise: 100,               // ₹1
-    amount_display: "₹1",
+    amount_paise: 99900,             // ₹999
+    amount_display: "₹999",
     days: 14,
   },
   pass: {
@@ -36,16 +36,16 @@ export const PRICES: Record<PlanKey, PlanDisplay> = {
     days: null,
     variants: {
       monthly: {
-        amount_paise: 300,           // ₹3
-        amount_display: "₹3",
-        per_month_display: "₹3 / month",
+        amount_paise: 249900,        // ₹2,499
+        amount_display: "₹2,499",
+        per_month_display: "₹2,499 / month",
         note: "Cancel anytime",
       },
       annual: {
-        amount_paise: 2400,          // ₹2 × 12
-        amount_display: "₹24",
-        per_month_display: "₹2 / month · billed ₹24 yearly",
-        note: "Save ₹12 vs monthly",
+        amount_paise: 2398800,       // ₹1,999 × 12 = ₹23,988
+        amount_display: "₹23,988",
+        per_month_display: "₹1,999 / month · billed ₹23,988 yearly",
+        note: "Save ₹6,000 vs monthly",
       },
     },
   },
