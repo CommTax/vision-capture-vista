@@ -6,6 +6,7 @@ import { techniquesForPillar, isPaidPlan } from "@/lib/pillars";
 import { getBackendSession, getPlanHint } from "@/lib/backend-auth";
 import type { BitesCategory, Technique } from "@/content/types";
 
+
 export const Route = createFileRoute("/format")({
   head: () => ({
     meta: [
