@@ -96,12 +96,14 @@ export async function getQuestions(params: {
   category?: string;
   role?: string;
   limit?: number;
+  seed?: string;          // ← add
 } = {}): Promise<{ questions: QuestionCard[] }> {
   const q = new URLSearchParams();
   if (params.mode) q.set("mode", params.mode);
   if (params.category) q.set("category", params.category);
   if (params.role) q.set("role", params.role);
   if (params.limit) q.set("limit", String(params.limit));
+  if (params.seed) q.set("seed", params.seed);   // ← add
   const qs = q.toString();
   return apiGet<{ questions: QuestionCard[] }>(
     `/api/questions${qs ? `?${qs}` : ""}`,
