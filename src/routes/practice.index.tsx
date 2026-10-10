@@ -446,10 +446,7 @@ function Practice() {
   return (
     <div className="space-y-10">
       <div>
-        <PageHead eyebrow="" title="What do you need to say next?" />
-        <p className="-mt-6 text-[15px] text-muted-foreground">
-          Choose a real situation. Practice your response. See what gets lost.
-        </p>
+        <PageHead eyebrow="" title="Choose a real situation" />
         <div className="mt-2">
           <FreeCounter />
         </div>
