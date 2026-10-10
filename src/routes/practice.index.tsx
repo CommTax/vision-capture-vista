@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { RoleSelectorCard } from "@/components/role-selector-card";
 
-const MODE_IDS = ["interview", "conversation", "presentation", "group", "sales", "everyday", "custom"] as const;
+const MODE_IDS = ["interview", "conversation", "everyday", "custom"] as const;
 const VISIBLE_COUNT = 2;
 const API_BASE = import.meta.env.VITE_API_URL ?? "https://unspoken-backend-nqvl.onrender.com";
 
