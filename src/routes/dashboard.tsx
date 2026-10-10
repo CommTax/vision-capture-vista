@@ -423,9 +423,6 @@ function Dashboard() {
         >
           <div>
             <h2 className="text-[22px] font-bold">Your recent responses</h2>
-            <p className="mt-1 text-[14px] text-muted-foreground">
-              See what changed from one attempt to the next.
-            </p>
           </div>
           <span
             aria-hidden="true"
@@ -504,7 +501,7 @@ function Dashboard() {
       {/* 6. Changes */}
       <section className="glass p-7">
         <div className="mb-5 flex justify-between">
-          <h2 className="text-[22px] font-bold">How your responses are changing</h2>
+          <h2 className="text-[22px] font-bold">Response Changes</h2>
           <Link to="/progress" className="text-[12px] text-primary">See full progress →</Link>
         </div>
         {rs.length < 2 ? (
