@@ -16,7 +16,6 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { useStore } from "@/lib/store";
 import { useEntitlement } from "@/lib/entitlements";
 import { dataProvider } from "@/services/data-provider";
 import { getSessionToken } from "@/lib/backend-auth";
@@ -35,18 +34,24 @@ type NavState = "guest" | "free" | "paid";
 /**
  * Determine which of the three nav states the user is in.
  *  - guest: no token
- *  - free:  token + free plan
- *  - paid:  token + paid plan (Sprint or Practice Pass)
+ *  - free:  token exists + plan is free
+ *  - paid:  token exists + plan is paid (Sprint or Practice Pass)
+ *
+ * Uses the token as the ground truth for "signed in", so this is
+ * stable on the first paint (no flicker while the store hydrates).
  */
 function useNavState(): NavState {
-  const signedIn = useStore((s) => !!s.profile?.onboarded);
-  const { free } = useEntitlement();
+  // Synchronous — read the token once on mount.
   const [token] = useState<string | null>(() => getSessionToken());
 
-  // No token → definitely a guest, regardless of any stale local state.
+  // useEntitlement reads the cached plan hint synchronously on first
+  // render, so `free` is accurate from the first paint.
+  const { free } = useEntitlement();
+
+  // No token → guest. Regardless of any stale store state.
   if (!token) return "guest";
-  // Token exists but store hasn't hydrated yet → treat as guest until we know.
-  if (!signedIn) return "guest";
+
+  // Token exists → at minimum a free user. Paid if the plan hint says so.
   return free ? "free" : "paid";
 }
 
