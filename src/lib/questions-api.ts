@@ -4,6 +4,10 @@
 // onto the frontend's existing Scenario shape so ScenarioCard renders
 // without any changes.
 //
+// Deterministic per user: the user's email (from the JWT) is passed as
+// a `seed` param so the backend returns the same questions in the same
+// order every time. Results are cached per session per (mode, role).
+//
 // Falls back to the local allScenarios() list if the fetch fails.
 
 import { getQuestions, type QuestionCard } from "./backend-api";
@@ -37,6 +41,24 @@ function cleanDifficulty(d: string): Scenario["difficulty"] {
   return "Medium";
 }
 
+/**
+ * Read the user's email (JWT `sub` claim) for use as the question seed.
+ * Returns null for guests → backend falls back to RANDOM().
+ */
+function getSessionSeed(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("unspoken-session-token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    return typeof payload?.sub === "string" ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 export function cardToScenario(q: QuestionCard): Scenario {
   const skills = cleanSkills(q.focus);
   return {
@@ -60,22 +82,46 @@ export async function fetchScenarios(params: {
   role?: string;
   level: string;
 }): Promise<{ scenarios: Scenario[]; source: "backend" | "fallback" }> {
+  const seed = getSessionSeed();
+  const cacheKey = `unspoken-questions-${params.mode}-${params.role ?? ""}`;
+
+  // 1. Cache hit — same session, same mode/role → same questions.
+  //    Prevents refetches on re-mount (route changes, tab switches).
+  if (typeof window !== "undefined") {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as Scenario[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return { scenarios: parsed, source: "backend" };
+        }
+      } catch {
+        // corrupt cache — fall through to network fetch
+      }
+    }
+  }
+
+  // 2. Network fetch with deterministic seed.
   try {
     const res = await getQuestions({
       mode: params.mode,
       category: params.category,
       role: params.role,
       limit: 30,
+      seed: seed ?? undefined,
     });
     const scenarios = (res.questions ?? []).map(cardToScenario);
     if (scenarios.length > 0) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(cacheKey, JSON.stringify(scenarios));
+      }
       return { scenarios, source: "backend" };
     }
   } catch (err) {
     console.warn("[questions-api] backend fetch failed, falling back:", err);
   }
 
-  // Fallback: local list, filtered by mode.
+  // 3. Fallback: local list, filtered by mode.
   const local = allScenarios(params.level).filter(
     (s) => s.category === params.mode,
   );
