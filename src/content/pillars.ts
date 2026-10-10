@@ -1,0 +1,365 @@
+// src/content/pillars.ts
+// Pillars of Communication — ported from The Unspoken.
+// Gated behind paid plans (sprint / pass) in the Format Section.
+
+export type PillarId = 'structure' | 'conciseness' | 'tone' | 'presence';
+
+export type BitesCategoryId =
+  | 'structure'
+  | 'thinking'
+  | 'impact'
+  | 'expression'
+  | 'connection';
+
+export interface Technique {
+  id: string;
+  category: BitesCategoryId;
+  tags: string[];
+  title: string;
+  hook: string;
+  brief: string;
+  what: string;
+  why: string;
+  how: string[];
+  exampleWeak?: string;
+  exampleStrong?: string;
+  bestFor: string;
+  illo: string;
+}
+
+export interface Pillar {
+  id: PillarId;
+  number: number;
+  title: string;
+  icon: string;
+  description: string;
+  categories: BitesCategoryId[];
+}
+
+export const BITES_CATEGORIES: Record<BitesCategoryId, { label: string; icon: string }> = {
+  structure:  { label: 'Structure',  icon: 'layout-grid' },
+  thinking:   { label: 'Thinking',   icon: 'brain' },
+  impact:     { label: 'Impact',     icon: 'target' },
+  expression: { label: 'Expression', icon: 'mic' },
+  connection: { label: 'Connection', icon: 'users' },
+};
+
+export const PILLARS: Pillar[] = [
+  {
+    id: 'structure',
+    number: 1,
+    title: 'Structure',
+    icon: 'landmark',
+    description: 'STAR, PSO, BLUF. Give your ideas a spine listeners can follow.',
+    categories: ['structure', 'impact'],
+  },
+  {
+    id: 'conciseness',
+    number: 2,
+    title: 'Conciseness',
+    icon: 'landmark',
+    description: 'Time-to-Point, filler elimination, headline discipline.',
+    categories: ['thinking'],
+  },
+  {
+    id: 'tone',
+    number: 3,
+    title: 'Tone',
+    icon: 'landmark',
+    description: 'Warmth without weakness. Authority without arrogance.',
+    categories: ['connection'],
+  },
+  {
+    id: 'presence',
+    number: 4,
+    title: 'Presence',
+    icon: 'landmark',
+    description: 'Pacing, pauses, and gravitas in high-stakes rooms.',
+    categories: ['expression'],
+  },
+];
+
+export const TECHNIQUES: Technique[] = [
+  // ---------------- STRUCTURE ----------------
+  {
+    id: 'pyramid',
+    category: 'structure',
+    tags: ['Structure', 'Conciseness'],
+    title: 'The Pyramid Principle',
+    hook: 'Lead with the answer. Support it with three reasons.',
+    brief: 'Start with the conclusion, then back it with 2–3 supporting arguments.',
+    what: 'Answer → Reasons → Evidence.',
+    why: 'Listeners decide in 10 seconds whether to keep listening.',
+    how: [
+      'State your conclusion in one sentence.',
+      'Give 2–3 reasons.',
+      'For each reason, give one piece of evidence.',
+    ],
+    exampleWeak: 'So we ran the numbers, looked at three vendors...',
+    exampleStrong: 'I recommend Vendor B. Two reasons: cheaper and faster support.',
+    bestFor: 'Status updates, recommendations.',
+    illo: 'pyramid',
+  },
+  {
+    id: 'scqa',
+    category: 'structure',
+    tags: ['Structure', 'Impact'],
+    title: 'SCQA',
+    hook: 'Frame why this matters, then say what to do.',
+    brief: 'Situation → Complication → Question → Answer.',
+    what: 'Set the scene, introduce the problem, pose the question, answer.',
+    why: 'Builds shared context before the punchline.',
+    how: [
+      'Situation: neutral context.',
+      'Complication: what changed.',
+      'Question: the natural question.',
+      'Answer: your point.',
+    ],
+    exampleWeak: 'We should switch vendors.',
+    exampleStrong:
+      'We have used Vendor A for 2 years. Costs went up 20%. Renew or switch? I recommend switch.',
+    bestFor: 'Pitches, proposals, updates.',
+    illo: 'scqa',
+  },
+  {
+    id: 'mece',
+    category: 'structure',
+    tags: ['Structure', 'Thinking'],
+    title: 'MECE',
+    hook: "Points that don't overlap, and don't leave gaps.",
+    brief: 'A structuring test for airtight lists.',
+    what: 'Mutually Exclusive, Collectively Exhaustive.',
+    why: 'Overlap or gaps make answers feel scattered.',
+    how: ['Sketch points. Could two merge? Is anything missing?'],
+    exampleWeak: 'Three factors: Cost, Budget, Vendor pricing.',
+    exampleStrong: 'Three factors: Cost, Timeline, Quality.',
+    bestFor: 'Prepping multi-point answers.',
+    illo: 'mece',
+  },
+  {
+    id: 'rule-of-three',
+    category: 'structure',
+    tags: ['Structure', 'Conciseness'],
+    title: 'Rule of Three',
+    hook: 'Group your points into threes.',
+    brief: 'Triads are most memorable.',
+    what: 'Present supporting points in threes.',
+    why: 'Short-term recall is strongest for groups of three.',
+    how: ['Compress to your best 3.'],
+    exampleWeak: 'Seven reasons: first...',
+    exampleStrong: 'Three reasons. Speed. Cost. Trust.',
+    bestFor: 'Any spoken answer with multiple points.',
+    illo: 'rule-of-three',
+  },
+
+  // ---------------- THINKING ----------------
+  {
+    id: 'one-breath',
+    category: 'thinking',
+    tags: ['Thinking', 'Conciseness'],
+    title: 'The One-Breath Rule',
+    hook: "If you can't say it in one breath, you haven't found it yet.",
+    brief: 'State your core point in a single sentence first.',
+    what: 'One sentence, under ~15 words.',
+    why: 'Rambling is a thinking problem.',
+    how: ['Ask: "what\'s the one sentence I\'d text this as?"'],
+    exampleWeak: 'So there are a few things going on...',
+    exampleStrong: "We should delay the launch by two weeks. Here's why.",
+    bestFor: 'Pre-speaking habit.',
+    illo: 'one-breath',
+  },
+  {
+    id: 'elevator',
+    category: 'thinking',
+    tags: ['Thinking', 'Conciseness'],
+    title: 'The Elevator Test',
+    hook: 'Compress any answer to 15 seconds.',
+    brief: 'Force the core into 15 seconds.',
+    what: 'Practice compression.',
+    why: 'Trains you to identify the core.',
+    how: ['Record yourself in 15 seconds.'],
+    exampleWeak: 'A 2-min answer that never states the core.',
+    exampleStrong: 'A 2-min answer whose opener is the 15-sec version.',
+    bestFor: 'Interview prep, pitch practice.',
+    illo: 'elevator',
+  },
+
+  // ---------------- IMPACT ----------------
+  {
+    id: 'bluf',
+    category: 'impact',
+    tags: ['Impact', 'Structure'],
+    title: 'BLUF',
+    hook: 'State the outcome or ask before the context.',
+    brief: 'Bottom Line Up Front.',
+    what: 'Open with the single most important sentence.',
+    why: 'Executives optimize for "what do I decide."',
+    how: ['First sentence = bottom line.'],
+    exampleWeak: 'So the vendor had some delays...',
+    exampleStrong:
+      'I need approval to extend the deadline by 1 week — vendor delay pushed testing.',
+    bestFor: 'Emails, status updates.',
+    illo: 'bluf',
+  },
+  {
+    id: 'signal-sandwich',
+    category: 'impact',
+    tags: ['Impact', 'Structure'],
+    title: 'Signal Sandwich',
+    hook: 'Headline → detail → headline.',
+    brief: 'Say the takeaway, explain, restate.',
+    what: 'Takeaway, detail, restate takeaway.',
+    why: 'Primacy/recency effect.',
+    how: ['Add a closing sentence repeating your point.'],
+    exampleWeak: 'Open with the point, trail off on a detail.',
+    exampleStrong: 'Open with the point, explain, close with the point again.',
+    bestFor: 'Any answer > 30s.',
+    illo: 'signal-sandwich',
+  },
+  {
+    id: 'specificity',
+    category: 'impact',
+    tags: ['Impact', 'Concreteness'],
+    title: 'Specificity over abstraction',
+    hook: 'Swap vague claims for concrete numbers.',
+    brief: 'Precision is memorable.',
+    what: 'Replace abstract claims with numbers/names/images.',
+    why: 'Abstract language is forgettable.',
+    how: ['Ask "can I add a number, a name, or a picture?"'],
+    exampleWeak: 'We significantly improved response times.',
+    exampleStrong: 'We cut response time from 48 hours to 4.',
+    bestFor: 'Resumes, interviews, pitches.',
+    illo: 'specificity',
+  },
+  {
+    id: 'contrast-frame',
+    category: 'impact',
+    tags: ['Impact', 'Storytelling'],
+    title: 'The Contrast Frame',
+    hook: '"Before X, we had Y. Now we have Z."',
+    brief: 'Before/after framing.',
+    what: 'Frame claims as contrast.',
+    why: 'Contrast is a stronger memory cue.',
+    how: ['Ask: "what was true before this, that isn\'t true now?"'],
+    exampleWeak: 'We have a fast onboarding process now.',
+    exampleStrong: 'Onboarding used to take 2 weeks. Now it takes 2 days.',
+    bestFor: 'Interview answers about achievements, pitches.',
+    illo: 'contrast-frame',
+  },
+
+  // ---------------- EXPRESSION ----------------
+  {
+    id: 'pause-land',
+    category: 'expression',
+    tags: ['Expression', 'Delivery'],
+    title: 'Pause-and-land',
+    hook: 'A deliberate 1–2 second pause after your key line.',
+    brief: 'Silence signals importance.',
+    what: 'Pause after your key point.',
+    why: 'Continuous speech = equal weight.',
+    how: ['Count to two in your head before moving on.'],
+    exampleWeak: 'Rushing past the key sentence.',
+    exampleStrong: 'Key sentence, then a 2-second silence.',
+    bestFor: 'Presentations, key moments.',
+    illo: 'pause-land',
+  },
+  {
+    id: 'vocal-variety',
+    category: 'expression',
+    tags: ['Expression', 'Delivery'],
+    title: 'Vocal variety',
+    hook: "How it's said changes how it lands.",
+    brief: 'Vary pace, pitch, pause.',
+    what: 'Vary three vocal levers.',
+    why: 'Monotone = low-confidence.',
+    how: [
+      'Slow down for your most important line.',
+      'Speed up through detail.',
+      'Let pitch rise on emphasis.',
+    ],
+    exampleWeak: 'Same speed and pitch throughout.',
+    exampleStrong: 'Slower, lower for the key point; faster, lighter for context.',
+    bestFor: 'Any spoken delivery.',
+    illo: 'vocal-variety',
+  },
+  {
+    id: 'anaphora',
+    category: 'expression',
+    tags: ['Expression', 'Structure'],
+    title: 'Anaphora',
+    hook: 'Repeat a phrase at the start of successive points.',
+    brief: 'Rhythmic repetition.',
+    what: 'Same opening phrase across points.',
+    why: 'Combines Rule of Three with rhythm.',
+    how: ['Find a common opening phrase for your 3 points.'],
+    exampleWeak: 'Three things: one... two... three...',
+    exampleStrong: 'This plan is faster. This plan is cheaper. This plan is ready.',
+    bestFor: 'Closing lines in pitches.',
+    illo: 'anaphora',
+  },
+
+  // ---------------- CONNECTION ----------------
+  {
+    id: 'star',
+    category: 'connection',
+    tags: ['Connection', 'Structure'],
+    title: 'STAR method',
+    hook: 'Situation → Task → Action → Result.',
+    brief: 'Interview gold standard for stories.',
+    what: 'Situation, Task, Action, Result.',
+    why: 'Gives raw experience a narrative arc.',
+    how: [
+      'Situation: brief.',
+      'Task: the challenge.',
+      'Action: what YOU did.',
+      'Result: with a number.',
+    ],
+    exampleWeak: 'I have 5 years of experience in PM...',
+    exampleStrong:
+      "At Dr. Reddy's, our OPD launch was slipping. I brought 5 teams into a weekly sync and cut the critical path by 3 weeks. We launched on time and hit 4x adoption.",
+    bestFor: 'Behavioral answers.',
+    illo: 'star',
+  },
+  {
+    id: 'pso',
+    category: 'connection',
+    tags: ['Connection', 'Structure'],
+    title: 'PSO framework',
+    hook: 'Problem → Solution → Outcome.',
+    brief: 'Lean STAR.',
+    what: 'Problem, Solution, Outcome.',
+    why: 'Faster than STAR.',
+    how: ['One sentence each.'],
+    exampleWeak: 'We had a lot of issues...',
+    exampleStrong:
+      'Onboarding drop-off was 60%. I redesigned the first-run flow. Drop-off fell to 15%.',
+    bestFor: 'Status updates, resume bullets.',
+    illo: 'pso',
+  },
+  {
+    id: 'point-story-point',
+    category: 'connection',
+    tags: ['Connection', 'Storytelling'],
+    title: 'Point-story-point',
+    hook: 'Takeaway, story, takeaway again.',
+    brief: 'Toastmasters classic structure.',
+    what: 'Point → Story → Point.',
+    why: 'Stories create emotional engagement.',
+    how: ['Point.', '30–60s story.', 'Restate the point.'],
+    exampleWeak: 'A great story with no framing.',
+    exampleStrong:
+      'State point. Tell story. Close: "That\'s why I don\'t wait for consensus."',
+    bestFor: 'Speeches, motivational moments.',
+    illo: 'point-story-point',
+  },
+];
+
+export function getTechniquesForPillar(pillarId: PillarId): Technique[] {
+  const pillar = PILLARS.find((p) => p.id === pillarId);
+  if (!pillar) return [];
+  return TECHNIQUES.filter((t) => pillar.categories.includes(t.category));
+}
+
+export function getTechniquesForCategory(cat: BitesCategoryId): Technique[] {
+  return TECHNIQUES.filter((t) => t.category === cat);
+}
