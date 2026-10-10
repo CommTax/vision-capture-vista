@@ -23,6 +23,7 @@ export function Logo() {
 
 const NAV = [
   { to: "/practice", label: "Practice" },
+  { to: "/format", label: "Format" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/responses", label: "My Responses" },
   { to: "/skills", label: "Skills" },
