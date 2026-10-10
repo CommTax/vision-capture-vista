@@ -56,9 +56,6 @@ function insight(r: ResponseRecord, prev?: ResponseRecord) {
   return r.analysis.summary;
 }
 
-// ────────────────────────────────────────────────────────────
-// Pull dynamic focus copy from the user's latest analyzed drill.
-// ────────────────────────────────────────────────────────────
 function dynamicFocus(
   rs: ResponseRecord[],
   dimension: Dimension,
@@ -87,9 +84,6 @@ function dynamicFocus(
   return { why, chain };
 }
 
-// ────────────────────────────────────────────────────────────
-// Share helpers
-// ────────────────────────────────────────────────────────────
 function buildShareText(name: string, patternName: string, patternDesc: string, url: string) {
   return `${name ? name + "'s" : "My"} communication pattern: ${patternName}.\n\n"${patternDesc}"\n\nWhat's yours? ${url}`;
 }
@@ -254,21 +248,19 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="relative mt-6 flex flex-wrap items-center gap-3">
-          <span className="text-[12px] text-muted-foreground">
-            Share your pattern:
-          </span>
+        {/* Share — icon-only */}
+        <div className="relative mt-5 flex items-center gap-2">
           <button
             onClick={() =>
               shareToWhatsApp(
                 buildShareText(firstName, primary.name, primary.desc, "theunspoken.co.in"),
               )
             }
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-[13px] font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+            aria-label="Share on WhatsApp"
             title="Share on WhatsApp"
+            className="grid size-9 place-items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 transition hover:bg-emerald-500/20"
           >
             <MessageCircle className="size-4" />
-            WhatsApp
           </button>
           <button
             onClick={() =>
@@ -276,16 +268,16 @@ function Dashboard() {
                 buildShareText(firstName, primary.name, primary.desc, "theunspoken.co.in"),
               )
             }
-            className="inline-flex items-center gap-2 rounded-full border border-pink-500/40 bg-pink-500/10 px-4 py-2 text-[13px] font-medium text-pink-300 transition hover:bg-pink-500/20"
+            aria-label="Share on Instagram"
             title="Share on Instagram"
+            className="grid size-9 place-items-center rounded-full border border-pink-500/40 bg-pink-500/10 text-pink-300 transition hover:bg-pink-500/20"
           >
             <Instagram className="size-4" />
-            Instagram
           </button>
         </div>
       </section>
 
-      {/* 3. Why you're seeing this — dynamic, premium layout */}
+      {/* 3. Recommendation based on responses */}
       {rs.length > 0 && rs.some((r) => r.analysis?.overall > 0) ? (
         (() => {
           const dyn = dynamicFocus(rs, cp.focus as Dimension);
@@ -294,14 +286,12 @@ function Dashboard() {
 
           return (
             <section className="glass glass-float grid gap-8 border-primary/30 p-7 md:grid-cols-12 md:p-8">
-              {/* Left column — context + recommendation */}
+              {/* Left column */}
               <div className="md:col-span-6 flex flex-col justify-between">
                 <div>
-                  <div className="eyebrow mb-4 !text-primary">Why you're seeing this</div>
-
-                  <p className="text-[13px] leading-5 text-muted-foreground">
-                    Based on your latest response, we're recommending this focus.
-                  </p>
+                  <div className="eyebrow mb-4 !text-primary">
+                    Recommendation based on responses
+                  </div>
 
                   <p className="mt-4 font-display text-[24px] font-bold leading-snug">
                     {whyText}
@@ -324,7 +314,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Right column — numbered 3-step chain */}
+              {/* Right column — numbered 3-step chain (compact) */}
               <div className="md:col-span-6">
                 <div className="eyebrow mb-3">Your next move</div>
 
@@ -339,27 +329,23 @@ function Dashboard() {
                   {chainText.map((c, i) => (
                     <div
                       key={c + i}
-                      className="relative flex items-start gap-4 px-5 py-4"
+                      className="relative flex items-start gap-3 px-4 py-3"
                       style={{
                         borderTop: i > 0 ? "1px solid rgba(139,127,255,0.15)" : "none",
                       }}
                     >
                       <span
-                        className="shrink-0 font-mono text-[11px] tracking-[0.16em]"
-                        style={{ color: "#a99bff", paddingTop: 3 }}
+                        className="shrink-0 font-mono text-[10px] tracking-[0.14em]"
+                        style={{ color: "#a99bff", paddingTop: 2 }}
                       >
                         0{i + 1}
                       </span>
-                      <span className="text-[14px] leading-6 text-foreground/90">
+                      <span className="text-[13.5px] leading-5 text-foreground/90">
                         {c}
                       </span>
                     </div>
                   ))}
                 </div>
-
-                <p className="mt-4 text-[13px] text-muted-foreground">
-                  Practice this pattern in your next response.
-                </p>
               </div>
             </section>
           );
@@ -367,7 +353,9 @@ function Dashboard() {
       ) : (
         <section className="glass glass-float grid gap-8 border-primary/30 p-7 md:grid-cols-12 md:p-8">
           <div className="md:col-span-7">
-            <div className="eyebrow mb-4 !text-primary">Why you're seeing this</div>
+            <div className="eyebrow mb-4 !text-primary">
+              Recommendation based on responses
+            </div>
             <p className="font-display text-[22px] font-bold leading-snug">
               Once you record your first response, we'll personalize this section for you.
             </p>
