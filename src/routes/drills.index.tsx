@@ -197,6 +197,21 @@ function Drills() {
         )}
       </section>
 
+      {/* 4. Daily drills note — eyebrow removed, content preserved */}
+      <section className="glass p-7">
+        <h2 className="text-[20px] font-bold">
+          Your daily drills update as you practice.
+        </h2>
+        <p className="mt-2 text-[14px] leading-6 text-muted-foreground">
+          Each day, we'll surface a small set of drills tailored to the
+          skills your latest responses need most. Complete your next
+          practice response to keep them fresh.
+        </p>
+        <Link to="/practice" className="btn btn-primary mt-5">
+          Practice now →
+        </Link>
+      </section>
+
       {/* 5. Completed */}
       {completed.length > 0 && (
         <section>
