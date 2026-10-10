@@ -31,17 +31,13 @@ function SkillCard({ x, open, onOpen }: { x: SkillInsight; open: boolean; onOpen
   return (
     <button
       onClick={onOpen}
-      className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl p-5 text-left transition duration-300 hover:-translate-y-0.5"
+      className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border p-5 text-left transition duration-300 hover:-translate-y-0.5 ${
+        open ? "border-primary/45" : "border-border"
+      }`}
       style={{
         background: open
           ? "linear-gradient(160deg, rgba(139,127,255,0.16) 0%, rgba(26,16,51,0.4) 50%, rgba(11,13,20,0.85) 100%)"
-          : "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 55%, rgba(11,13,20,0.6) 100%)",
-        border: open
-          ? "1px solid rgba(139,127,255,0.45)"
-          : "1px solid rgba(255,255,255,0.06)",
-        boxShadow: open
-          ? "0 22px 60px -22px rgba(139,127,255,0.4), inset 0 1px 0 rgba(255,255,255,0.06)"
-          : "0 12px 30px -22px rgba(0,0,0,0.6)",
+          : undefined,
       }}
     >
       {/* Corner glow */}
@@ -111,7 +107,7 @@ function Skills() {
   const { reps: rs, loading } = usePaidDashboard();
   const [sel, setSel] = useState<string | null>(null);
 
-  // ─── Derived values (safe to compute before return) ───
+  // ─── Derived values ───
   const xs = buildSkillInsights(rs);
   const focus = pickFocus(xs);
   const selected = xs.find((x) => x.skill === sel);
@@ -132,8 +128,9 @@ function Skills() {
 
   return (
     <div className="space-y-8">
-      <PageHead eyebrow="Your skills" title="Communication Skills" />
-      <p className="-mt-6 text-[15px] text-muted-foreground">See what is improving, what is slipping, and what to practice next.</p>
+      <p className="text-[15px] text-muted-foreground">
+        See what is improving, what is slipping, and what to practice next.
+      </p>
 
       {!focus ? (
         <div className="glass p-8"><p className="text-[15px]">{NO_EVIDENCE} <Link to="/practice" className="text-primary">Answer a question</Link> to see your skills.</p></div>
@@ -149,51 +146,35 @@ function Skills() {
               <Link to="/drills/$drillId" params={{ drillId: focus.recommended_drill.id }} className="btn btn-primary mt-6">Practice next → {focus.recommended_drill.name}</Link>
             </section>
 
-            {/* ─── Premium communication profile card ─── */}
-            <section
-              className="relative overflow-hidden rounded-3xl p-7 lg:col-span-5"
-              style={{
-                background:
-                  "linear-gradient(160deg, rgba(139,127,255,0.10) 0%, rgba(26,16,51,0.35) 45%, rgba(11,13,20,0.9) 100%)",
-                border: "1px solid rgba(139,127,255,0.35)",
-                boxShadow:
-                  "0 20px 60px -20px rgba(139,127,255,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
-              }}
-            >
-              {/* Corner glow */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  top: -80,
-                  right: -80,
-                  width: 200,
-                  height: 200,
-                  borderRadius: "50%",
-                  background:
-                    "radial-gradient(closest-side, rgba(139,127,255,0.35), transparent)",
-                  filter: "blur(10px)",
-                  pointerEvents: "none",
-                }}
-              />
+            {/* ─── Communication profile card — theme-safe colors ─── */}
+            <section className="glass glass-float border-primary/40 p-7 lg:col-span-5">
+              <div className="eyebrow mb-4 !text-primary">
+                Your communication profile
+              </div>
 
-              <div className="relative eyebrow mb-4 !text-primary">Your communication profile</div>
-
-              <div className="relative space-y-3">
-                {([["Strongest", strongest], ["Improving", improving], ["Current focus", focus], ["Needs attention", slipping]] as const).map(([l, x]) => {
+              <div className="space-y-3">
+                {(
+                  [
+                    ["Strongest", strongest],
+                    ["Improving", improving],
+                    ["Current focus", focus],
+                    ["Needs attention", slipping],
+                  ] as const
+                ).map(([l, x]) => {
                   const isHero = l === "Strongest" || l === "Current focus";
                   return (
                     <div
                       key={l}
-                      className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition"
-                      style={{
-                        borderColor: isHero ? "rgba(139,127,255,0.30)" : "rgba(255,255,255,0.06)",
-                        background: isHero ? "rgba(139,127,255,0.06)" : "rgba(255,255,255,0.02)",
-                      }}
+                      className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${
+                        isHero
+                          ? "border-primary/40 bg-primary/10"
+                          : "border-border bg-background/40"
+                      }`}
                     >
                       <span
-                        className="font-mono text-[11px] uppercase tracking-[0.12em]"
-                        style={{ color: isHero ? "#a99bff" : "rgba(255,255,255,0.5)" }}
+                        className={`font-mono text-[11px] uppercase tracking-[0.12em] ${
+                          isHero ? "text-primary" : "text-muted-foreground"
+                        }`}
                       >
                         {l}
                       </span>
@@ -201,7 +182,9 @@ function Skills() {
                         {x ? (
                           <>
                             {cap(x.skill)} · {x.score}
-                            {l !== "Strongest" && l !== "Current focus" && <Delta c={x.change} />}
+                            {l !== "Strongest" && l !== "Current focus" && (
+                              <Delta c={x.change} />
+                            )}
                           </>
                         ) : (
                           "—"
@@ -212,12 +195,10 @@ function Skills() {
                 })}
               </div>
 
-              <div className="relative mt-5 rounded-2xl bg-primary/10 p-4">
-                <div className="eyebrow !text-primary">What to practice now</div>
-                <p className="mt-2 text-[14px]">{focus.recommended_drill.objective}</p>
-              </div>
-
-              <Link to="/practice" className="relative mt-4 inline-block text-[13px] text-primary">
+              <Link
+                to="/practice"
+                className="mt-5 inline-block text-[13px] text-primary"
+              >
                 Start practice →
               </Link>
             </section>
