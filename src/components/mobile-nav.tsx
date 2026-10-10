@@ -108,16 +108,17 @@ export function MobileNav() {
         ]
       : navState === "free"
         ? [
-            {
-              title: "Practice",
-              items: [
-                { label: "Dashboard", to: "/dashboard" },
-                { label: "My Responses", to: "/responses" },
-                { label: "Drills", to: "/drills", locked: true },
-                { label: "Skills", to: "/skills", locked: true },
-                { label: "Progress", to: "/progress", locked: true },
-              ],
-            },
+{
+  title: "Practice",
+  items: [
+    { label: "Dashboard", to: "/dashboard" },
+    { label: "My Responses", to: "/responses" },
+    { label: "Drills", to: "/drills" },
+    { label: "Skills", to: "/skills" },
+    { label: "Format", to: "/format", highlight: true },
+    { label: "Progress", to: "/progress" },
+  ],
+},
             {
               title: "Account",
               items: [
