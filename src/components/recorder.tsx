@@ -65,6 +65,8 @@ export function Recorder({
   const sr = useRef<SR | null>(null);
   const finalText = useRef("");
   const stream = useRef<MediaStream | null>(null);
+  // Track whether SR produced any final text during this recording.
+  const srCapturedText = useRef(false);
 
   const supportsSR =
     typeof window !== "undefined" &&
@@ -92,6 +94,7 @@ export function Recorder({
 
   async function start() {
     setErr("");
+    srCapturedText.current = false;
     try {
       const s = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.current = s;
@@ -148,8 +151,12 @@ export function Recorder({
             let interim = "";
             for (let i = e.resultIndex; i < e.results.length; i++) {
               const res = e.results[i];
-              if (res.isFinal) finalText.current += res[0].transcript + ". ";
-              else interim += res[0].transcript;
+              if (res.isFinal) {
+                finalText.current += res[0].transcript + ". ";
+                srCapturedText.current = true;
+              } else {
+                interim += res[0].transcript;
+              }
             }
             setTranscript((finalText.current + interim).trim());
           };
@@ -179,23 +186,29 @@ export function Recorder({
     }
   }
 
-  function stop() {
+  async function stop() {
     mr.current?.stop();
     sr.current?.stop();
     cancelAnimationFrame(raf.current);
     stream.current?.getTracks().forEach((t) => t.stop());
     setLevels(Array(32).fill(0.08));
     setState("done");
+
+    // ── Auto-transcribe if SpeechRecognition didn't capture anything ──
+    // Wait a beat so `rec.onstop` can fire and populate `audioBlob.current`.
+    setTimeout(() => {
+      if (!finalText.current.trim() && !srCapturedText.current) {
+        void transcribeOnServer();
+      }
+    }, 250);
   }
 
-  // ────────────────────────────────────────────────────────────
-  // Option A flow:
-  //   1. Upload the audio blob to R2 via the existing helper
-  //   2. Send the resulting drill_id to /api/paid/transcribe
-  //   3. Get the transcript back and populate the textarea
-  // ────────────────────────────────────────────────────────────
   async function transcribeOnServer() {
-    if (!audioBlob.current) return;
+    if (!audioBlob.current) {
+      // Retry once if the blob isn't ready yet
+      await new Promise((r) => setTimeout(r, 300));
+      if (!audioBlob.current) return;
+    }
 
     const token =
       typeof window !== "undefined"
@@ -211,7 +224,6 @@ export function Recorder({
     setErr("");
 
     try {
-      // Lazy import to avoid a circular dependency at module load time.
       const { buildPaidUploadForm, uploadPaidResponse } = await import(
         "@/lib/backend-api"
       );
@@ -268,6 +280,9 @@ export function Recorder({
   }
 
   const mm = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+
+  const wordCount = transcript.trim().split(/\s+/).filter(Boolean).length;
+  const canSubmit = !transcribing && wordCount >= 5;
 
   return (
     <div className="space-y-5">
@@ -327,6 +342,7 @@ export function Recorder({
               setSec(0);
               setTranscript("");
               finalText.current = "";
+              srCapturedText.current = false;
               setAudioUrl("");
               audioBlob.current = null;
               setErr("");
@@ -343,47 +359,46 @@ export function Recorder({
         <div className="space-y-3">
           {audioUrl && <audio controls src={audioUrl} className="w-full" />}
 
-          <div className="text-[12px] text-muted-foreground">
-            {supportsSR
-              ? "Transcript — correct anything we misheard."
-              : "Your transcript will appear below. You can also edit it."}
-          </div>
-
-          <textarea
-            className="field min-h-32"
-            value={transcript}
-            onChange={(e) => setTranscript(e.target.value)}
-            placeholder="Your words…"
-          />
-
-          {/* Fallback button — only needed when live transcription didn't run */}
-          {!transcript.trim() && audioBlob.current && (
-            <button
-              className="btn btn-ghost w-full"
-              onClick={transcribeOnServer}
-              disabled={transcribing}
+          {transcribing ? (
+            <div
+              className="flex items-center justify-center gap-3 rounded-xl border border-border bg-muted/20 p-4 text-[13px] text-muted-foreground"
+              role="status"
+              aria-live="polite"
             >
-              {transcribing ? "Transcribing…" : "Transcribe my recording →"}
-            </button>
-          )}
+              <span className="inline-block size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              Transcribing your recording…
+            </div>
+          ) : (
+            <>
+              <div className="text-[12px] text-muted-foreground">
+                {supportsSR
+                  ? "Transcript — correct anything we misheard."
+                  : "Your transcript is below. You can also edit it."}
+              </div>
 
-          <button
-            className="btn btn-primary w-full"
-            disabled={
-              transcribing ||
-              transcript.trim().split(/\s+/).filter(Boolean).length < 5
-            }
-            onClick={() =>
-              onDone({
-                transcript,
-                duration: sec,
-                audioUrl,
-                audioBlob: audioBlob.current,
-              })
-            }
-          >
-            {submitLabel}
-          </button>
+              <textarea
+                className="field min-h-32"
+                value={transcript}
+                onChange={(e) => setTranscript(e.target.value)}
+                placeholder="Your words…"
+              />
+
+              <button
+                className="btn btn-primary w-full"
+                disabled={!canSubmit}
+                onClick={() =>
+                  onDone({
+                    transcript,
+                    duration: sec,
+                    audioUrl,
+                    audioBlob: audioBlob.current,
+                  })
+                }
+              >
+                {submitLabel}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
