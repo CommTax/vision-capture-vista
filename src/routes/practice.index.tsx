@@ -405,42 +405,54 @@ function Practice() {
           body="Enter your details — we'll save your responses and pattern as you go."
           submit="Start practising"
           consent
-          onDone={() => {
-            const p = getState().profile;
-            if (!p?.email || !p?.phone) return;
-            const mobile = p.phone_country_code
-              ? `${p.phone_country_code} ${p.phone}`
-              : p.phone;
-            void signupFree({
-              name: p.name ?? "",
-              email: p.email,
-              mobile,
-              stage: p.level ?? undefined,
-            })
-              .then((res) => {
-                if (res.session_token) setFreeSession(res.session_token);
-                setState((s) => ({
-                  ...s,
-                  profile: {
-                    name: p.name ?? "Friend",
-                    email: p.email ?? "",
-                    phone: p.phone,
-                    phone_country_code: p.phone_country_code,
-                    goal: "",
-                    struggle: "",
-                    experience: "",
-                    level: p.level ?? "Mid career",
-                    onboarded: false,
-                    plan: "free",
-                  },
-                }));
-                setHasToken(true);
-              })
-              .catch((err) => {
-                console.warn("[practice] signupFree failed:", err);
-                setHasToken(true);
-              });
-          }}
+onDone={() => {
+  const p = getState().profile;
+  if (!p?.email || !p?.phone) return;
+  const mobile = p.phone_country_code
+    ? `${p.phone_country_code} ${p.phone}`
+    : p.phone;
+  void signupFree({
+    name: p.name ?? "",
+    email: p.email,
+    mobile,
+    stage: p.level ?? undefined,
+  })
+    .then((res) => {
+      if (res.session_token) setFreeSession(res.session_token);
+      setState((s) => ({
+        ...s,
+        profile: {
+          name: p.name ?? "Friend",
+          email: p.email ?? "",
+          phone: p.phone,
+          phone_country_code: p.phone_country_code,
+          goal: "",
+          struggle: "",
+          experience: "",
+          level: p.level ?? "Mid career",
+          onboarded: false,
+          plan: "free",
+        },
+      }));
+      setHasToken(true);
+    })
+    .catch((err) => {
+      console.warn("[practice] signupFree failed:", err);
+      const message = err instanceof Error ? err.message : String(err);
+
+      // Paid users need the OTP flow, not the free signup.
+      if (/paid plan|sign in with OTP/i.test(message)) {
+        navigate({
+          to: "/signup",
+          search: { mode: "signin" },
+        });
+        return;
+      }
+
+      // Anything else — let them proceed as a guest (fallback).
+      setHasToken(true);
+    });
+}}
         />
       </div>
     );
