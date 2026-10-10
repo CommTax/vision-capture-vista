@@ -141,7 +141,7 @@ function CategoryTile({
   return (
     <button
       onClick={onClick}
-      className="group relative flex w-[75vw] max-w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-5 text-left transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:max-w-none"
+      className="group relative flex w-[75vw] max-w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-4 text-left transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:max-w-none"
       style={{
         background: active
           ? "linear-gradient(160deg, rgba(139,127,255,0.16) 0%, rgba(26,16,51,0.4) 50%, rgba(11,13,20,0.85) 100%)"
@@ -166,10 +166,10 @@ function CategoryTile({
         }}
       />
 
-      {/* Icon cluster */}
-      <div className="relative mb-6 flex items-center justify-between">
+      {/* Icon + title on one row */}
+      <div className="relative flex items-center gap-3">
         <span
-          className="grid size-11 place-items-center rounded-xl transition-colors duration-300"
+          className="grid size-9 shrink-0 place-items-center rounded-lg transition-colors duration-300"
           style={{
             background: active ? "rgba(139,127,255,0.18)" : "rgba(255,255,255,0.05)",
             border: active
@@ -178,28 +178,31 @@ function CategoryTile({
           }}
         >
           <Icon
-            className="size-5 transition-colors duration-300"
+            className="size-4 transition-colors duration-300"
             style={{ color: active ? "#a99bff" : "#8a8f9a" }}
           />
         </span>
-
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-[16px] font-bold leading-tight">
+            {name}
+          </div>
+        </div>
         {active && (
-          <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
+          <span className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-primary">
             Active
           </span>
         )}
       </div>
 
-      {/* Text content */}
-      <div className="relative flex-1">
-        <div className="font-display text-[17px] font-bold leading-snug">{name}</div>
-        <p className="mt-1.5 text-[12.5px] leading-5 text-muted-foreground">{blurb}</p>
-      </div>
+      {/* Blurb */}
+      <p className="relative mt-3 text-[12.5px] leading-5 text-muted-foreground">
+        {blurb}
+      </p>
 
       {/* Bottom hint */}
-      <div className="relative mt-5 flex items-center justify-between">
+      <div className="relative mt-3 flex items-center justify-between">
         <span
-          className="font-mono text-[11px] uppercase tracking-[0.12em] transition-colors duration-300"
+          className="font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300"
           style={{ color: active ? "#a99bff" : "rgba(255,255,255,0.35)" }}
         >
           {active ? "Selected" : "Tap to start"}
@@ -519,16 +522,18 @@ function Practice() {
         </h2>
 
         <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
-          {MODES.map((m) => (
-            <CategoryTile
-              key={m.id}
-              id={m.id}
-              name={m.name}
-              blurb={CATEGORY_BLURB[m.id] ?? m.blurb}
-              active={mode === m.id}
-              onClick={() => setMode((c) => (c === m.id ? null : m.id))}
-            />
-          ))}
+{MODES.filter((m) =>
+  (["interview", "conversation", "everyday", "custom"] as const).includes(m.id as never)
+).map((m) => (
+  <CategoryTile
+    key={m.id}
+    id={m.id}
+    name={m.name}
+    blurb={CATEGORY_BLURB[m.id] ?? m.blurb}
+    active={mode === m.id}
+    onClick={() => setMode((c) => (c === m.id ? null : m.id))}
+  />
+))}
         </div>
 
         {/* 4. Library for the chosen category */}
