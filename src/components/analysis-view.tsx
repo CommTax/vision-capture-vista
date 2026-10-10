@@ -11,13 +11,6 @@ export function ScoreBar({ label, value, prev }: { label: string; value: number;
   return (
     <div>
       <div className="mb-1 flex justify-between text-[12px]">
-        <AnalysisView
-  a={viewed.analysis}
-  transcript={viewed.transcript}
-  onRetry={() => retryNow(false)}
-  audioUrl={viewed.audio_url}
-  durationSec={viewed.duration}
-/>
         <span className="text-muted-foreground">{label}</span>
         <span className="font-mono text-primary">
           {prev !== undefined && <span className="mr-1 text-muted-foreground">{prev} →</span>}
@@ -334,17 +327,6 @@ export function AnalysisView({
                 <p className="mt-5 max-w-xl text-[16px] leading-7 text-muted-foreground">
                   {a.summary}
                 </p>
-
-                {onRetry && (
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <button className="btn btn-primary px-6 py-3 text-[15px]" onClick={onRetry}>
-                      Try Again →
-                    </button>
-                    <a href="#what-got-lost" className="btn btn-ghost px-6 py-3 text-[15px]">
-                      See what to fix
-                    </a>
-                  </div>
-                )}
               </div>
 
               {/* Right: compact diagnosis panel */}
