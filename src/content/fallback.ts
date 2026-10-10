@@ -164,7 +164,7 @@ export const FALLBACK_PRICING: PricingPlan[] = [
   {
     id: "sprint",
     name: "Sprint",
-    price: 1499,
+    price: 999,
     currency: "INR",
     billingPeriod: "program",
     features: [
@@ -180,7 +180,7 @@ export const FALLBACK_PRICING: PricingPlan[] = [
   {
     id: "practice",
     name: "Practice",
-    price: 2999,
+    price: 2499,
     currency: "INR",
     billingPeriod: "month",
     features: [
