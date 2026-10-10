@@ -200,16 +200,16 @@ function CategoryTile({
       </p>
 
       {/* Bottom hint */}
-      <div className="relative mt-3 flex items-center justify-between">
+      <div className="relative mt-5 flex items-center justify-between">
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-300"
-          style={{ color: active ? "#a99bff" : "rgba(255,255,255,0.35)" }}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-300"
+          style={active ? { color: "#a99bff" } : undefined}
         >
           {active ? "Selected" : "Tap to start"}
         </span>
         <span
-          className="text-[13px] transition-transform duration-300 group-hover:translate-x-0.5"
-          style={{ color: active ? "#a99bff" : "rgba(255,255,255,0.4)" }}
+          className="text-[13px] text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5"
+          style={active ? { color: "#a99bff" } : undefined}
           aria-hidden
         >
           →
