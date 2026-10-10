@@ -6,7 +6,6 @@ import { techniquesForPillar, isPaidPlan } from "@/lib/pillars";
 import { getBackendSession, getPlanHint } from "@/lib/backend-auth";
 import type { BitesCategory, Technique } from "@/content/types";
 
-
 export const Route = createFileRoute("/format")({
   head: () => ({
     meta: [
@@ -160,4 +159,127 @@ function FormatSection() {
                     <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
                       {d.desc}
                     </p>
-                    <p className="mt-2
+                    <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.1em] text-primary">
+                      ⏱ {d.timeBudget}s budget
+                    </p>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Technique card — matches your SkillCard pattern:
+   glass, hover lift, corner glow, tag row.
+   ───────────────────────────────────────────────────────────── */
+function TechniqueCard({
+  t,
+  categories,
+}: {
+  t: Technique;
+  categories: BitesCategory[];
+}) {
+  const cat = categories.find((c) => c.id === t.category);
+  return (
+    <article className="glass group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border p-5 transition duration-300 hover:-translate-y-0.5">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-14 -right-14 h-40 w-40 rounded-full opacity-35 transition-opacity duration-500 group-hover:opacity-70"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+          filter: "blur(12px)",
+        }}
+      />
+      <div className="relative flex items-center gap-2">
+        <span className="eyebrow !text-primary">
+          {cat?.label ?? "Technique"}
+        </span>
+      </div>
+      <h3 className="relative mt-2 font-display text-[18px] font-bold">
+        {t.title}
+      </h3>
+      <p className="relative mt-1 text-[13.5px] italic text-primary">
+        &ldquo;{t.hook}&rdquo;
+      </p>
+      <p className="relative mt-2 text-[13.5px] leading-6 text-muted-foreground">
+        {t.brief}
+      </p>
+
+      <details className="relative mt-3 text-[13.5px]">
+        <summary className="cursor-pointer select-none font-semibold text-foreground">
+          Read lesson
+        </summary>
+        <div className="mt-3 space-y-3">
+          <p>
+            <b>What:</b> {t.what}
+          </p>
+          <p>
+            <b>Why:</b> {t.why}
+          </p>
+          <div>
+            <b>How:</b>
+            <ol className="mt-1 list-decimal space-y-1 pl-5">
+              {t.how.map((h, i) => (
+                <li key={i}>{h}</li>
+              ))}
+            </ol>
+          </div>
+          {t.exampleWeak && (
+            <p className="rounded border-l-2 border-destructive/60 bg-destructive/10 p-2">
+              <b>Weak:</b> {t.exampleWeak}
+            </p>
+          )}
+          {t.exampleStrong && (
+            <p className="rounded border-l-2 border-success/60 bg-success/10 p-2">
+              <b>Strong:</b> {t.exampleStrong}
+            </p>
+          )}
+          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+            Best for: {t.bestFor}
+          </p>
+        </div>
+      </details>
+
+      {t.tags.length > 0 && (
+        <div className="relative mt-3 flex flex-wrap gap-1.5">
+          {t.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-primary/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-primary"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </article>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Paid gate — matches your plans page tone.
+   ───────────────────────────────────────────────────────────── */
+function PaidGate() {
+  return (
+    <div className="py-16">
+      <div className="glass glass-float mx-auto max-w-2xl p-10 text-center">
+        <div className="eyebrow mb-3 !text-primary">Paid feature</div>
+        <h1 className="font-display text-[32px] font-bold leading-tight">
+          Pillars of Communication
+        </h1>
+        <p className="mx-auto mt-4 max-w-md text-[15px] leading-6 text-muted-foreground">
+          Unlock the four pillars — 16 techniques, worked examples, and 20
+          targeted drills. Available on the Practice and Sprint plans.
+        </p>
+        <Link to="/plans" className="btn btn-primary mt-8">
+          Upgrade your plan →
+        </Link>
+      </div>
+    </div>
+  );
+}
