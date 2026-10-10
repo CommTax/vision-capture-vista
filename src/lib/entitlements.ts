@@ -7,22 +7,21 @@ import { getState, setState, today, useStore, type State } from "./store";
 export const PLAN_CONFIG = {
   /** Free: this many submitted answers per day (India time); resets at midnight IST. */
   free: { attempts: 5 },
-  practice: {
-    trialDays: 3,
-    billing: ["monthly", "annual"] as const,
-    monthlyPrice: "₹3 / month",
-    annualPrice: "₹24 / year",
-    annualPerMonth: "₹2 / month",
-    /** 3 → 2 is ~33% off. Shown in the Annual toggle chip. */
-    annualDiscountPct: 33 as number | null,
-  },
-  sprint: {
-    trialDays: 3,
-    durations: [
-      { id: "14d", label: "14 days", days: 14, trial: true, price: "₹1" },
-    ],
-    price: "₹1",
-  },
+practice: {
+  trialDays: 3,
+  billing: ["monthly", "annual"] as const,
+  monthlyPrice: "₹2,499 / month",
+  annualPrice: "₹23,988 / year",
+  annualPerMonth: "₹1,999 / month",
+  annualDiscountPct: 20 as number | null,   // 2,499 → 1,999 is ~20% off
+},
+sprint: {
+  trialDays: 3,
+  durations: [
+    { id: "14d", label: "14 days", days: 14, trial: true, price: "₹999" },
+  ],
+  price: "₹999",
+},
 };
 
 export type SprintDurationId = (typeof PLAN_CONFIG.sprint.durations)[number]["id"];
