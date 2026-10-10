@@ -12,7 +12,6 @@ export function techniquesForPillar(
   return all.filter((t) => pillar.categories.includes(t.category));
 }
 
-
 export function techniquesForCategory(
   cat: BitesCategoryId,
   all: Technique[],
