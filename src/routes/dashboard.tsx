@@ -376,25 +376,31 @@ function Dashboard() {
           <div className="eyebrow !text-primary">Today's 2 challenges</div>
           <span className="font-mono text-[11px] text-muted-foreground">2 challenges · ~5 minutes</span>
         </div>
-        <div className="space-y-3">
-          {CHALLENGES.map((c, i) => (
-            <Link
-              key={c.id}
-              to="/practice/$questionId"
-              params={{ questionId: c.id }}
-              className="group flex items-start gap-5 rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong"
-            >
-              <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
-              <div className="flex-1">
-                <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
-                <div className="mt-2 font-mono text-[11px] text-muted-foreground">
-                  FOCUS: <span className="text-primary">{focus}</span>
-                </div>
-              </div>
-              <span className="text-[13px] text-primary group-hover:translate-x-0.5">Start →</span>
-            </Link>
-          ))}
+<div className="space-y-3">
+  {CHALLENGES.map((c, i) => (
+    <Link
+      key={c.id}
+      to="/practice/$questionId"
+      params={{ questionId: c.id }}
+      className="group block rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong"
+    >
+      <div className="flex items-start gap-4">
+        <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
+          <div className="mt-2 font-mono text-[11px] text-muted-foreground">
+            FOCUS: <span className="text-primary">{focus}</span>
+          </div>
         </div>
+      </div>
+      <div className="mt-4 flex justify-end">
+        <span className="text-[13px] font-medium text-primary transition-transform duration-200 group-hover:translate-x-0.5">
+          Start →
+        </span>
+      </div>
+    </Link>
+  ))}
+</div>
       </section>
 
       {/* 5. Recent responses — collapsible */}
