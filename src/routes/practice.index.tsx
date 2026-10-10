@@ -631,15 +631,21 @@ onDone={() => {
 
         {!libraryLoading && mode && mode !== "custom" && slots.length > 0 && (
           <div className="mt-5">
-            {mode === "interview" && (
-              <div className="mb-4">
-                <RoleSelectorCard
-                  selected={selectedRole}
-                  isPaid={!ent.free}
-                  onChange={setSelectedRole}
-                />
-              </div>
-            )}
+{mode === "interview" && (
+  <div className="mb-4">
+    <RoleSelectorCard
+      selected={selectedRole}
+      isPaid={!ent.free && ent.state !== "SPRINT_PAID"}
+      locked={ent.free || ent.state === "SPRINT_PAID"}
+      lockMessage={
+        ent.state === "SPRINT_PAID"
+          ? "Your role is locked for the Sprint. Upgrade to Practice Pass to switch any time."
+          : "Your role is locked on free practice. Upgrade to switch any time."
+      }
+      onChange={setSelectedRole}
+    />
+  </div>
+)}
 
             <div className="eyebrow mb-3">
               {categoryName(mode)}
