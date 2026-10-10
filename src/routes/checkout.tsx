@@ -324,7 +324,7 @@ function Checkout() {
                 ? `Subscribe · ${practicePriceDisplay}`
                 : `Pay ${sprintPrice}`
             }
-            onPaid={() => navigate({ to: product === "practice" ? "/dashboard" : "/sprint" })}
+            onPaid={() => navigate({ to: "/dashboard" })}
           />
           <p className="text-center text-[12px] text-muted-foreground">Secure payment by Razorpay.</p>
         </section>
