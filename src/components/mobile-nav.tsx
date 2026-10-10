@@ -112,6 +112,7 @@ export function MobileNav() {
               title: "Practice",
               items: [
                 { label: "Dashboard", to: "/dashboard" },
+                { label: "My Responses", to: "/responses" },
                 { label: "Drills", to: "/drills", locked: true },
                 { label: "Skills", to: "/skills", locked: true },
                 { label: "Progress", to: "/progress", locked: true },
@@ -141,6 +142,7 @@ export function MobileNav() {
               title: "Practice",
               items: [
                 { label: "Dashboard", to: "/dashboard" },
+                { label: "My Responses", to: "/responses" },
                 { label: "Drills", to: "/drills" },
                 { label: "Skills", to: "/skills" },
                 { label: "Progress", to: "/progress" },
