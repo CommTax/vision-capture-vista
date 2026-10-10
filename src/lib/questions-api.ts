@@ -6,7 +6,8 @@
 //
 // Deterministic per user: the user's email (from the JWT) is passed as
 // a `seed` param so the backend returns the same questions in the same
-// order every time. Results are cached per session per (mode, role).
+// order every time. Falls back to a stable device-local seed if the
+// token is malformed. Results are cached per session per (mode, role).
 //
 // Falls back to the local allScenarios() list if the fetch fails.
 
@@ -42,21 +43,42 @@ function cleanDifficulty(d: string): Scenario["difficulty"] {
 }
 
 /**
- * Read the user's email (JWT `sub` claim) for use as the question seed.
- * Returns null for guests → backend falls back to RANDOM().
+ * Stable per-user seed for deterministic question ordering.
+ *   1. Prefer the user's email from the JWT `sub` claim.
+ *   2. Fall back to a device-local UUID stored in localStorage.
+ * Always returns a non-empty string.
  */
-function getSessionSeed(): string | null {
-  if (typeof window === "undefined") return null;
+function getSessionSeed(): string {
+  if (typeof window === "undefined") return "ssr";
+
   const token = localStorage.getItem("unspoken-session-token");
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(
-      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
-    );
-    return typeof payload?.sub === "string" ? payload.sub : null;
-  } catch {
-    return null;
+  if (token) {
+    try {
+      const payload = JSON.parse(
+        atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      if (typeof payload?.sub === "string" && payload.sub.length > 0) {
+        return payload.sub;
+      }
+    } catch {
+      // fall through to device seed
+    }
   }
+
+  const KEY = "unspoken-question-seed";
+  let deviceSeed = localStorage.getItem(KEY);
+  if (!deviceSeed) {
+    deviceSeed =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2);
+    try {
+      localStorage.setItem(KEY, deviceSeed);
+    } catch {
+      /* ignore quota errors */
+    }
+  }
+  return deviceSeed;
 }
 
 export function cardToScenario(q: QuestionCard): Scenario {
@@ -86,7 +108,6 @@ export async function fetchScenarios(params: {
   const cacheKey = `unspoken-questions-${params.mode}-${params.role ?? ""}`;
 
   // 1. Cache hit — same session, same mode/role → same questions.
-  //    Prevents refetches on re-mount (route changes, tab switches).
   if (typeof window !== "undefined") {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
@@ -108,7 +129,7 @@ export async function fetchScenarios(params: {
       category: params.category,
       role: params.role,
       limit: 30,
-      seed: seed ?? undefined,
+      seed,
     });
     const scenarios = (res.questions ?? []).map(cardToScenario);
     if (scenarios.length > 0) {
