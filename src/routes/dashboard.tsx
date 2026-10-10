@@ -157,20 +157,46 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header */}
+      {/* 1. Header — sentence case greeting */}
       <header className="rise pt-2">
-        <div className="eyebrow mb-3">Good to see you, {profile.name}</div>
-        <div className="mt-2 flex flex-wrap items-center gap-5">
-          <div className="flex gap-5 font-mono text-[12px] text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Flame className="size-3.5 text-primary" />
-              <b className="text-foreground">{streak(days)}</b> day streak
-            </span>
-            <span><b className="text-foreground">{rs.length}</b> responses</span>
-            <span><b className="text-foreground">{stats.filter((s) => s.trend !== 0).length}</b> skills practiced</span>
-          </div>
+        <div className="text-[13px] text-muted-foreground">
+          Good to see you,{" "}
+          <span className="font-medium text-foreground">{profile.name || "friend"}</span>
         </div>
       </header>
+
+      {/* Stats row — three compact cards */}
+      <section className="grid grid-cols-3 gap-3">
+        <div className="glass p-4 text-center">
+          <div className="flex items-center justify-center gap-1.5">
+            <Flame className="size-4 text-primary" />
+            <span className="font-display text-[22px] font-bold leading-none">
+              {streak(days)}
+            </span>
+          </div>
+          <div className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Day streak
+          </div>
+        </div>
+
+        <div className="glass p-4 text-center">
+          <div className="font-display text-[22px] font-bold leading-none">
+            {rs.length}
+          </div>
+          <div className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Responses
+          </div>
+        </div>
+
+        <div className="glass p-4 text-center">
+          <div className="font-display text-[22px] font-bold leading-none">
+            {stats.filter((s) => s.trend !== 0).length}
+          </div>
+          <div className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Skills
+          </div>
+        </div>
+      </section>
 
       {/* 2. Pattern card */}
       <section
@@ -200,7 +226,7 @@ function Dashboard() {
         />
 
         <div className="relative flex items-start justify-end gap-4">
-          <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
+          <div className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[11px] tracking-[0.06em] text-primary">
             {firstName}'s pattern
           </div>
         </div>
@@ -226,11 +252,6 @@ function Dashboard() {
             <div className="text-muted-foreground">Focus</div>
             <div className="mt-1 font-mono text-primary">{focus}</div>
           </div>
-        </div>
-
-        <div className="relative mt-5 rounded-2xl bg-primary/10 p-4">
-          <div className="eyebrow !text-primary">Your next move</div>
-          <p className="mt-2 font-display text-[16px] font-bold">{f.move}</p>
         </div>
 
         <div className="relative mt-6 flex flex-wrap items-center gap-3">
@@ -376,31 +397,31 @@ function Dashboard() {
           <div className="eyebrow !text-primary">Today's 2 challenges</div>
           <span className="font-mono text-[11px] text-muted-foreground">2 challenges · ~5 minutes</span>
         </div>
-<div className="space-y-3">
-  {CHALLENGES.map((c, i) => (
-    <Link
-      key={c.id}
-      to="/practice/$questionId"
-      params={{ questionId: c.id }}
-      className="group block rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong"
-    >
-      <div className="flex items-start gap-4">
-        <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
-        <div className="min-w-0 flex-1">
-          <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
-          <div className="mt-2 font-mono text-[11px] text-muted-foreground">
-            FOCUS: <span className="text-primary">{focus}</span>
-          </div>
+        <div className="space-y-3">
+          {CHALLENGES.map((c, i) => (
+            <Link
+              key={c.id}
+              to="/practice/$questionId"
+              params={{ questionId: c.id }}
+              className="group block rounded-2xl border border-border p-5 transition hover:border-primary/40 hover:bg-glass-strong"
+            >
+              <div className="flex items-start gap-4">
+                <span className="font-mono text-[14px] text-primary">0{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-[18px] font-bold leading-snug">{c.t}</div>
+                  <div className="mt-2 font-mono text-[11px] text-muted-foreground">
+                    FOCUS: <span className="text-primary">{focus}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <span className="text-[13px] font-medium text-primary transition-transform duration-200 group-hover:translate-x-0.5">
+                  Start →
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
-      </div>
-      <div className="mt-4 flex justify-end">
-        <span className="text-[13px] font-medium text-primary transition-transform duration-200 group-hover:translate-x-0.5">
-          Start →
-        </span>
-      </div>
-    </Link>
-  ))}
-</div>
       </section>
 
       {/* 5. Recent responses — collapsible */}
