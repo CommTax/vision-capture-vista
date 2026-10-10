@@ -290,7 +290,7 @@ function Dashboard() {
               <div className="md:col-span-6 flex flex-col justify-between">
                 <div>
                   <div className="eyebrow mb-4 !text-primary">
-                    Recommendation based on responses
+                    Recommendation
                   </div>
 
                   <p className="mt-4 font-display text-[24px] font-bold leading-snug">
