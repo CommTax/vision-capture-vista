@@ -246,6 +246,13 @@ function Practice() {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("unspoken-practice-role");
   });
+
+  // ── Role lock state ──
+  // Lock the role selector once a role has been chosen for plans that
+  // don't allow switching (free + sprint). Pass users can always switch.
+  // A user with no role yet can pick once, even on free/sprint.
+  const hasRole = !!selectedRole && !selectedRole.startsWith("__");
+
   const [swapRemaining, setSwapRemaining] = useState<number | null>(null);
 
   // Pool of scenarios for the selected mode (fetched from the backend).
@@ -405,54 +412,54 @@ function Practice() {
           body="Enter your details — we'll save your responses and pattern as you go."
           submit="Start practising"
           consent
-onDone={() => {
-  const p = getState().profile;
-  if (!p?.email || !p?.phone) return;
-  const mobile = p.phone_country_code
-    ? `${p.phone_country_code} ${p.phone}`
-    : p.phone;
-  void signupFree({
-    name: p.name ?? "",
-    email: p.email,
-    mobile,
-    stage: p.level ?? undefined,
-  })
-    .then((res) => {
-      if (res.session_token) setFreeSession(res.session_token);
-      setState((s) => ({
-        ...s,
-        profile: {
-          name: p.name ?? "Friend",
-          email: p.email ?? "",
-          phone: p.phone,
-          phone_country_code: p.phone_country_code,
-          goal: "",
-          struggle: "",
-          experience: "",
-          level: p.level ?? "Mid career",
-          onboarded: false,
-          plan: "free",
-        },
-      }));
-      setHasToken(true);
-    })
-    .catch((err) => {
-      console.warn("[practice] signupFree failed:", err);
-      const message = err instanceof Error ? err.message : String(err);
+          onDone={() => {
+            const p = getState().profile;
+            if (!p?.email || !p?.phone) return;
+            const mobile = p.phone_country_code
+              ? `${p.phone_country_code} ${p.phone}`
+              : p.phone;
+            void signupFree({
+              name: p.name ?? "",
+              email: p.email,
+              mobile,
+              stage: p.level ?? undefined,
+            })
+              .then((res) => {
+                if (res.session_token) setFreeSession(res.session_token);
+                setState((s) => ({
+                  ...s,
+                  profile: {
+                    name: p.name ?? "Friend",
+                    email: p.email ?? "",
+                    phone: p.phone,
+                    phone_country_code: p.phone_country_code,
+                    goal: "",
+                    struggle: "",
+                    experience: "",
+                    level: p.level ?? "Mid career",
+                    onboarded: false,
+                    plan: "free",
+                  },
+                }));
+                setHasToken(true);
+              })
+              .catch((err) => {
+                console.warn("[practice] signupFree failed:", err);
+                const message = err instanceof Error ? err.message : String(err);
 
-      // Paid users need the OTP flow, not the free signup.
-      if (/paid plan|sign in with OTP/i.test(message)) {
-        navigate({
-          to: "/signup",
-          search: { mode: "signin" },
-        });
-        return;
-      }
+                // Paid users need the OTP flow, not the free signup.
+                if (/paid plan|sign in with OTP/i.test(message)) {
+                  navigate({
+                    to: "/signup",
+                    search: { mode: "signin" },
+                  });
+                  return;
+                }
 
-      // Anything else — let them proceed as a guest (fallback).
-      setHasToken(true);
-    });
-}}
+                // Anything else — let them proceed as a guest (fallback).
+                setHasToken(true);
+              });
+          }}
         />
       </div>
     );
@@ -534,18 +541,18 @@ onDone={() => {
         </h2>
 
         <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
-{MODES.filter((m) =>
-  (["interview", "conversation", "everyday", "custom"] as const).includes(m.id as never)
-).map((m) => (
-  <CategoryTile
-    key={m.id}
-    id={m.id}
-    name={m.name}
-    blurb={CATEGORY_BLURB[m.id] ?? m.blurb}
-    active={mode === m.id}
-    onClick={() => setMode((c) => (c === m.id ? null : m.id))}
-  />
-))}
+          {MODES.filter((m) =>
+            (["interview", "conversation", "everyday", "custom"] as const).includes(m.id as never)
+          ).map((m) => (
+            <CategoryTile
+              key={m.id}
+              id={m.id}
+              name={m.name}
+              blurb={CATEGORY_BLURB[m.id] ?? m.blurb}
+              active={mode === m.id}
+              onClick={() => setMode((c) => (c === m.id ? null : m.id))}
+            />
+          ))}
         </div>
 
         {/* 4. Library for the chosen category */}
@@ -631,21 +638,21 @@ onDone={() => {
 
         {!libraryLoading && mode && mode !== "custom" && slots.length > 0 && (
           <div className="mt-5">
-{mode === "interview" && (
-  <div className="mb-4">
-    <RoleSelectorCard
-      selected={selectedRole}
-      isPaid={!ent.free && ent.state !== "SPRINT_PAID"}
-      locked={ent.free || ent.state === "SPRINT_PAID"}
-      lockMessage={
-        ent.state === "SPRINT_PAID"
-          ? "Your role is locked for the Sprint. Upgrade to Practice Pass to switch any time."
-          : "Your role is locked on free practice. Upgrade to switch any time."
-      }
-      onChange={setSelectedRole}
-    />
-  </div>
-)}
+            {mode === "interview" && (
+              <div className="mb-4">
+                <RoleSelectorCard
+                  selected={selectedRole}
+                  isPaid={!ent.free && ent.state !== "SPRINT_PAID"}
+                  locked={hasRole && (ent.free || ent.state === "SPRINT_PAID")}
+                  lockMessage={
+                    ent.state === "SPRINT_PAID"
+                      ? "Your role is locked for the Sprint. Upgrade to Practice Pass to switch any time."
+                      : "Your role is locked on free practice. Upgrade to switch any time."
+                  }
+                  onChange={setSelectedRole}
+                />
+              </div>
+            )}
 
             <div className="eyebrow mb-3">
               {categoryName(mode)}
