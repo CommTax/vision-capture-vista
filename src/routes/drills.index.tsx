@@ -7,7 +7,16 @@ import { buildRecommendations } from "@/lib/recommendations";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/drills/")({
-  head: () => ({ meta: [{ title: "Drills — TheUnspoken" }, { name: "description", content: "Practice what your responses need most." }, { property: "og:title", content: "Drills — TheUnspoken" }, { property: "og:description", content: "See what gets lost. Practice one thing. Try again." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({
+    meta: [
+      { title: "Drills — TheUnspoken" },
+      { name: "description", content: "See what gets lost. Practice one thing. Try again." },
+      { property: "og:title", content: "Drills — TheUnspoken" },
+      { property: "og:description", content: "See what gets lost. Practice one thing. Try again." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: () => <AppShell><Drills /></AppShell>,
 });
 
@@ -50,7 +59,7 @@ function Drills() {
   const results = useStore((s) => s.drillResults) ?? {};
   const { next } = buildRecommendations(rs);
 
-  // NEW: recommended drills from backend
+  // Recommended drills from backend
   const [recommended, setRecommended] = useState<RecommendedDrill[]>([]);
   const [recLoading, setRecLoading] = useState(true);
 
@@ -89,9 +98,6 @@ function Drills() {
     <div className="space-y-10">
       <div>
         <PageHead eyebrow="" title="Drills" />
-        <p className="-mt-6 text-[15px] text-muted-foreground">
-          Practice what your responses need most.
-        </p>
       </div>
 
       {/* 1. Next drill */}
@@ -138,6 +144,7 @@ function Drills() {
             </div>
           </div>
 
+          {/* Why this drill? — Recommended reason FIRST */}
           <div className="mt-8 border-t border-border pt-6">
             <div className="eyebrow mb-2">Why this drill?</div>
             <div className="font-display text-[18px] font-bold">
@@ -153,11 +160,6 @@ function Drills() {
                 </span>
               )}
             </div>
-            {next.recurring_gap && (
-              <p className="mt-2 text-[14px] text-muted-foreground">
-                What keeps getting lost: {next.recurring_gap}
-              </p>
-            )}
             <p className="mt-2 text-[14px]">
               <span className="text-muted-foreground">Recommended because: </span>
               {next.reason}
@@ -174,12 +176,9 @@ function Drills() {
         </section>
       )}
 
-      {/* 3. Recommended — now from backend, 2 cards based on weakest dims */}
+      {/* 3. Recommended — from backend, 2 cards based on weakest dims */}
       <section>
         <h2 className="text-[22px] font-bold">Recommended for you</h2>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          Based on the two skills your latest response scored lowest on.
-        </p>
 
         {recLoading ? (
           <div className="glass mt-4 p-6 text-center text-[14px] text-muted-foreground">
@@ -197,22 +196,6 @@ function Drills() {
           </div>
         )}
       </section>
-
-{/* 4. Daily drills note */}
-<section className="glass p-7">
-  <div className="eyebrow mb-2 !text-primary">Daily drills</div>
-  <h2 className="text-[20px] font-bold">
-    Your daily drills update as you practice.
-  </h2>
-  <p className="mt-2 text-[14px] leading-6 text-muted-foreground">
-    Each day, we'll surface a small set of drills tailored to the
-    skills your latest responses need most. Complete your next
-    practice response to keep them fresh.
-  </p>
-  <Link to="/practice" className="btn btn-primary mt-5">
-    Practice now →
-  </Link>
-</section>
 
       {/* 5. Completed */}
       {completed.length > 0 && (
