@@ -412,49 +412,86 @@ function Practice() {
           body="Enter your details — we'll save your responses and pattern as you go."
           submit="Start practising"
           consent
-          onDone={() => {
-            const p = getState().profile;
-            if (!p?.email || !p?.phone) return;
-            const mobile = p.phone_country_code
-              ? `${p.phone_country_code} ${p.phone}`
-              : p.phone;
-            void signupFree({
-              name: p.name ?? "",
-              email: p.email,
-              mobile,
-              stage: p.level ?? undefined,
-            })
-              .then((res) => {
-                if (res.session_token) setFreeSession(res.session_token);
-                setState((s) => ({
-                  ...s,
-                  profile: {
-                    name: p.name ?? "Friend",
-                    email: p.email ?? "",
-                    phone: p.phone,
-                    phone_country_code: p.phone_country_code,
-                    goal: "",
-                    struggle: "",
-                    experience: "",
-                    level: p.level ?? "Mid career",
-                    onboarded: false,
-                    plan: "free",
-                  },
-                }));
-                setHasToken(true);
-              })
-              .catch((err) => {
-                console.warn("[practice] signupFree failed:", err);
-                const message = err instanceof Error ? err.message : String(err);
+onDone={() => {
+  const p = getState().profile;
+  if (!p?.email || !p?.phone) return;
 
-                // Paid users need the OTP flow, not the free signup.
-                if (/paid plan|sign in with OTP/i.test(message)) {
-                  navigate({
-                    to: "/signup",
-                    search: { mode: "signin" },
-                  });
-                  return;
-                }
+  const mobile = p.phone_country_code
+    ? `${p.phone_country_code} ${p.phone}`
+    : p.phone;
+
+  const contact = {
+    name: p.name ?? "",
+    email: p.email,
+    phone: p.phone,
+    phone_country_code: p.phone_country_code ?? "",
+  };
+
+  void signupFree({
+    name: contact.name,
+    email: contact.email,
+    mobile,
+    stage: p.level ?? undefined,
+  })
+    .then((res) => {
+      // ── Bug 3 fix ──
+      // Hard-fail if the backend didn't return a token. Silent
+      // success here is what caused the "signed up but no session"
+      // state the user hit.
+      if (!res?.session_token || typeof res.session_token !== "string") {
+        throw new Error(
+          "Signup succeeded but no session token was returned.",
+        );
+      }
+
+      // ── Bug 1 fix ──
+      // Pass the contact object through, so `setFreeSession` takes the
+      // "same user" branch and doesn't wipe the profile we just saved.
+      // (Even on first signup this is the right call — the "new user"
+      // branch's clearUserState() would blank out `contact`.)
+      setFreeSession(res.session_token, contact);
+
+      // Then mirror the profile into the store (this is what AppShell
+      // reads to decide whether the user is onboarded).
+      setState((s) => ({
+        ...s,
+        profile: {
+          name: contact.name || "Friend",
+          email: contact.email,
+          phone: contact.phone,
+          phone_country_code: contact.phone_country_code,
+          goal: "",
+          struggle: "",
+          experience: "",
+          level: p.level ?? "Mid career",
+          onboarded: false,
+          plan: "free",
+        },
+      }));
+
+      setHasToken(true);
+    })
+    .catch((err) => {
+      console.warn("[practice] signupFree failed:", err);
+      const message = err instanceof Error ? err.message : String(err);
+
+      // Paid users need the OTP flow, not the free signup.
+      if (/paid plan|sign in with OTP/i.test(message)) {
+        navigate({ to: "/signup", search: { mode: "signin" } });
+        return;
+      }
+
+      // ── Bug 2 fix ──
+      // Do NOT unlock the UI. Show the user a real error and let them
+      // retry. The old code let them through with no session, which
+      // then 403'd on the first upload.
+      alert(
+        "We couldn't finish setting up your practice. Please check your connection and try again.",
+      );
+      // Leave them on the ContactDetails screen by not calling
+      // setHasToken(true). ContactDetails will stay visible for retry.
+    });
+}}
 
                 // Anything else — let them proceed as a guest (fallback).
                 setHasToken(true);
