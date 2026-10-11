@@ -269,7 +269,7 @@ function BeatTwo() {
         </div>
 
         <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
-          Your point is.{" "}
+          Your point is{" "}
           <span className="text-primary">just scattered &amp; buried.</span>
         </h3>
         <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
