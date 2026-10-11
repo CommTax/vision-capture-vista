@@ -21,7 +21,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: "arun",
     name: "Arun",
     quote:
-      "I had the right points in my head, but too much background kept burying them. TheUnspoken showed me where I was losing the message.",
+      "I knew the projects I'd delivered and the challenges I'd solved, but in interviews, I'd get caught up explaining the background. By the time I reached the outcome, I'd lost the impact. TheUnspoken helped me see where my answers were going off track and get to the point sooner.",
     tint: "rgb(167, 139, 250)",
     primary: true,
   },
@@ -29,7 +29,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: "srikanth",
     name: "Srikanth",
     quote:
-      "I explained things in the order they came to mind. The feedback helped me structure them the way people needed to hear.",
+      "I'd explain every ceremony, blocker, and team challenge when asked a simple interview question. I knew the work, but my answers didn't always show how I helped the team move forward. Practising with TheUnspoken helped me structure my examples and make my contribution clearer.",
     tint: "rgb(96, 165, 250)",
     primary: true,
   },
@@ -37,7 +37,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: "priya",
     name: "Priya",
     quote:
-      "Practising is one thing. Understanding how it lands is another. Each retry felt more purposeful.",
+      "I thought practising more would make me better. But I didn't always know what wasn't working. Each retry helped me understand what to change, and I started speaking with more purpose.",
     tint: "rgb(249, 115, 111)",
     primary: true,
   },
@@ -45,7 +45,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: "mian",
     name: "Mian",
     quote:
-      "I didn't realise how often I softened my own point with \u201CI think\u201D and \u201Cmaybe.\u201D Seeing those habits made the feedback feel personal.",
+      "I didn't realise how often I talked myself down with ‘I think’ and ‘maybe.’ Seeing those habits in my own responses was a wake-up call. I finally understood why my points weren't landing with the confidence I intended",
     tint: "rgb(251, 191, 36)",
     primary: false,
   },
@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: "romeo",
     name: "Romeo",
     quote:
-      "I wasn't making the important part stand out. TheUnspoken showed me the difference between what I said and what came through.",
+      "I thought I was making my point clearly, but the important part kept getting lost. Seeing the gap between what I said and what people could take away made me rethink how I communicate.",
     tint: "rgb(52, 211, 153)",
     primary: false,
   },
