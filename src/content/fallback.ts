@@ -73,7 +73,7 @@ export const FALLBACK_HOMEPAGE: HomepageContent = {
     headlineAccent: "rambling",
     rotatingWords: ["Rambling Responses", "Scattered Responses", "Unclear Responses", "Forgettable Responses"],
     body: "Practise the moment. Speak sharply. Stand out",
-    audience: "For job seekers & students preparing for interviews.",
+    audience: "For Job Seekers & Professionals Ready to Stand Out.",
     cta: "Try TheUnspoken",
     ctaSignedIn: "Start Practicing",
     mobileHeadline: "Practice for moments that matter.",
