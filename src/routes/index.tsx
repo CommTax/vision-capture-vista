@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType, type FormEvent } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
 import { ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
 import { Logo, useHydrated } from "@/components/app-shell";
@@ -77,14 +77,12 @@ function MomentTile({
         boxShadow: `0 1px 0 0 rgba(255,255,255,0.05) inset, 0 24px 60px -32px ${tint}55`,
       }}
     >
-      {/* Corner tint glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-60 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
         style={{ background: tint }}
       />
 
-      {/* Icon + title on one row */}
       <div className="relative flex items-center gap-3.5">
         <div
           className="grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105"
@@ -101,12 +99,10 @@ function MomentTile({
         </h3>
       </div>
 
-      {/* Description */}
       <p className="relative mt-3 text-[13px] leading-5 text-muted-foreground md:text-[13.5px]">
         {m.description}
       </p>
 
-      {/* Explore CTA */}
       <div
         className="relative mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-300"
         style={{ color: tint }}
@@ -282,6 +278,191 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Contact form
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Contact request handler.
+ *
+ * ⚠️ TODO — wire to a real endpoint:
+ *   - If you have `POST /api/contact` on your Render backend:
+ *       await apiPost("/api/contact", payload);
+ *   - If you want to write to Supabase directly:
+ *       await supabase.from("contact_requests").insert([payload]);
+ *
+ * Until then, this logs the payload and shows a success state so the
+ * UI flow is fully testable end-to-end.
+ */
+async function submitContactRequest(payload: {
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+}): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.log("[contact] would submit:", payload);
+
+  // Placeholder — swap for the real call. Example:
+  //
+  //   await apiPost("/api/contact", payload);
+  //
+  // or
+  //
+  //   await supabase.from("contact_requests").insert([{
+  //     ...payload,
+  //     created_at: new Date().toISOString(),
+  //   }]);
+
+  // Simulate a small network delay so the loading state is visible.
+  await new Promise((r) => setTimeout(r, 600));
+}
+
+function ContactSection({ email }: { email: string }) {
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErr("");
+
+    const fd = new FormData(e.currentTarget);
+    const name = String(fd.get("name") ?? "").trim();
+    const emailInput = String(fd.get("email") ?? "").trim();
+    const phone = String(fd.get("phone") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
+
+    if (!name) return setErr("Please add your name.");
+    if (!/^\S+@\S+\.\S+$/.test(emailInput)) return setErr("Please enter a valid email.");
+    if (message.length < 5) return setErr("Tell us a little about what you need.");
+
+    setBusy(true);
+    try {
+      await submitContactRequest({
+        name,
+        email: emailInput,
+        phone: phone || undefined,
+        message,
+      });
+      setDone(true);
+    } catch (error) {
+      console.error("[contact] submit failed:", error);
+      setErr("Something went wrong. Please email us directly instead.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section
+      id="contact"
+      className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20"
+    >
+      <div className="grid gap-10 md:grid-cols-[1fr_1.15fr] md:gap-16">
+        {/* Left: pitch + direct email */}
+        <div>
+          <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
+            Have a question?
+          </h2>
+          <p className="mt-4 max-w-[36ch] text-[15px] leading-6 text-muted-foreground md:text-[17px]">
+            Tell us what you're working on. We'll call you back within{" "}
+            <span className="font-semibold text-foreground">4 hours</span>.
+          </p>
+
+          <p className="mt-8 text-[14px] leading-6 text-muted-foreground">
+            Prefer email? Write to{" "}
+            <a
+              href={`mailto:${email}`}
+              className="text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+            >
+              {email}
+            </a>
+            <br />
+            We read every message.
+          </p>
+        </div>
+
+        {/* Right: form */}
+        {done ? (
+          <div className="glass glass-float flex flex-col items-start justify-center gap-3 p-7 md:p-9">
+            <div className="eyebrow !text-primary">Message received</div>
+            <h3 className="font-display text-[22px] font-bold leading-tight">
+              Thanks — we'll be in touch soon.
+            </h3>
+            <p className="text-[14px] leading-6 text-muted-foreground">
+              We'll call you back within 4 hours during business hours (IST). If
+              it's urgent, email{" "}
+              <a
+                href={`mailto:${email}`}
+                className="text-primary underline decoration-primary/40 underline-offset-4"
+              >
+                {email}
+              </a>
+              .
+            </p>
+          </div>
+        ) : (
+          <form
+            onSubmit={onSubmit}
+            noValidate
+            className="glass glass-float space-y-4 p-7 md:p-9"
+          >
+            <div className="eyebrow !text-primary">Request a callback</div>
+
+            <input
+              name="name"
+              className="field"
+              placeholder="Your name"
+              aria-label="Your name"
+              autoComplete="name"
+              required
+            />
+            <input
+              name="email"
+              type="email"
+              className="field"
+              placeholder="Email"
+              aria-label="Email"
+              autoComplete="email"
+              required
+            />
+            <input
+              name="phone"
+              type="tel"
+              className="field"
+              placeholder="Phone (optional)"
+              aria-label="Phone"
+              autoComplete="tel"
+            />
+            <textarea
+              name="message"
+              className="field min-h-32"
+              placeholder="What would you like to talk about?"
+              aria-label="Message"
+              required
+            />
+
+            {err && <p className="text-[13px] text-destructive">{err}</p>}
+
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={busy}
+            >
+              {busy ? "Sending…" : "Request a callback →"}
+            </button>
+
+            <p className="text-center text-[12px] text-muted-foreground">
+              We'll reach out within 4 hours during business hours (IST).
+            </p>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // Landing
 // ─────────────────────────────────────────────────────────────
 
@@ -313,6 +494,7 @@ function Landing() {
             <a href="#modes" className="hover:text-primary">Practice</a>
             <a href="#how" className="hover:text-primary">How it works</a>
             <a href="#pricing" className="hover:text-primary">Pricing</a>
+            <Link to="/format" className="hover:text-primary">Format</Link>
             <a href="/university/index.html" className="hover:text-primary">University</a>
           </nav>
           <div className="flex items-center gap-3">
@@ -336,7 +518,7 @@ function Landing() {
             <h1 className="text-[clamp(36px,5.6vw,68px)] font-bold leading-[1.04]">
               <span className="block text-[0.82em] lg:whitespace-nowrap">{hero.headline}</span>
               <span className="block"><RotatingWord words={hero.rotatingWords} /></span>
-                         </h1>
+            </h1>
             <p className="mt-6 max-w-[44ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
             <div className="mt-9">
@@ -345,7 +527,7 @@ function Landing() {
                 <ArrowRight className="ml-1 size-4" />
               </button>
               <p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
-                no card required · free practices · voice or text
+                No card needed. Free practice.
               </p>
             </div>
           </div>
@@ -376,12 +558,8 @@ function Landing() {
 
       <FaqSection />
 
-      <section id="contact" className="mx-auto max-w-[1200px] px-5 md:px-8">
-        <a href={`mailto:${contact.email}`} className="flex items-center justify-between border-y border-border py-6">
-          <span className="font-display text-[20px] font-bold">Have a question?</span>
-          <span className="text-[14px] text-primary">Contact us →</span>
-        </a>
-      </section>
+      {/* CONTACT */}
+      <ContactSection email={contact.email} />
 
       <Section>
         <ScrollReveal>
@@ -395,7 +573,7 @@ function Landing() {
               <ArrowRight className="ml-1 size-4" />
             </button>
             <p className="mt-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground">
-              no card required · free practices · voice or text
+              No card needed. Free practice.
             </p>
           </div>
         </ScrollReveal>
