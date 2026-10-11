@@ -1,13 +1,9 @@
 import {
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const AUTO_ADVANCE_MS = 5000;
-const IDLE_RESUME_MS = 10000;
 
 // ─────────────────────────────────────────────────────────────
 // Reduced motion hook
@@ -68,7 +64,6 @@ function TimelineBars({
 }) {
   const total = segments.reduce((sum, s) => sum + s.weight, 0);
 
-  // Colors — muted brown/tan for scattered, slightly brighter for clean
   const barBg =
     variant === "accent"
       ? "rgb(190, 130, 80)"
@@ -82,7 +77,6 @@ function TimelineBars({
 
   return (
     <div className="relative">
-      {/* Marker above the bar */}
       {pointLabel && pointAt !== undefined && (
         <div
           className="pointer-events-none absolute -top-7 z-10"
@@ -104,34 +98,32 @@ function TimelineBars({
         </div>
       )}
 
-      {/* The bar itself */}
       <div className="flex h-12 w-full overflow-hidden rounded-md md:h-11">
         {segments.map((seg, i) => {
           const widthPct = (seg.weight / total) * 100;
           const isAlt = i % 2 === 1;
           return (
-<div
-  key={seg.label}
-  className="relative flex items-center px-1.5 md:px-3"
-  style={{
-    width: `${widthPct}%`,
-    background: isAlt ? barBgAlt : barBg,
-    color: barText,
-    borderRight:
-      i < segments.length - 1
-        ? "1px solid rgba(0,0,0,0.18)"
-        : "none",
-  }}
->
-  <span className="text-[10px] font-semibold leading-[1.15] tracking-[0.01em] md:text-[12.5px] md:leading-[1.2]">
-    {seg.label}
-  </span>
-</div>
+            <div
+              key={seg.label}
+              className="relative flex items-center px-1.5 md:px-3"
+              style={{
+                width: `${widthPct}%`,
+                background: isAlt ? barBgAlt : barBg,
+                color: barText,
+                borderRight:
+                  i < segments.length - 1
+                    ? "1px solid rgba(0,0,0,0.18)"
+                    : "none",
+              }}
+            >
+              <span className="text-[10px] font-semibold leading-[1.15] tracking-[0.01em] md:text-[12.5px] md:leading-[1.2]">
+                {seg.label}
+              </span>
+            </div>
           );
         })}
       </div>
 
-      {/* Timestamps below, aligned under each segment */}
       <div className="mt-1.5 flex w-full">
         {segments.map((seg) => {
           const widthPct = (seg.weight / total) * 100;
@@ -251,7 +243,6 @@ function BeatTwo() {
   return (
     <div className="flex h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-3xl">
-        {/* Header */}
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground md:text-[11px]">
             You said
@@ -261,7 +252,6 @@ function BeatTwo() {
           </span>
         </div>
 
-        {/* Quote — italic serif feel */}
         <p className="text-[14.5px] italic leading-7 text-muted-foreground/90 md:text-[16px] md:leading-8">
           So basically, I&apos;ve worked on a few things, and um, mostly backend, but also
           some other frontend stuff and product, and I think what drives me is learning
@@ -269,7 +259,6 @@ function BeatTwo() {
           <span className="text-primary">and I&apos;m really interested in building…</span>
         </p>
 
-        {/* Timeline */}
         <div className="mt-8 md:mt-10">
           <TimelineBars
             segments={SCATTERED_SEGMENTS}
@@ -279,10 +268,9 @@ function BeatTwo() {
           />
         </div>
 
-        {/* Diagnosis */}
         <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
           Your point is.{" "}
-          <span className="text-primary">just scattered & buried.</span>
+          <span className="text-primary">just scattered &amp; buried.</span>
         </h3>
         <p className="mt-2 text-[12.5px] leading-5 text-muted-foreground md:text-[14px] md:leading-6">
           Your point arrived at <span className="text-foreground">0:33</span>. The first
@@ -301,24 +289,21 @@ function BeatThree() {
   return (
     <div className="flex h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-3xl">
-        {/* Header */}
         <div className="mb-3 flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary md:text-[11px]">
-            Pattern Awareness & Revised Response
+            Pattern Awareness &amp; Revised Response
           </span>
           <span className="font-mono text-[10px] text-muted-foreground md:text-[11px]">
             0:11
           </span>
         </div>
 
-        {/* Quote */}
         <p className="text-[14.5px] italic leading-7 text-foreground/90 md:text-[16px] md:leading-8">
           I&apos;m a backend engineer with four years in payments. I&apos;ve reduced API
           latency by 40%, and I&apos;m looking for a role where I can own reliability end
           to end.
         </p>
 
-        {/* Timeline */}
         <div className="mt-8 md:mt-10">
           <TimelineBars
             segments={CLEAN_SEGMENTS}
@@ -328,7 +313,6 @@ function BeatThree() {
           />
         </div>
 
-        {/* Diagnosis */}
         <h3 className="mt-8 text-balance font-display text-[clamp(22px,3.5vw,34px)] font-bold leading-tight md:mt-10">
           Your point arrived at{" "}
           <span className="text-primary">0:04</span>.
@@ -350,81 +334,75 @@ const BEATS = [
   { id: "b1", node: <BeatOne /> },
   { id: "b2", node: <BeatTwo /> },
   { id: "b3", node: <BeatThree /> },
- ];
+];
 
 // ─────────────────────────────────────────────────────────────
-// Horizontal scroller
+// Horizontal carousel — one card at a time, no autoplay
 // ─────────────────────────────────────────────────────────────
 
 function HorizontalStory() {
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
-  const [hovering, setHovering] = useState(false);
-  const [userInteractedAt, setUserInteractedAt] = useState(0);
-  const reduced = usePrefersReducedMotion();
+  const total = BEATS.length;
 
-  const goTo = useCallback((index: number, smooth = true) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const target = el.children[index] as HTMLElement | undefined;
-    if (!target) return;
-    el.scrollTo({
-      left: target.offsetLeft,
-      behavior: smooth ? "smooth" : "auto",
-    });
-  }, []);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const children = Array.from(el.children) as HTMLElement[];
-      const mid = el.scrollLeft + el.clientWidth / 2;
-      let best = 0;
-      let bestDist = Infinity;
-      children.forEach((child, i) => {
-        const center = child.offsetLeft + child.offsetWidth / 2;
-        const d = Math.abs(center - mid);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    if (reduced) return;
-    if (hovering) return;
-    const sinceInteraction = Date.now() - userInteractedAt;
-    if (sinceInteraction < IDLE_RESUME_MS) return;
-
-    const timer = setTimeout(() => {
-      goTo((active + 1) % BEATS.length);
-    }, AUTO_ADVANCE_MS);
-    return () => clearTimeout(timer);
-  }, [active, hovering, userInteractedAt, reduced, goTo]);
-
-  const markInteraction = useCallback(() => {
-    setUserInteractedAt(Date.now());
-  }, []);
+  const go = useCallback(
+    (next: number) => {
+      setActive(Math.max(0, Math.min(total - 1, next)));
+    },
+    [total],
+  );
 
   const canPrev = active > 0;
-  const canNext = active < BEATS.length - 1;
+  const canNext = active < total - 1;
 
   return (
     <div
-      className="relative"
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
+      className="relative mx-auto w-full max-w-[1200px] px-5 md:px-8"
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          go(active - 1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          go(active + 1);
+        }
+      }}
+      tabIndex={0}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Product story"
     >
-      {/* Dots — above the strip so they're visible */}
+      <div className="relative">
+        {/* Prev arrow — always visible, above the card */}
+        <button
+          type="button"
+          onClick={() => go(active - 1)}
+          disabled={!canPrev}
+          aria-label="Previous panel"
+          className="absolute left-0 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/90 backdrop-blur transition hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:size-12"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+
+        {/* Next arrow — always visible, above the card */}
+        <button
+          type="button"
+          onClick={() => go(active + 1)}
+          disabled={!canNext}
+          aria-label="Next panel"
+          className="absolute right-0 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/90 backdrop-blur transition hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:size-12"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+
+        {/* Single active card — perfectly centered, no peeking neighbors */}
+        <div className="mx-auto flex min-h-[56vh] max-w-[1100px] items-center px-14 py-8 md:min-h-[62vh] md:px-20 md:py-12">
+          <div className="w-full">{BEATS[active].node}</div>
+        </div>
+      </div>
+
+      {/* Dots below — clickable, active pill is wider */}
       <div
-        className="mb-3 flex items-center justify-center gap-2.5 md:mb-4"
+        className="mt-6 flex items-center justify-center gap-2.5 md:mt-8"
         role="tablist"
         aria-label="Story panels"
       >
@@ -434,11 +412,8 @@ function HorizontalStory() {
             type="button"
             role="tab"
             aria-selected={i === active}
-            aria-label={`Panel ${i + 1}`}
-            onClick={() => {
-              markInteraction();
-              goTo(i);
-            }}
+            aria-label={`Go to panel ${i + 1}`}
+            onClick={() => go(i)}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i === active
                 ? "w-8 bg-primary"
@@ -447,76 +422,6 @@ function HorizontalStory() {
           />
         ))}
       </div>
-
-      <div
-        ref={scrollerRef}
-        onWheel={markInteraction}
-        onTouchStart={markInteraction}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            markInteraction();
-            goTo(Math.max(0, active - 1));
-          }
-          if (e.key === "ArrowRight") {
-            e.preventDefault();
-            markInteraction();
-            goTo(Math.min(BEATS.length - 1, active + 1));
-          }
-        }}
-        tabIndex={0}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="Product story"
-        className="
-          flex h-auto min-h-[56vh] w-full snap-x snap-mandatory
-          overflow-x-auto overflow-y-hidden
-          scroll-smooth outline-none
-          [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-          md:h-[62vh] md:min-h-[420px]
-        "
-      >
-        {BEATS.map((beat, i) => (
-          <div
-            key={beat.id}
-            className="
-              flex h-full min-h-[56vh] w-[92vw] shrink-0 snap-center items-center
-              px-5 py-6 sm:w-[88vw]
-              md:min-h-0 md:w-[82vw] md:px-10 md:py-0
-              lg:w-[min(1100px,82vw)]
-            "
-            aria-roledescription="slide"
-            aria-label={`${i + 1} of ${BEATS.length}`}
-          >
-            <div className="w-full">{beat.node}</div>
-          </div>
-        ))}
-      </div>
-
-      <button
-        type="button"
-        onClick={() => {
-          markInteraction();
-          goTo(Math.max(0, active - 1));
-        }}
-        disabled={!canPrev}
-        aria-label="Previous"
-        className="absolute left-2 top-[calc(50%+16px)] hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
-      >
-        <ChevronLeft className="size-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          markInteraction();
-          goTo(Math.min(BEATS.length - 1, active + 1));
-        }}
-        disabled={!canNext}
-        aria-label="Next"
-        className="absolute right-2 top-[calc(50%+16px)] hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/60 backdrop-blur transition hover:border-primary/50 hover:text-primary disabled:opacity-30 disabled:hover:border-border disabled:hover:text-foreground md:flex"
-      >
-        <ChevronRight className="size-4" />
-      </button>
     </div>
   );
 }
