@@ -336,8 +336,7 @@ function Landing() {
             <h1 className="text-[clamp(36px,5.6vw,68px)] font-bold leading-[1.04]">
               <span className="block text-[0.82em] lg:whitespace-nowrap">{hero.headline}</span>
               <span className="block"><RotatingWord words={hero.rotatingWords} /></span>
-              <span className="block">Responses</span>
-            </h1>
+                         </h1>
             <p className="mt-6 max-w-[44ch] text-[17px] leading-7 md:text-[19px]">{hero.body}</p>
             <p className="mt-2 text-[13px] text-muted-foreground">{hero.audience}</p>
             <div className="mt-9">
