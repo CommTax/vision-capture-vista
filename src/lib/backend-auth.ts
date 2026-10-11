@@ -13,7 +13,6 @@ export type AuthSession = {
   expires_in?: number;
 };
 
-
 export type BackendUserSession = {
   user_id: string;
   email?: string;
@@ -28,12 +27,54 @@ export type PlanHint = {
   plan: string | null;
 };
 
-export function getSessionToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(SESSION_KEY);
+/* ─────────────────────────────────────────────────────────────
+   Token storage — hardened.
+   A valid JWT is ~150–800 chars. Anything shorter is definitely
+   not a real token, and the strings "undefined"/"null" are the
+   classic silent-poison values that turn into
+   `Authorization: Bearer undefined` and then into 401/403.
+   ───────────────────────────────────────────────────────────── */
+const MIN_TOKEN_LENGTH = 20;
+
+function isPlausibleToken(t: unknown): t is string {
+  if (typeof t !== "string") return false;
+  if (t.length < MIN_TOKEN_LENGTH) return false;
+  if (t === "undefined" || t === "null") return false;
+  return true;
 }
 
-export function setSessionToken(token: string) {
+export function getSessionToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const t = localStorage.getItem(SESSION_KEY);
+  if (!t) return null;
+  // Self-heal: if we ever find garbage, remove it on read so the
+  // rest of the app sees a clean "no session" state instead of
+  // sending `Bearer undefined` on the next request.
+  if (!isPlausibleToken(t)) {
+    console.warn(
+      "[backend-auth] discarding invalid stored token:",
+      JSON.stringify(t),
+    );
+    try {
+      localStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }
+  return t;
+}
+
+export function setSessionToken(token: string | null | undefined) {
+  if (typeof window === "undefined") return;
+  if (!isPlausibleToken(token)) {
+    console.error(
+      "[backend-auth] refusing to store invalid session token:",
+      JSON.stringify(token),
+    );
+    // Do NOT write garbage — leave whatever was there before.
+    return;
+  }
   localStorage.setItem(SESSION_KEY, token);
 }
 
@@ -46,11 +87,11 @@ export function clearSessionToken() {
   }
 }
 
-/**
- * Cached entitlement hint from the last successful verify-otp.
- * The server is still authoritative — this is only used as an immediate
- * fallback while /api/auth/session is cold-starting or slow.
- */
+/* ─────────────────────────────────────────────────────────────
+   Plan hint — cached entitlement from the last verify-otp.
+   The server is still authoritative; this is only used as an
+   immediate fallback while /api/auth/session is cold-starting.
+   ───────────────────────────────────────────────────────────── */
 export function setPlanHint(hint: PlanHint) {
   try {
     localStorage.setItem(PLAN_HINT_KEY, JSON.stringify(hint));
@@ -74,6 +115,9 @@ export function getPlanHint(): PlanHint | null {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Paid flow — OTP sign in
+   ───────────────────────────────────────────────────────────── */
 export async function requestOtp(email: string) {
   return apiPost<{
     status: string;
@@ -109,6 +153,14 @@ export async function verifyOtp(email: string, otp: string) {
   return result;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Session read — hardened against accidental logouts.
+
+   Only clear the token when the server EXPLICITLY says the
+   session is bad. Network errors, 5xx, Render cold-starts, and
+   unrelated 401s must NOT wipe a good session — that's how a
+   paying user gets logged out mid-flight.
+   ───────────────────────────────────────────────────────────── */
 export async function getBackendSession() {
   const token = getSessionToken();
 
@@ -127,12 +179,23 @@ export async function getBackendSession() {
 
     return session;
   } catch (err) {
-    // Only clear the token when the server explicitly rejects it.
-    // Do NOT clear on network errors, 5xx, or Render cold-starts.
     const message = err instanceof Error ? err.message : String(err);
-    const isAuthFailure = /401|403|invalid|expired|unauthor/i.test(message);
 
-    if (isAuthFailure) {
+    // Narrow the pattern drastically. Match only messages that
+    // clearly indicate the SESSION ITSELF is invalid. Do not match
+    // bare "401"/"403" — those can come from unrelated endpoints
+    // (rate limits, missing params, feature gates) and must not
+    // log the user out.
+    const isExplicitAuthFailure =
+      /invalid session|session expired|token expired|invalid token|unauthorized session/i.test(
+        message,
+      );
+
+    if (isExplicitAuthFailure) {
+      console.warn(
+        "[backend-auth] server rejected session, clearing token:",
+        message,
+      );
       clearSessionToken();
     } else {
       console.warn(
@@ -145,11 +208,12 @@ export async function getBackendSession() {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Sign out — wipes everything for the current browser.
+   ───────────────────────────────────────────────────────────── */
 export function logoutBackend() {
   clearSessionToken();
   try {
-    // Also wipe any local user state so the next person on this
-    // browser doesn't see the previous user's profile or responses.
     if (typeof window !== "undefined") {
       localStorage.removeItem("unspoken-state-v1");
       localStorage.removeItem("unspoken-trial-token");
@@ -160,16 +224,17 @@ export function logoutBackend() {
   }
 }
 
-/**
- * Store a free-user session. Same slot as a paid session — the token
- * identifies the user; the plan on the server decides their cap.
- *
- * If contact info is provided AND differs from what's already in the
- * store, we re-save it. Same-contact no-ops are skipped so we don't
- * churn the store on repeated `Edit → Continue` cycles.
- */
+/* ─────────────────────────────────────────────────────────────
+   Free user session — from the free signup form
+   (name + email + phone). No OTP.
+
+   Hardened: if `token` is missing/invalid, we throw instead of
+   silently writing garbage into localStorage. The caller
+   (signup.tsx) should catch this and show an error to the user
+   instead of proceeding as if they were signed in.
+   ───────────────────────────────────────────────────────────── */
 export function setFreeSession(
-  token: string,
+  token: string | null | undefined,
   contact?: {
     name: string;
     email: string;
@@ -177,6 +242,16 @@ export function setFreeSession(
     phone_country_code: string;
   },
 ) {
+  if (!isPlausibleToken(token)) {
+    console.error(
+      "[backend-auth] setFreeSession called with invalid token:",
+      JSON.stringify(token),
+    );
+    throw new Error(
+      "Signup failed: no valid session token returned. Please try again.",
+    );
+  }
+
   const previous = getState().profile;
 
   // Are we looking at the same user? Compare by email (case-insensitive).
