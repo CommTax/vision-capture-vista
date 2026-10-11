@@ -20,16 +20,17 @@ function loadCheckout() {
 }
 
 type PayArgs = {
-  /** "pass" → Practice Pass (monthly recurring). "sprint" → one-off Sprint. */
+  /** "pass" → Practice Pass (one-time, 30 days). "sprint" → one-time Sprint (28 days). */
   plan: "pass" | "sprint";
-  /** Sprint variant, e.g. "interview" | "gd". Ignored for pass. */
+  /** Sprint goal, e.g. "interview" | "executive". Ignored for pass. */
   sprint?: string;
-  /** Sprint length bucket, e.g. "7d" | "14d" | "3m". Ignored for pass. */
+  /** Sprint length bucket. Ignored for pass. */
   duration?: string;
   email: string;
   name?: string;
   phone?: string;
-  billing?: "monthly" | "annual";
+  /** Billing cadence for pass. "onetime" for Practice Pass (default). */
+  billing?: "monthly" | "annual" | "onetime";
   /** Copy for the button. */
   label: string;
   /** Where to navigate after a successful payment. */
@@ -68,7 +69,7 @@ export function PayButton({
         sprint: plan === "sprint" ? sprint : undefined,
         name,
         phone,
-        billing: plan === "pass" ? (billing ?? "monthly") : undefined,
+        billing: plan === "pass" ? (billing ?? "onetime") : undefined,
       })) as {
         order_id?: string;
         orderId?: string;
@@ -114,7 +115,7 @@ export function PayButton({
                 sprint: plan === "sprint" ? sprint : undefined,
                 name,
                 phone,
-                billing: plan === "pass" ? (billing ?? "monthly") : undefined,
+                billing: plan === "pass" ? (billing ?? "onetime") : undefined,
               })) as {
                 status?: string;
                 session_token?: string;
