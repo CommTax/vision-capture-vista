@@ -43,7 +43,7 @@ const PLATFORM_ITEMS: NavItem[] = [
   {
     label: "Sprint",
     href: "/plans",
-    description: "For immediate, short-term requirements",
+    description: "Interview",
   },
   {
     label: "Pass",
