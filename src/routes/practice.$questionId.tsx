@@ -44,6 +44,50 @@ function getEmailFromToken(): string | null {
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Build a contextual hint for the current question.
+// Voice-only. Adapts to difficulty, question context, and focus.
+// ─────────────────────────────────────────────────────────────
+function buildHint(opts: {
+  seconds: number;
+  difficulty: string;
+  context?: string;
+  focus?: string;
+}): string {
+  const { seconds, difficulty, context, focus } = opts;
+
+  // Time budget
+  const budget = `Speak for up to ${seconds} seconds.`;
+
+  // Difficulty-aware coaching line
+  const difficultyLine = (() => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "Aim for one clear idea — you don't need to cover everything.";
+      case "hard":
+        return "Assume a skeptical listener. Justify your choice in one breath.";
+      case "medium":
+      default:
+        return "Lead with your main point — we'll show you what landed.";
+    }
+  })();
+
+  // Focus-specific nudge, if the URL carries one
+  const focusLine = focus
+    ? `We'll look closely at ${focus.toLowerCase()}.`
+    : "";
+
+  // Context-aware tail, if the scenario has one
+  const contextLine =
+    context && context.length <= 40
+      ? `Context: ${context}.`
+      : "";
+
+  return [budget, difficultyLine, focusLine, contextLine]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function SessionRoute() {
   const { questionId } = Route.useParams();
   const { s, retry, f, ctx } = Route.useSearch();
@@ -126,10 +170,17 @@ function Session({ questionId, situation, retry, focus, ctx }: { questionId: str
 
     return () => { cancelled = true; };
   }, [questionId]);
-  
+
   const q: Question = useMemo(() => {
     if (questionId === "custom") {
-      return { id: "custom", mode: "custom", text: `${situation ?? "Your scenario"} — what would you say?`, context: ctx ?? "Custom scenario", difficulty: "Medium", seconds: 90 };
+      return {
+        id: "custom",
+        mode: "custom",
+        text: situation ?? "Describe your situation — what would you say?",
+        context: ctx ?? "Custom scenario",
+        difficulty: "Medium",
+        seconds: 90,
+      };
     }
     if (dbQuestion) return dbQuestion;
     const base = QUESTIONS.find((x) => x.id === questionId) ?? QUESTIONS[0];
@@ -364,7 +415,31 @@ if (persistentUrl && audioUrl?.startsWith("blob:")) {
               <button className="text-[12px] text-muted-foreground underline hover:text-foreground" onClick={() => { setView(attempts.length - 1); setPhase("result"); }}>Back to analysis</button>
             </div>
           )}
-          <p className="mt-6 text-[15px] text-muted-foreground">What would you say?</p>
+
+          {/* Question metadata — mirrors the practice card */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[12px] text-muted-foreground">
+            <span className="uppercase tracking-[0.12em] text-primary">
+              {q.difficulty}
+            </span>
+            <span className="text-border">·</span>
+            <span>{q.seconds}s target</span>
+            {q.context && (
+              <>
+                <span className="text-border">·</span>
+                <span>{q.context}</span>
+              </>
+            )}
+          </div>
+
+          {/* Dynamic expectation hint — voice-only */}
+          <p className="mt-3 text-[14px] leading-6 text-muted-foreground">
+            {buildHint({
+              seconds: q.seconds,
+              difficulty: q.difficulty,
+              context: q.context,
+              focus: focus,
+            })}
+          </p>
 
           {phase === "analyzing" ? (
             <div className="py-16 text-center" role="status"><div className="mx-auto mb-4 size-10 animate-spin rounded-full border-2 border-primary border-t-transparent" /><div className="text-muted-foreground">Reading the shape of your response…</div></div>
