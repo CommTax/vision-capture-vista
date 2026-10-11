@@ -652,4 +652,16 @@ function Landing() {
       </Section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-[1200px] flex-col justify
+        <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-6 px-5 py-10 sm:flex-row sm:items-center md:px-8">
+          <Logo />
+          <div className="flex gap-6 text-[13px] text-muted-foreground">
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <a href={`mailto:${contact.email}`}>Contact</a>
+          </div>
+        </div>
+      </footer>
+      <MobileNav />
+    </div>
+  );
+}
