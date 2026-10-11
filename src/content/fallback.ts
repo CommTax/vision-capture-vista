@@ -168,7 +168,7 @@ export const FALLBACK_PRICING: PricingPlan[] = [
     currency: "INR",
     billingPeriod: "program",
     features: [
-      "14 days, built around one goal",
+      "28 days, built around one goal",
       "Daily practice with a weekly check-in",
       "Final report showing what changed",
     ],
@@ -180,15 +180,15 @@ export const FALLBACK_PRICING: PricingPlan[] = [
   {
     id: "practice",
     name: "Practice",
-    price: 2499,
+    price: 1499,
     currency: "INR",
-    billingPeriod: "month",
+    billingPeriod: "once",
     features: [
-      "Unlimited practice, voice or text",
+      "30 days of unlimited practice, voice or text",
       "Drills that target your weakest area",
       "Track your progress over time",
     ],
-    cta: "Keep improving",
+    cta: "Get Practice Pass",
     highlighted: false,
     active: true,
   },
