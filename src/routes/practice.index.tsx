@@ -39,6 +39,59 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
   custom:       Sparkles,
 };
 
+// ─────────────────────────────────────────────────────────────
+// Per-user question persistence.
+// The user's currently-visible practice questions are saved to
+// localStorage keyed by their email + mode, so logging out and
+// back in restores the same questions.
+// ─────────────────────────────────────────────────────────────
+
+const SLOTS_STORAGE_VERSION = "v1";
+
+function slotsStorageKey(userEmail: string, mode: string): string {
+  return `unspoken-slots:${SLOTS_STORAGE_VERSION}:${userEmail.toLowerCase()}:${mode}`;
+}
+
+function loadSlots(userEmail: string, mode: string): Scenario[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(slotsStorageKey(userEmail, mode));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+    // Light shape check — each entry must have scenario_id & title
+    if (
+      !parsed.every(
+        (s: any) =>
+          s &&
+          typeof s.scenario_id === "string" &&
+          typeof s.title === "string",
+      )
+    ) {
+      return null;
+    }
+    return parsed as Scenario[];
+  } catch {
+    return null;
+  }
+}
+
+function saveSlots(
+  userEmail: string,
+  mode: string,
+  slots: Scenario[],
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(
+      slotsStorageKey(userEmail, mode),
+      JSON.stringify(slots),
+    );
+  } catch {
+    /* ignore quota / privacy errors */
+  }
+}
+
 export const Route = createFileRoute("/practice/")({
   validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
   head: () => ({ meta: [{ title: "Practice — TheUnspoken" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — TheUnspoken" }, { property: "og:description", content: "Practice what you need to say next." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -50,11 +103,13 @@ function ScenarioCard({
   focus,
   recommended,
   onShuffle,
+  canChange,
 }: {
   s: Scenario;
   focus?: Dimension;
   recommended?: boolean;
   onShuffle?: () => void;
+  canChange?: boolean;
 }) {
   return (
     <div className={`glass flex flex-col p-5 transition hover:bg-glass-strong ${recommended ? "border-primary/50" : ""}`}>
@@ -68,6 +123,7 @@ function ScenarioCard({
         <div className="font-display text-[17px] font-bold leading-snug">{s.title}</div>
         <div className="mt-1 text-[13px] text-muted-foreground">{s.context}</div>
       </Link>
+
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px]">
         <span className="text-muted-foreground">
           FOCUS:{" "}
@@ -77,17 +133,6 @@ function ScenarioCard({
         </span>
         <span className="flex items-center gap-3 text-muted-foreground">
           {s.difficulty} · {s.time_limit}s
-          {onShuffle && (
-            <button
-              type="button"
-              onClick={onShuffle}
-              aria-label="Shuffle this question"
-              title="Shuffle this question"
-              className="grid size-6 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
-            >
-              <RefreshCw className="size-3" />
-            </button>
-          )}
           <Link
             to="/practice/$questionId"
             params={{ questionId: s.scenario_id }}
@@ -98,6 +143,18 @@ function ScenarioCard({
           </Link>
         </span>
       </div>
+
+      {/* Change-question affordance — paid users only. */}
+      {canChange && onShuffle && (
+        <button
+          type="button"
+          onClick={onShuffle}
+          className="mt-4 inline-flex items-center gap-1.5 self-start rounded-full border border-border px-3 py-1 text-[11px] font-medium text-muted-foreground transition hover:border-primary/50 hover:text-primary"
+        >
+          <RefreshCw className="size-3" />
+          Change this question
+        </button>
+      )}
     </div>
   );
 }
@@ -377,7 +434,9 @@ function Practice() {
     }
   }, [selectedRole]);
 
-  // Fetch scenarios whenever mode / level / role changes
+  // Fetch scenarios whenever mode / level / role changes.
+  // Persistence: if we've already shown this user this mode, restore
+  // their saved questions instead of re-picking randomly.
   useEffect(() => {
     if (!mode || mode === "custom") {
       setPool([]);
@@ -385,6 +444,39 @@ function Practice() {
       return;
     }
 
+    const userEmail = getState().profile?.email ?? null;
+
+    // Try to restore the user's saved slots first.
+    if (userEmail) {
+      const restored = loadSlots(userEmail, mode);
+      if (restored && restored.length > 0) {
+        setSlots(restored.slice(0, VISIBLE_COUNT));
+        // Still fetch the pool for shuffling, but don't reset slots.
+        let cancelled = false;
+        setLibraryLoading(true);
+        void fetchScenarios({
+          mode,
+          level,
+          role:
+            mode === "interview" && selectedRole && !selectedRole.startsWith("__")
+              ? selectedRole
+              : undefined,
+        })
+          .then(({ scenarios, source }) => {
+            if (cancelled) return;
+            setPool(scenarios);
+            setLibrarySource(source);
+          })
+          .finally(() => {
+            if (!cancelled) setLibraryLoading(false);
+          });
+        return () => {
+          cancelled = true;
+        };
+      }
+    }
+
+    // Otherwise fetch fresh, and persist what we show.
     let cancelled = false;
     setLibraryLoading(true);
 
@@ -399,8 +491,12 @@ function Practice() {
       .then(({ scenarios, source }) => {
         if (cancelled) return;
         setPool(scenarios);
-        setSlots(scenarios.slice(0, VISIBLE_COUNT));
+        const next = scenarios.slice(0, VISIBLE_COUNT);
+        setSlots(next);
         setLibrarySource(source);
+
+        // Save the initial slots for this user.
+        if (userEmail) saveSlots(userEmail, mode, next);
       })
       .finally(() => {
         if (!cancelled) setLibraryLoading(false);
@@ -499,6 +595,10 @@ function Practice() {
     const next = [...slots];
     next[index] = pick;
     setSlots(next);
+
+    // Persist the new slot arrangement for this user.
+    const userEmail = getState().profile?.email;
+    if (userEmail && mode) saveSlots(userEmail, mode, next);
   }
 
   const ent = useEntitlement();
@@ -810,6 +910,7 @@ function Practice() {
                   s={s}
                   recommended={s.scenario_id === recScenario?.scenario_id}
                   onShuffle={() => shuffleSlot(i)}
+                  canChange={!ent.free}
                 />
               ))}
               <CustomCard onClick={() => setCustomOpen(true)} />
