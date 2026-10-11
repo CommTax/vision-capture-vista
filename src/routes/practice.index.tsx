@@ -123,6 +123,107 @@ function CustomCard({ onClick }: { onClick: () => void }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// Custom situation modal — opens when the user clicks the
+// Custom card. Lets them describe their own moment before
+// navigating to the practice session.
+// ─────────────────────────────────────────────────────────────
+
+function CustomSituationModal({
+  open,
+  onClose,
+  onStart,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onStart: (situation: string) => void;
+}) {
+  const [text, setText] = useState("");
+
+  // Reset the textarea whenever the modal opens so it doesn't
+  // remember the previous attempt.
+  useEffect(() => {
+    if (open) setText("");
+  }, [open]);
+
+  const ready = text.trim().length >= 8;
+
+  // Escape closes the modal
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="custom-situation-title"
+    >
+      <div
+        className="glass glass-float w-full max-w-lg p-6 md:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="eyebrow !text-primary mb-2">Your situation</div>
+        <h3
+          id="custom-situation-title"
+          className="font-display text-[22px] font-bold mb-4 leading-tight"
+        >
+          What's the moment you want to practise?
+        </h3>
+
+        <textarea
+          className="field min-h-32"
+          placeholder="e.g. I need to tell my manager the deadline is slipping, without sounding like I'm blaming the team."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          autoFocus
+          maxLength={500}
+        />
+
+        <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+          <span>Be specific — the more context, the better the feedback.</span>
+          <span className="font-mono">{text.length} / 500</span>
+        </div>
+
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary flex-1"
+            disabled={!ready}
+            onClick={() => {
+              onStart(text.trim());
+            }}
+          >
+            Start practising →
+          </button>
+        </div>
+
+        {!ready && text.length > 0 && (
+          <p className="mt-3 text-center text-[12px] text-muted-foreground">
+            Add a bit more detail — at least 8 characters.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CategoryTile({
   id,
   name,
@@ -240,6 +341,9 @@ function Practice() {
   const initialMode = Route.useSearch().mode;
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
+
+  // ── Custom situation modal state ──
+  const [customOpen, setCustomOpen] = useState(false);
 
   // Role + swap state for interview practice
   const [selectedRole, setSelectedRole] = useState<string | null>(() => {
@@ -412,87 +516,80 @@ function Practice() {
           body="Enter your details — we'll save your responses and pattern as you go."
           submit="Start practising"
           consent
-onDone={() => {
-  const p = getState().profile;
-  if (!p?.email || !p?.phone) return;
+          onDone={() => {
+            const p = getState().profile;
+            if (!p?.email || !p?.phone) return;
 
-  const mobile = p.phone_country_code
-    ? `${p.phone_country_code} ${p.phone}`
-    : p.phone;
+            const mobile = p.phone_country_code
+              ? `${p.phone_country_code} ${p.phone}`
+              : p.phone;
 
-  const contact = {
-    name: p.name ?? "",
-    email: p.email,
-    phone: p.phone,
-    phone_country_code: p.phone_country_code ?? "",
-  };
+            const contact = {
+              name: p.name ?? "",
+              email: p.email,
+              phone: p.phone,
+              phone_country_code: p.phone_country_code ?? "",
+            };
 
-  void signupFree({
-    name: contact.name,
-    email: contact.email,
-    mobile,
-    stage: p.level ?? undefined,
-  })
-    .then((res) => {
-      // ── Bug 3 fix ──
-      // Hard-fail if the backend didn't return a token. Silent
-      // success here is what caused the "signed up but no session"
-      // state the user hit.
-      if (!res?.session_token || typeof res.session_token !== "string") {
-        throw new Error(
-          "Signup succeeded but no session token was returned.",
-        );
-      }
+            void signupFree({
+              name: contact.name,
+              email: contact.email,
+              mobile,
+              stage: p.level ?? undefined,
+            })
+              .then((res) => {
+                // Hard-fail if the backend didn't return a token. Silent
+                // success here is what caused the "signed up but no session"
+                // state the user hit.
+                if (!res?.session_token || typeof res.session_token !== "string") {
+                  throw new Error(
+                    "Signup succeeded but no session token was returned.",
+                  );
+                }
 
-      // ── Bug 1 fix ──
-      // Pass the contact object through, so `setFreeSession` takes the
-      // "same user" branch and doesn't wipe the profile we just saved.
-      // (Even on first signup this is the right call — the "new user"
-      // branch's clearUserState() would blank out `contact`.)
-      setFreeSession(res.session_token, contact);
+                // Pass the contact object through, so `setFreeSession` takes
+                // the "same user" branch and doesn't wipe the profile we just
+                // saved.
+                setFreeSession(res.session_token, contact);
 
-      // Then mirror the profile into the store (this is what AppShell
-      // reads to decide whether the user is onboarded).
-      setState((s) => ({
-        ...s,
-        profile: {
-          name: contact.name || "Friend",
-          email: contact.email,
-          phone: contact.phone,
-          phone_country_code: contact.phone_country_code,
-          goal: "",
-          struggle: "",
-          experience: "",
-          level: p.level ?? "Mid career",
-          onboarded: false,
-          plan: "free",
-        },
-      }));
+                // Mirror the profile into the store (this is what AppShell
+                // reads to decide whether the user is onboarded).
+                setState((s) => ({
+                  ...s,
+                  profile: {
+                    name: contact.name || "Friend",
+                    email: contact.email,
+                    phone: contact.phone,
+                    phone_country_code: contact.phone_country_code,
+                    goal: "",
+                    struggle: "",
+                    experience: "",
+                    level: p.level ?? "Mid career",
+                    onboarded: false,
+                    plan: "free",
+                  },
+                }));
 
-      setHasToken(true);
-    })
-    .catch((err) => {
-      console.warn("[practice] signupFree failed:", err);
-      const message = err instanceof Error ? err.message : String(err);
+                setHasToken(true);
+              })
+              .catch((err) => {
+                console.warn("[practice] signupFree failed:", err);
+                const message = err instanceof Error ? err.message : String(err);
 
-      // Paid users need the OTP flow, not the free signup.
-      if (/paid plan|sign in with OTP/i.test(message)) {
-        navigate({ to: "/signup", search: { mode: "signin" } });
-        return;
-      }
+                // Paid users need the OTP flow, not the free signup.
+                if (/paid plan|sign in with OTP/i.test(message)) {
+                  navigate({ to: "/signup", search: { mode: "signin" } });
+                  return;
+                }
 
-      // ── Bug 2 fix ──
-      // Do NOT unlock the UI. Show the user a real error and let them
-      // retry. The old code let them through with no session, which
-      // then 403'd on the first upload.
-      alert(
-        "We couldn't finish setting up your practice. Please check your connection and try again.",
-      );
-      // Leave them on the ContactDetails screen by not calling
-      // setHasToken(true). ContactDetails will stay visible for retry.
-    });
-}}
-
+                // Do NOT unlock the UI. Show the user a real error and let
+                // them retry. The old code let them through with no session,
+                // which then 403'd on the first upload.
+                alert(
+                  "We couldn't finish setting up your practice. Please check your connection and try again.",
+                );
+              });
+          }}
         />
       </div>
     );
@@ -715,15 +812,7 @@ onDone={() => {
                   onShuffle={() => shuffleSlot(i)}
                 />
               ))}
-              <CustomCard
-                onClick={() =>
-                  navigate({
-                    to: "/practice/$questionId",
-                    params: { questionId: "custom" },
-                    search: { s: "Custom situation", ctx: "Custom scenario" },
-                  })
-                }
-              />
+              <CustomCard onClick={() => setCustomOpen(true)} />
             </div>
           </div>
         )}
@@ -734,6 +823,26 @@ onDone={() => {
           </div>
         )}
       </section>
+
+      {/* ── Custom situation modal ── */}
+      <CustomSituationModal
+        open={customOpen}
+        onClose={() => setCustomOpen(false)}
+        onStart={(situation) => {
+          setCustomOpen(false);
+          navigate({
+            to: "/practice/$questionId",
+            params: { questionId: "custom" },
+            search: {
+              s: situation,
+              ctx:
+                situation.length > 60
+                  ? situation.slice(0, 60).trimEnd() + "…"
+                  : situation,
+            },
+          });
+        }}
+      />
     </div>
   );
 }
