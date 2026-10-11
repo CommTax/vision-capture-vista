@@ -53,26 +53,58 @@ export type FreeSessionResponse = {
   plan: string;
 };
 
+/**
+ * Validate the shape of a free-session response before it reaches
+ * callers. A missing/invalid `session_token` here is the exact bug
+ * that caused a free user's upload to 403 — their signup response
+ * had no token, the client silently continued, and every request
+ * after that went out unauthenticated.
+ *
+ * Throwing here forces the caller (practice.index.tsx / signup.tsx)
+ * to show a real error to the user and let them retry.
+ */
+function assertFreeSession(
+  res: FreeSessionResponse | undefined | null,
+  context: string,
+): FreeSessionResponse {
+  if (!res || typeof res !== "object") {
+    throw new Error(`${context}: no response from server.`);
+  }
+  const token = res.session_token;
+  if (typeof token !== "string" || token.length < 20) {
+    console.error(
+      `[backend-api] ${context}: server returned no valid session_token`,
+      JSON.stringify(token),
+    );
+    throw new Error(
+      "Signup failed: no valid session token returned. Please try again.",
+    );
+  }
+  return res;
+}
+
 export async function signupFree(payload: {
   name: string;
   email: string;
   mobile: string;
   stage?: string;
 }) {
-  return apiPost<FreeSessionResponse>("/api/auth/signup", {
+  const res = await apiPost<FreeSessionResponse>("/api/auth/signup", {
     ...payload,
     email: payload.email.trim().toLowerCase(),
   });
+  return assertFreeSession(res, "signupFree");
 }
 
 export async function resumeFree(payload: {
   email: string;
   mobile: string;
 }) {
-  return apiPost<FreeSessionResponse>("/api/auth/resume", {
+  const res = await apiPost<FreeSessionResponse>("/api/auth/resume", {
     ...payload,
     email: payload.email.trim().toLowerCase(),
   });
+  return assertFreeSession(res, "resumeFree");
 }
 
 // ---------------------------------------------------------------
@@ -96,14 +128,14 @@ export async function getQuestions(params: {
   category?: string;
   role?: string;
   limit?: number;
-  seed?: string;          // ← add
+  seed?: string;
 } = {}): Promise<{ questions: QuestionCard[] }> {
   const q = new URLSearchParams();
   if (params.mode) q.set("mode", params.mode);
   if (params.category) q.set("category", params.category);
   if (params.role) q.set("role", params.role);
   if (params.limit) q.set("limit", String(params.limit));
-  if (params.seed) q.set("seed", params.seed);   // ← add
+  if (params.seed) q.set("seed", params.seed);
   const qs = q.toString();
   return apiGet<{ questions: QuestionCard[] }>(
     `/api/questions${qs ? `?${qs}` : ""}`,
