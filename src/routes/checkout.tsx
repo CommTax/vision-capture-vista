@@ -4,7 +4,7 @@ import { z } from "zod";
 import { AppShell } from "@/components/app-shell";
 import { ContactDetails } from "@/components/contact-details";
 import { PayButton } from "@/components/razorpay-pay";
-import { PLAN_CONFIG, SPRINT_GOALS, type SprintDurationId } from "@/lib/entitlements";
+import { PLAN_CONFIG, SPRINT_GOALS } from "@/lib/entitlements";
 import { getState, useStore } from "@/lib/store";
 import {
   lookupEmail,
@@ -36,6 +36,9 @@ export const Route = createFileRoute("/checkout")({
 
 type Step = "plan" | "details" | "otp" | "pay";
 
+// Simple email validator matching the backend's EmailStr expectations.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Checkout() {
   const s = Route.useSearch();
   const navigate = useNavigate();
@@ -46,6 +49,9 @@ function Checkout() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [code, setCode] = useState("");
+
+  // Read profile reactively so it updates after `saveContact`.
+  const profile = useStore((s) => s.profile);
 
   // ── Pricing display ──────────────────────────────────────────
   const practicePriceDisplay = PLAN_CONFIG.practice.oneTimePrice; // "₹1,499"
@@ -59,20 +65,33 @@ function Checkout() {
       ? `Practice Pass · ${practiceDurationDays} days · ${practicePriceDisplay}`
       : `Sprint · ${sprintDurationDays} days · ${sprintPrice}`;
 
-  // Read profile reactively so it updates after `saveContact`.
-  const profile = useStore((s) => s.profile);
-
   const afterDetails = async () => {
-    const p = getState().profile;
-    if (!p?.email) return;
+    // Use the reactive value from useStore so we always read the same
+    // profile the UI just saved. getState() can lag under some render
+    // schedules; useStore() is the same source the component reads from.
+    const p = profile;
+    const email = String(p?.email ?? "").trim().toLowerCase();
+
+    if (!p) return;
+    if (!email) {
+      setErr("We didn't get your email. Please go back and try again.");
+      return;
+    }
+    if (!EMAIL_RE.test(email)) {
+      setErr("That email doesn't look right. Please check it and try again.");
+      return;
+    }
+
     setBusy(true);
     setErr("");
 
     try {
-      const lookup = await lookupEmail(p.email);
+      const lookup = await lookupEmail(email);
 
       if (lookup.is_paid) {
-        await requestOtp(p.email);
+        // Returning paid customer: verify they own the email via OTP.
+        // The request must carry a valid email — we've validated above.
+        await requestOtp(email);
         setStep("otp");
         setBusy(false);
         return;
@@ -84,7 +103,7 @@ function Checkout() {
 
       const res = await signupFree({
         name: p.name ?? "",
-        email: p.email,
+        email,
         mobile,
         stage: p.level ?? undefined,
       });
@@ -92,7 +111,7 @@ function Checkout() {
       if (res.session_token) {
         setFreeSession(res.session_token, {
           name: p.name ?? "",
-          email: p.email,
+          email,
           phone: p.phone ?? "",
           phone_country_code: p.phone_country_code ?? "+91",
         });
@@ -108,11 +127,15 @@ function Checkout() {
   const verify = async (e: FormEvent) => {
     e.preventDefault();
     const p = getState().profile;
-    if (!p?.email) return;
+    const email = String(p?.email ?? "").trim().toLowerCase();
+    if (!email) {
+      setErr("Missing email. Please go back and re-enter your details.");
+      return;
+    }
     setBusy(true);
     setErr("");
     try {
-      await verifyOtp(p.email, code.trim());
+      await verifyOtp(email, code.trim());
       setStep("pay");
     } catch {
       setErr("That code didn't work. Check it and try again.");
