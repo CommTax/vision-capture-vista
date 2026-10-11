@@ -310,24 +310,6 @@ async function submitContactRequest(payload: {
     throw new Error(error.message || "Could not send your message.");
   }
 }
-  
-  // eslint-disable-next-line no-console
-  console.log("[contact] would submit:", payload);
-
-  // Placeholder — swap for the real call. Example:
-  //
-  //   await apiPost("/api/contact", payload);
-  //
-  // or
-  //
-  //   await supabase.from("contact_requests").insert([{
-  //     ...payload,
-  //     created_at: new Date().toISOString(),
-  //   }]);
-
-  // Simulate a small network delay so the loading state is visible.
-  await new Promise((r) => setTimeout(r, 600));
-}
 
 function ContactSection({ email }: { email: string }) {
   const [busy, setBusy] = useState(false);
