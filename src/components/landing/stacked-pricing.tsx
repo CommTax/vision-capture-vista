@@ -27,7 +27,7 @@ export function StackedPricing({ plans }: { plans: PricingPlan[] }) {
             key={t.id}
             className="sticky"
             style={{
-              top: `${64 + i * 12}px`, // stagger so tops peek
+              top: `${64 + i * 12}px`,
               zIndex: i + 1,
             }}
           >
@@ -41,7 +41,36 @@ export function StackedPricing({ plans }: { plans: PricingPlan[] }) {
   );
 }
 
+/**
+ * Where each plan card's CTA points.
+ *
+ *  - free     → /practice           (free signup form; grants 5 responses)
+ *  - sprint   → /checkout?product=sprint…  (28-day Sprint, ₹999)
+ *  - practice → /checkout?product=practice (30-day Pass, ₹1,499)
+ */
+function ctaFor(plan: PricingPlan) {
+  if (plan.id === "sprint") {
+    return {
+      to: "/checkout" as const,
+      search: { product: "sprint" as const, d: "28d" as const, goal: "interview" },
+    };
+  }
+  if (plan.id === "practice") {
+    return {
+      to: "/checkout" as const,
+      search: { product: "practice" as const },
+    };
+  }
+  // free
+  return {
+    to: "/practice" as const,
+    search: {},
+  };
+}
+
 function PlanCard({ plan: t }: { plan: PricingPlan }) {
+  const cta = ctaFor(t);
+
   return (
     <div
       className={`glass relative flex h-full flex-col p-8 ${
@@ -66,7 +95,8 @@ function PlanCard({ plan: t }: { plan: PricingPlan }) {
         ))}
       </ul>
       <Link
-        to="/signup"
+        to={cta.to}
+        search={cta.search}
         className={`btn mt-8 w-full ${t.highlighted ? "btn-primary" : "btn-ghost"}`}
       >
         {t.cta}
