@@ -131,10 +131,11 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
         >
           {items.map((item) => {
             const isAnchor = item.href.startsWith("#");
-            const isExternal =
-              item.href.startsWith("http") ||
-              item.href.startsWith("/university") ||
-              item.href.startsWith("/format");
+const isExternal =
+  item.href.startsWith("http") ||
+  item.href.startsWith("/university") ||
+  item.href.startsWith("/format") ||
+  item.href.startsWith("/about");
 
             const inner = (
               <>
