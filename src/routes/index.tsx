@@ -282,16 +282,10 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Contact request handler.
+ * Contact request handler — writes directly to Supabase.
  *
- * ⚠️ TODO — wire to a real endpoint:
- *   - If you have `POST /api/contact` on your Render backend:
- *       await apiPost("/api/contact", payload);
- *   - If you want to write to Supabase directly:
- *       await supabase.from("contact_requests").insert([payload]);
- *
- * Until then, this logs the payload and shows a success state so the
- * UI flow is fully testable end-to-end.
+ * Table: public.contact_requests
+ * RLS: anonymous INSERT allowed, anonymous SELECT denied.
  */
 async function submitContactRequest(payload: {
   name: string;
@@ -299,6 +293,24 @@ async function submitContactRequest(payload: {
   phone?: string;
   message: string;
 }): Promise<void> {
+  const { supabase } = await import("@/integrations/supabase/client");
+
+  const { error } = await supabase
+    .from("contact_requests")
+    .insert({
+      name: payload.name.trim(),
+      email: payload.email.trim().toLowerCase(),
+      phone: payload.phone?.trim() || null,
+      message: payload.message.trim(),
+      source: "landing",
+    });
+
+  if (error) {
+    console.error("[contact] supabase insert failed:", error);
+    throw new Error(error.message || "Could not send your message.");
+  }
+}
+  
   // eslint-disable-next-line no-console
   console.log("[contact] would submit:", payload);
 
