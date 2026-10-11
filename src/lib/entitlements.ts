@@ -7,21 +7,24 @@ import { getState, setState, today, useStore, type State } from "./store";
 export const PLAN_CONFIG = {
   /** Free: this many submitted answers per day (India time); resets at midnight IST. */
   free: { attempts: 5 },
-practice: {
-  trialDays: 3,
-  billing: ["monthly", "annual"] as const,
-  monthlyPrice: "₹2,499 / month",
-  annualPrice: "₹23,988 / year",
-  annualPerMonth: "₹1,999 / month",
-  annualDiscountPct: 20 as number | null,   // 2,499 → 1,999 is ~20% off
-},
-sprint: {
-  trialDays: 3,
-  durations: [
-    { id: "14d", label: "14 days", days: 14, trial: true, price: "₹999" },
-  ],
-  price: "₹999",
-},
+
+  practice: {
+    trialDays: 3,
+    /** Practice Pass — one-time, 30 days. No recurring billing. */
+    billing: ["onetime"] as const,
+    oneTimePrice: "₹1,499",
+    oneTimeDurationDays: 30,
+    oneTimeLabel: "₹1,499 / 30 days",
+  },
+
+  sprint: {
+    trialDays: 3,
+    /** Sprint — single duration, 28 days, ₹999. */
+    durations: [
+      { id: "28d", label: "28 days", days: 28, trial: true, price: "₹999" },
+    ],
+    price: "₹999",
+  },
 };
 
 export type SprintDurationId = (typeof PLAN_CONFIG.sprint.durations)[number]["id"];
@@ -43,7 +46,7 @@ export type Entitlement = {
   user_id: string;
   product_type: "free" | "practice" | "sprint";
   plan_type: string;
-  billing_frequency: "monthly" | "annual" | null;
+  billing_frequency: "monthly" | "annual" | "onetime" | null;
   status: "active" | "trialing" | "expired" | "cancelled";
   started_at: string;
   trial_started_at: string | null;
@@ -189,14 +192,22 @@ export function recordSubmission() {
 
 const addDays = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };
 
-export function startPracticeTrial(billing: "monthly" | "annual") {
+/** Starts the Practice Pass trial (3 days, local record only). */
+export function startPracticeTrial() {
   const now = new Date().toISOString();
   setState((s) => ({ ...s, entitlement: {
-    user_id: userId(s), product_type: "practice", plan_type: "practice", billing_frequency: billing, status: "trialing",
-    started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.practice.trialDays), expires_at: null, cancelled_at: null,
+    user_id: userId(s),
+    product_type: "practice",
+    plan_type: "practice",
+    billing_frequency: "onetime",
+    status: "trialing",
+    started_at: now,
+    trial_started_at: now,
+    trial_ends_at: addDays(PLAN_CONFIG.practice.trialDays),
+    expires_at: null,
+    cancelled_at: null,
   } }));
   // TODO: POST /api/checkout/create-order → start a real trial on the backend.
-  // Legacy `cloud-sync.pushTrial()` call removed during the Render migration.
 }
 
 export function sprintDuration(id: SprintDurationId) { return PLAN_CONFIG.sprint.durations.find((d) => d.id === id)!; }
@@ -206,12 +217,19 @@ export function startSprintTrial(goalId: string, duration: SprintDurationId, goa
   if (!d.trial) throw new Error("This Sprint has no trial");
   const now = new Date().toISOString();
   setState((s) => ({ ...s, entitlement: {
-    user_id: userId(s), product_type: "sprint", plan_type: `sprint-${duration}`, billing_frequency: null, status: "trialing",
-    started_at: now, trial_started_at: now, trial_ends_at: addDays(PLAN_CONFIG.sprint.trialDays), expires_at: null, cancelled_at: null,
+    user_id: userId(s),
+    product_type: "sprint",
+    plan_type: `sprint-${duration}`,
+    billing_frequency: null,
+    status: "trialing",
+    started_at: now,
+    trial_started_at: now,
+    trial_ends_at: addDays(PLAN_CONFIG.sprint.trialDays),
+    expires_at: null,
+    cancelled_at: null,
     sprint: { duration, goal: goalId, goal_text: goalText, start_date: today(), end_date: addDays(d.days).slice(0, 10), status: "active" },
   } }));
   // TODO: POST /api/checkout/create-order → start a real sprint on the backend.
-  // Legacy `cloud-sync.pushTrial()` call removed during the Render migration.
 }
 
 export function cancelEntitlement() {
