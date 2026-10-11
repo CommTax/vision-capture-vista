@@ -493,10 +493,6 @@ onDone={() => {
     });
 }}
 
-                // Anything else — let them proceed as a guest (fallback).
-                setHasToken(true);
-              });
-          }}
         />
       </div>
     );
