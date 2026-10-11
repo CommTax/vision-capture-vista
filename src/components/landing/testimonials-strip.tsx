@@ -19,14 +19,14 @@ type Testimonial = {
 const TESTIMONIALS: Testimonial[] = [
   {
     id: "arun",
-    name: "Arun",
+    name: "Arun, PMO",
     quote:
       "I knew the projects I'd delivered and the challenges I'd solved, but in interviews, I'd get caught up explaining the background. By the time I reached the outcome, I'd lost the impact. TheUnspoken helped me see where my answers were going off track and get to the point sooner.",
     tint: "rgb(167, 139, 250)",
     primary: true,
   },
   {
-    id: "srikanth",
+    id: "srikanth, Scrum Master",
     name: "Srikanth",
     quote:
       "I'd explain every ceremony, blocker, and team challenge when asked a simple interview question. I knew the work, but my answers didn't always show how I helped the team move forward. Practising with TheUnspoken helped me structure my examples and make my contribution clearer.",
@@ -34,7 +34,7 @@ const TESTIMONIALS: Testimonial[] = [
     primary: true,
   },
   {
-    id: "priya",
+    id: "priya, Freelancer",
     name: "Priya",
     quote:
       "I thought practising more would make me better. But I didn't always know what wasn't working. Each retry helped me understand what to change, and I started speaking with more purpose.",
@@ -43,7 +43,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "mian",
-    name: "Mian",
+    name: "Mian, Head of Performance Management",
     quote:
       "I didn't realise how often I talked myself down with ‘I think’ and ‘maybe.’ Seeing those habits in my own responses was a wake-up call. I finally understood why my points weren't landing with the confidence I intended",
     tint: "rgb(251, 191, 36)",
@@ -51,7 +51,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "romeo",
-    name: "Romeo",
+    name: "Romeo, AVP",
     quote:
       "I thought I was making my point clearly, but the important part kept getting lost. Seeing the gap between what I said and what people could take away made me rethink how I communicate.",
     tint: "rgb(52, 211, 153)",
