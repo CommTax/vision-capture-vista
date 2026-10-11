@@ -26,12 +26,17 @@ export type AuthSessionResponse = {
 // Auth
 // ---------------------------------------------------------------
 
-export async function requestOtp(payload: { email: string }) {
-  return apiPost<Record<string, unknown>>("/api/auth/request-otp", payload);
+export async function requestOtp(email: string) {
+  return apiPost<Record<string, unknown>>("/api/auth/request-otp", {
+    email: email.trim().toLowerCase(),
+  });
 }
 
-export async function verifyOtp(payload: { email: string; otp: string }) {
-  return apiPost<Record<string, unknown>>("/api/auth/verify-otp", payload);
+export async function verifyOtp(email: string, otp: string) {
+  return apiPost<Record<string, unknown>>("/api/auth/verify-otp", {
+    email: email.trim().toLowerCase(),
+    otp: otp.trim(),
+  });
 }
 
 export async function getAuthSession() {
@@ -335,7 +340,7 @@ export async function createCheckoutOrder(payload: {
   sprint?: string;
   name?: string;
   phone?: string;
-  billing?: "annual" | "monthly";
+  billing?: "monthly" | "annual" | "onetime";
 }) {
   return apiPost<Record<string, unknown>>("/api/checkout/create-order", payload);
 }
@@ -349,7 +354,7 @@ export async function verifyPayment(payload: {
   sprint?: string;
   name?: string;
   phone?: string;
-  billing?: "annual" | "monthly";
+  billing?: "monthly" | "annual" | "onetime";
 }) {
   return apiPost<Record<string, unknown>>("/api/checkout/verify-payment", payload);
 }
