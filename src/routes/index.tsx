@@ -30,29 +30,7 @@ export const Route = createFileRoute("/")({
 });
 
 // ─────────────────────────────────────────────────────────────
-// Moment icons + tints
-// ─────────────────────────────────────────────────────────────
-
-const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
-  interview: Briefcase,
-  "high-stakes": MessageSquareWarning,
-  presentation: Briefcase,
-  leadership: Briefcase,
-  persuasion: MessageSquareWarning,
-  custom: Sparkles,
-};
-
-const MOMENT_TINTS: Record<string, string> = {
-  interview: "rgb(167, 139, 250)",
-  "high-stakes": "rgb(110, 231, 183)",
-  custom: "rgb(249, 168, 158)",
-  presentation: "rgb(251, 191, 36)",
-  leadership: "rgb(139, 127, 255)",
-  persuasion: "rgb(96, 165, 250)",
-};
-
-// ─────────────────────────────────────────────────────────────
-// Landing nav — Home · Practice · Pricing · Resources ▾ · About
+// Nav data + dropdown
 // ─────────────────────────────────────────────────────────────
 
 type NavItem = {
@@ -60,6 +38,19 @@ type NavItem = {
   href: string;
   description?: string;
 };
+
+const PLATFORM_ITEMS: NavItem[] = [
+  {
+    label: "Sprint",
+    href: "/plans",
+    description: "For immediate, short-term requirements",
+  },
+  {
+    label: "Pass",
+    href: "/plans",
+    description: "Build the long-term communication habit",
+  },
+];
 
 const RESOURCE_ITEMS: NavItem[] = [
   { label: "University", href: "/university/index.html", description: "Free lessons — 5 min per chapter" },
@@ -77,6 +68,19 @@ const ABOUT_ITEMS: NavItem[] = [
 function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 150);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -87,12 +91,17 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
+  useEffect(() => () => cancelClose(), []);
+
   return (
     <div
       ref={ref}
       className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={() => {
+        cancelClose();
+        setOpen(true);
+      }}
+      onMouseLeave={scheduleClose}
     >
       <button
         type="button"
@@ -116,7 +125,9 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
       {open && (
         <div
           role="menu"
-          className="absolute left-1/2 top-full z-50 mt-2 min-w-[240px] -translate-x-1/2 rounded-2xl border border-border bg-popover/95 p-2 shadow-xl backdrop-blur-xl"
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+          className="absolute left-1/2 top-full z-50 mt-2 min-w-[260px] -translate-x-1/2 rounded-2xl border border-border bg-popover/95 p-2 shadow-xl backdrop-blur-xl"
         >
           {items.map((item) => {
             const isAnchor = item.href.startsWith("#");
@@ -125,6 +136,20 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
               item.href.startsWith("/university") ||
               item.href.startsWith("/format");
 
+            const inner = (
+              <>
+                <div className="font-medium">{item.label}</div>
+                {item.description && (
+                  <div className="mt-0.5 text-[12px] text-muted-foreground">
+                    {item.description}
+                  </div>
+                )}
+              </>
+            );
+
+            const classes =
+              "block rounded-xl px-4 py-2.5 text-[14px] hover:bg-primary/10 hover:text-primary transition cursor-pointer";
+
             if (isAnchor || isExternal) {
               return (
                 <a
@@ -132,12 +157,9 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
                   href={item.href}
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="block rounded-xl px-4 py-2.5 text-[14px] hover:bg-primary/10 hover:text-primary transition"
+                  className={classes}
                 >
-                  <div className="font-medium">{item.label}</div>
-                  {item.description && (
-                    <div className="mt-0.5 text-[12px] text-muted-foreground">{item.description}</div>
-                  )}
+                  {inner}
                 </a>
               );
             }
@@ -148,12 +170,9 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
                 to={item.href}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="block rounded-xl px-4 py-2.5 text-[14px] hover:bg-primary/10 hover:text-primary transition"
+                className={classes}
               >
-                <div className="font-medium">{item.label}</div>
-                {item.description && (
-                  <div className="mt-0.5 text-[12px] text-muted-foreground">{item.description}</div>
-                )}
+                {inner}
               </Link>
             );
           })}
@@ -166,7 +185,7 @@ function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
 function LandingNav() {
   return (
     <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
-      <Link to="/" className="hover:text-primary">Home</Link>
+      <Dropdown label="Platform" items={PLATFORM_ITEMS} />
       <Link to="/practice" className="hover:text-primary">Practice</Link>
       <a href="#pricing" className="hover:text-primary">Pricing</a>
       <Dropdown label="Resources" items={RESOURCE_ITEMS} />
@@ -176,18 +195,28 @@ function LandingNav() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Moment tile
+// Moment icons + tints
 // ─────────────────────────────────────────────────────────────
 
-function MomentTile({
-  m,
-  tint,
-  onExplore,
-}: {
-  m: PracticeMoment;
-  tint: string;
-  onExplore: () => void;
-}) {
+const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
+  interview: Briefcase,
+  "high-stakes": MessageSquareWarning,
+  presentation: Briefcase,
+  leadership: Briefcase,
+  persuasion: MessageSquareWarning,
+  custom: Sparkles,
+};
+
+const MOMENT_TINTS: Record<string, string> = {
+  interview: "rgb(167, 139, 250)",
+  "high-stakes": "rgb(110, 231, 183)",
+  custom: "rgb(249, 168, 158)",
+  presentation: "rgb(251, 191, 36)",
+  leadership: "rgb(139, 127, 255)",
+  persuasion: "rgb(96, 165, 250)",
+};
+
+function MomentTile({ m, tint, onExplore }: { m: PracticeMoment; tint: string; onExplore: () => void }) {
   const Icon = MOMENT_ICONS[m.id] ?? Briefcase;
 
   return (
@@ -206,7 +235,6 @@ function MomentTile({
         className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-60 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
         style={{ background: tint }}
       />
-
       <div className="relative flex items-center gap-3.5">
         <div
           className="grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-105"
@@ -222,11 +250,9 @@ function MomentTile({
           {m.name}
         </h3>
       </div>
-
       <p className="relative mt-3 text-[13px] leading-5 text-muted-foreground md:text-[13.5px]">
         {m.description}
       </p>
-
       <div
         className="relative mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-300"
         style={{ color: tint }}
@@ -323,7 +349,6 @@ function FaqSection() {
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
         Questions
       </h2>
-
       <div className="mx-auto mt-10 max-w-3xl pb-24">
         {items.map((f, i) => (
           <FaqItem
@@ -367,10 +392,6 @@ function Section({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Modes section
-// ─────────────────────────────────────────────────────────────
-
 function ModesSection({ moments }: { moments: PracticeMoment[] }) {
   const [exploreIndex, setExploreIndex] = useState<number | null>(null);
   const exploringMoment = exploreIndex !== null ? moments[exploreIndex] : null;
@@ -388,7 +409,6 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
           </p>
         </div>
       </ScrollReveal>
-
       <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {moments.map((m, i) => (
           <ScrollReveal key={m.id} delay={i * 80} className="h-full">
@@ -400,7 +420,6 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
           </ScrollReveal>
         ))}
       </div>
-
       <ExploreSheet
         moment={exploringMoment}
         open={exploreIndex !== null}
@@ -422,7 +441,6 @@ async function submitContactRequest(payload: {
   message: string;
 }): Promise<void> {
   const { supabase } = await import("@/integrations/supabase/client");
-
   const { error } = await supabase.from("contact_requests").insert({
     name: payload.name.trim(),
     email: payload.email.trim().toLowerCase(),
@@ -430,7 +448,6 @@ async function submitContactRequest(payload: {
     message: payload.message.trim(),
     source: "landing",
   });
-
   if (error) {
     console.error("[contact] supabase insert failed:", error);
     throw new Error(error.message || "Could not send your message.");
@@ -445,7 +462,6 @@ function ContactSection({ email }: { email: string }) {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErr("");
-
     const fd = new FormData(e.currentTarget);
     const name = String(fd.get("name") ?? "").trim();
     const emailInput = String(fd.get("email") ?? "").trim();
@@ -484,7 +500,6 @@ function ContactSection({ email }: { email: string }) {
             Tell us what you're working on. We'll call you back within{" "}
             <span className="font-semibold text-foreground">4 hours</span>.
           </p>
-
           <p className="mt-8 text-[14px] leading-6 text-muted-foreground">
             Prefer email? Write to{" "}
             <a
@@ -517,52 +532,16 @@ function ContactSection({ email }: { email: string }) {
             </p>
           </div>
         ) : (
-          <form
-            onSubmit={onSubmit}
-            noValidate
-            className="glass glass-float space-y-4 p-7 md:p-9"
-          >
+          <form onSubmit={onSubmit} noValidate className="glass glass-float space-y-4 p-7 md:p-9">
             <div className="eyebrow !text-primary">Request a callback</div>
-
-            <input
-              name="name"
-              className="field"
-              placeholder="Your name"
-              aria-label="Your name"
-              autoComplete="name"
-              required
-            />
-            <input
-              name="email"
-              type="email"
-              className="field"
-              placeholder="Email"
-              aria-label="Email"
-              autoComplete="email"
-              required
-            />
-            <input
-              name="phone"
-              type="tel"
-              className="field"
-              placeholder="Phone (optional)"
-              aria-label="Phone"
-              autoComplete="tel"
-            />
-            <textarea
-              name="message"
-              className="field min-h-32"
-              placeholder="What would you like to talk about?"
-              aria-label="Message"
-              required
-            />
-
+            <input name="name" className="field" placeholder="Your name" aria-label="Your name" autoComplete="name" required />
+            <input name="email" type="email" className="field" placeholder="Email" aria-label="Email" autoComplete="email" required />
+            <input name="phone" type="tel" className="field" placeholder="Phone (optional)" aria-label="Phone" autoComplete="tel" />
+            <textarea name="message" className="field min-h-32" placeholder="What would you like to talk about?" aria-label="Message" required />
             {err && <p className="text-[13px] text-destructive">{err}</p>}
-
             <button type="submit" className="btn btn-primary w-full" disabled={busy}>
               {busy ? "Sending…" : "Request a callback →"}
             </button>
-
             <p className="text-center text-[12px] text-muted-foreground">
               We'll reach out within 4 hours during business hours (IST).
             </p>
@@ -596,7 +575,6 @@ function Landing() {
 
   return (
     <div className="overflow-x-clip pb-20 md:pb-0">
-      {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
@@ -615,7 +593,6 @@ function Landing() {
         </div>
       </header>
 
-      {/* HERO */}
       <section className="mx-auto max-w-[1200px] px-5 pt-14 pb-14 md:px-8 md:pt-20 md:pb-20">
         <div className="grid items-center gap-12 md:grid-cols-[1.1fr_0.9fr] md:gap-16">
           <div className="rise">
@@ -643,7 +620,6 @@ function Landing() {
       <StoryFlow />
       <ModesSection moments={moments} />
 
-      {/* PRICING */}
       <Section id="pricing">
         <ScrollReveal>
           <h2 className={H2}>Pricing</h2>
@@ -651,12 +627,10 @@ function Landing() {
             Start free. Upgrade when you want unlimited practice, deeper analysis, or a focused program.
           </p>
         </ScrollReveal>
-
         <StackedPricing plans={plans} />
       </Section>
 
       <FaqSection />
-
       <ContactSection email={contact.email} />
 
       <Section>
@@ -678,16 +652,4 @@ function Landing() {
       </Section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-6 px-5 py-10 sm:flex-row sm:items-center md:px-8">
-          <Logo />
-          <div className="flex gap-6 text-[13px] text-muted-foreground">
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
-            <a href={`mailto:${contact.email}`}>Contact</a>
-          </div>
-        </div>
-      </footer>
-      <MobileNav />
-    </div>
-  );
-}
+        <div className="mx-auto flex max-w-[1200px] flex-col justify
