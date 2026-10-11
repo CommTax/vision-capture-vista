@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ComponentType, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ComponentType, type FormEvent } from "react";
 import { getBackendSession } from "@/lib/backend-auth";
 import { ArrowRight, Briefcase, MessageSquareWarning, Sparkles } from "lucide-react";
 import { Logo, useHydrated } from "@/components/app-shell";
@@ -43,16 +43,140 @@ const MOMENT_ICONS: Record<string, ComponentType<{ className?: string }>> = {
 };
 
 const MOMENT_TINTS: Record<string, string> = {
-  interview: "rgb(167, 139, 250)",   // lilac
-  "high-stakes": "rgb(110, 231, 183)", // mint
-  custom: "rgb(249, 168, 158)",      // rose
-  presentation: "rgb(251, 191, 36)", // amber
+  interview: "rgb(167, 139, 250)",
+  "high-stakes": "rgb(110, 231, 183)",
+  custom: "rgb(249, 168, 158)",
+  presentation: "rgb(251, 191, 36)",
   leadership: "rgb(139, 127, 255)",
   persuasion: "rgb(96, 165, 250)",
 };
 
 // ─────────────────────────────────────────────────────────────
-// Moment tile — tinted card with Explore action
+// Landing nav — Home · Practice · Pricing · Resources ▾ · About
+// ─────────────────────────────────────────────────────────────
+
+type NavItem = {
+  label: string;
+  href: string;
+  description?: string;
+};
+
+const RESOURCE_ITEMS: NavItem[] = [
+  { label: "University", href: "/university/index.html", description: "Free lessons — 5 min per chapter" },
+  { label: "Framework",  href: "/format",                description: "The five places meaning gets lost" },
+  { label: "Newsletter", href: "#newsletter",            description: "Weekly practice tips" },
+];
+
+const ABOUT_ITEMS: NavItem[] = [
+  { label: "Why we exist", href: "#why" },
+  { label: "Mission",      href: "#mission" },
+  { label: "Vision",       href: "#vision" },
+  { label: "Contact",      href: "#contact" },
+];
+
+function Dropdown({ label, items }: { label: string; items: NavItem[] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="flex items-center gap-1 text-[14px] font-semibold text-foreground hover:text-primary transition"
+      >
+        {label}
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        >
+          <path d="M1 3 L5 7 L9 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute left-1/2 top-full z-50 mt-2 min-w-[240px] -translate-x-1/2 rounded-2xl border border-border bg-popover/95 p-2 shadow-xl backdrop-blur-xl"
+        >
+          {items.map((item) => {
+            const isAnchor = item.href.startsWith("#");
+            const isExternal =
+              item.href.startsWith("http") ||
+              item.href.startsWith("/university") ||
+              item.href.startsWith("/format");
+
+            if (isAnchor || isExternal) {
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-4 py-2.5 text-[14px] hover:bg-primary/10 hover:text-primary transition"
+                >
+                  <div className="font-medium">{item.label}</div>
+                  {item.description && (
+                    <div className="mt-0.5 text-[12px] text-muted-foreground">{item.description}</div>
+                  )}
+                </a>
+              );
+            }
+
+            return (
+              <Link
+                key={item.label}
+                to={item.href}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block rounded-xl px-4 py-2.5 text-[14px] hover:bg-primary/10 hover:text-primary transition"
+              >
+                <div className="font-medium">{item.label}</div>
+                {item.description && (
+                  <div className="mt-0.5 text-[12px] text-muted-foreground">{item.description}</div>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LandingNav() {
+  return (
+    <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
+      <Link to="/" className="hover:text-primary">Home</Link>
+      <Link to="/practice" className="hover:text-primary">Practice</Link>
+      <a href="#pricing" className="hover:text-primary">Pricing</a>
+      <Dropdown label="Resources" items={RESOURCE_ITEMS} />
+      <Dropdown label="About" items={ABOUT_ITEMS} />
+    </nav>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Moment tile
 // ─────────────────────────────────────────────────────────────
 
 function MomentTile({
@@ -117,6 +241,7 @@ function MomentTile({
 // ─────────────────────────────────────────────────────────────
 // FAQ
 // ─────────────────────────────────────────────────────────────
+
 function FaqItem({
   q,
   a,
@@ -135,10 +260,7 @@ function FaqItem({
   return (
     <div
       className="sticky mb-3 last:mb-0"
-      style={{
-        top: `${72 + index * 14}px`,
-        zIndex: index + 1,
-      }}
+      style={{ top: `${72 + index * 14}px`, zIndex: index + 1 }}
     >
       <div
         className={`
@@ -197,10 +319,7 @@ function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
   const items = dataProvider.getFaq();
   return (
-    <section
-      id="faq"
-      className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20"
-    >
+    <section id="faq" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
       <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
         Questions
       </h2>
@@ -229,12 +348,27 @@ function FaqSection() {
 const H2 = "text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]";
 const SUB = "mt-3 text-[15px] text-muted-foreground md:text-[17px]";
 
-function Section({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) {
-  return <section id={id} className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}>{children}</section>;
+function Section({
+  id,
+  className = "",
+  children,
+}: {
+  id?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      id={id}
+      className={`mx-auto max-w-[1200px] px-5 py-10 md:px-8 md:py-14 ${className}`}
+    >
+      {children}
+    </section>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Modes section — tinted cards + Explore sheet
+// Modes section
 // ─────────────────────────────────────────────────────────────
 
 function ModesSection({ moments }: { moments: PracticeMoment[] }) {
@@ -281,12 +415,6 @@ function ModesSection({ moments }: { moments: PracticeMoment[] }) {
 // Contact form
 // ─────────────────────────────────────────────────────────────
 
-/**
- * Contact request handler — writes directly to Supabase.
- *
- * Table: public.contact_requests
- * RLS: anonymous INSERT allowed, anonymous SELECT denied.
- */
 async function submitContactRequest(payload: {
   name: string;
   email: string;
@@ -295,15 +423,13 @@ async function submitContactRequest(payload: {
 }): Promise<void> {
   const { supabase } = await import("@/integrations/supabase/client");
 
-  const { error } = await supabase
-    .from("contact_requests")
-    .insert({
-      name: payload.name.trim(),
-      email: payload.email.trim().toLowerCase(),
-      phone: payload.phone?.trim() || null,
-      message: payload.message.trim(),
-      source: "landing",
-    });
+  const { error } = await supabase.from("contact_requests").insert({
+    name: payload.name.trim(),
+    email: payload.email.trim().toLowerCase(),
+    phone: payload.phone?.trim() || null,
+    message: payload.message.trim(),
+    source: "landing",
+  });
 
   if (error) {
     console.error("[contact] supabase insert failed:", error);
@@ -348,12 +474,8 @@ function ContactSection({ email }: { email: string }) {
   }
 
   return (
-    <section
-      id="contact"
-      className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20"
-    >
+    <section id="contact" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
       <div className="grid gap-10 md:grid-cols-[1fr_1.15fr] md:gap-16">
-        {/* Left: pitch + direct email */}
         <div>
           <h2 className="text-balance text-[clamp(30px,4vw,52px)] font-bold leading-[1.05]">
             Have a question?
@@ -376,7 +498,6 @@ function ContactSection({ email }: { email: string }) {
           </p>
         </div>
 
-        {/* Right: form */}
         {done ? (
           <div className="glass glass-float flex flex-col items-start justify-center gap-3 p-7 md:p-9">
             <div className="eyebrow !text-primary">Message received</div>
@@ -438,11 +559,7 @@ function ContactSection({ email }: { email: string }) {
 
             {err && <p className="text-[13px] text-destructive">{err}</p>}
 
-            <button
-              type="submit"
-              className="btn btn-primary w-full"
-              disabled={busy}
-            >
+            <button type="submit" className="btn btn-primary w-full" disabled={busy}>
               {busy ? "Sending…" : "Request a callback →"}
             </button>
 
@@ -483,14 +600,7 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
           <Logo />
-          <nav className="hidden items-center gap-8 text-[14px] font-semibold text-foreground md:flex">
-            <Link to="/" className="hover:text-primary">Home</Link>
-            <a href="#modes" className="hover:text-primary">Practice</a>
-            <a href="#how" className="hover:text-primary">How it works</a>
-            <a href="#pricing" className="hover:text-primary">Pricing</a>
-            <Link to="/format" className="hover:text-primary">Format</Link>
-            <a href="/university/index.html" className="hover:text-primary">University</a>
-          </nav>
+          <LandingNav />
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {signedIn ? (
@@ -529,13 +639,8 @@ function Landing() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
       <TestimonialsStrip />
-
-      {/* STORY FLOW */}
       <StoryFlow />
-
-      {/* PRACTICE MOMENTS */}
       <ModesSection moments={moments} />
 
       {/* PRICING */}
@@ -552,7 +657,6 @@ function Landing() {
 
       <FaqSection />
 
-      {/* CONTACT */}
       <ContactSection email={contact.email} />
 
       <Section>
