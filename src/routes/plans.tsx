@@ -8,7 +8,7 @@ import { ContactDetails } from "@/components/contact-details";
 
 export const Route = createFileRoute("/plans")({
   validateSearch: z.object({ p: z.enum(["practice", "sprint"]).optional() }),
-  head: () => ({ meta: [{ title: "Plans — Practice and Sprint — TheUnspoken" }, { name: "description", content: "Choose ongoing Practice or a focused, goal-specific Sprint." }, { property: "og:title", content: "Plans — TheUnspoken" }, { property: "og:description", content: "Ongoing Practice or a focused Sprint." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Plans — Practice and Sprint — TheUnspoken" }, { name: "description", content: "Choose a focused 28-day Sprint or a 30-day Practice Pass." }, { property: "og:title", content: "Plans — TheUnspoken" }, { property: "og:description", content: "A focused Sprint or a month of unlimited practice." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: PlansPage,
 });
 
@@ -46,7 +46,6 @@ function PlansPage() {
     setHasToken(token);
   }, []);
 
-  // Avoid a flash of the wrong shell
   if (hasToken === null) return <div className="min-h-screen" />;
 
   if (!hasToken) {
@@ -76,12 +75,10 @@ function Plans() {
   const navigate = useNavigate();
   const profile = useStore((s) => s.profile);
   const { state, free, remaining } = useEntitlement();
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [goal, setGoal] = useState(SPRINT_GOALS[0].id);
   const [goalText, setGoalText] = useState("");
-  const [dur, setDur] = useState<SprintDurationId>("14d");
+  const [dur, setDur] = useState<SprintDurationId>("28d");
   const d = sprintDuration(dur);
-  const disc = PLAN_CONFIG.practice.annualDiscountPct;
   const [pending, setPending] = useState<null | { label: string; run: () => void }>(null);
 
   // Signed-in detection (used to hide the account banner for guests)
@@ -136,39 +133,24 @@ function Plans() {
       )}
 
       <div className="grid gap-5 md:grid-cols-2">
-        {/* Practice plan */}
+        {/* Practice plan — one-time, 30 days */}
         <section className={`glass p-6 md:p-8 ${p !== "sprint" ? "border-primary/40" : ""}`}>
           <div className="eyebrow mb-1 !text-primary">Practice</div>
-          <h2 className="text-[26px] font-bold">Ongoing practice</h2>
+          <h2 className="text-[26px] font-bold">A month of unlimited practice</h2>
           <p className="mt-2 text-[14px] text-muted-foreground">
-            Ongoing communication practice. No end date.
+            Thirty days of access. One payment, no auto-renewal.
           </p>
 
-          <div className="mt-5 flex gap-2">
-            {PLAN_CONFIG.practice.billing.map((b) => (
-              <button
-                key={b}
-                className="chip"
-                data-active={billing === b}
-                onClick={() => setBilling(b)}
-              >
-                {b === "monthly" ? "Monthly" : `Annual${disc ? ` · save ${disc}%` : ""}`}
-              </button>
-            ))}
+          <div className="mt-5 flex items-baseline gap-2">
+            <span className="font-display text-[32px] font-bold">
+              {PLAN_CONFIG.practice.oneTimePrice}
+            </span>
+            <span className="text-[14px] text-muted-foreground">
+              / {PLAN_CONFIG.practice.oneTimeDurationDays} days
+            </span>
           </div>
 
-          <div className="mt-4 font-display text-[28px] font-bold">
-            {billing === "monthly"
-              ? PLAN_CONFIG.practice.monthlyPrice
-              : PLAN_CONFIG.practice.annualPrice}
-          </div>
-          {billing === "annual" && PLAN_CONFIG.practice.annualPerMonth && (
-            <p className="mt-1 text-[12px] text-muted-foreground">
-              {PLAN_CONFIG.practice.annualPerMonth} · billed annually
-            </p>
-          )}
-
-          <ul className="mt-4 space-y-1.5 text-[14px] text-muted-foreground">
+          <ul className="mt-5 space-y-1.5 text-[14px] text-muted-foreground">
             {[
               "Unlimited practice, voice and text",
               "Detailed analysis and AI coaching",
@@ -184,10 +166,10 @@ function Plans() {
           {state !== "PRACTICE_PAID" && (
             <Link
               to="/checkout"
-              search={{ product: "practice", billing }}
+              search={{ product: "practice" }}
               className="btn btn-primary mt-6 w-full"
             >
-              Choose Practice Pass
+              Get Practice Pass — {PLAN_CONFIG.practice.oneTimePrice}
             </Link>
           )}
           {state === "PRACTICE_PAID" && (
@@ -197,12 +179,12 @@ function Plans() {
           )}
         </section>
 
-        {/* Sprint plan */}
+        {/* Sprint plan — 28 days, ₹999 */}
         <section className={`glass p-6 md:p-8 ${p === "sprint" ? "border-primary/40" : ""}`}>
           <div className="eyebrow mb-1 !text-primary">Sprint</div>
-          <h2 className="text-[26px] font-bold">A focused program</h2>
+          <h2 className="text-[26px] font-bold">A focused 28-day program</h2>
           <p className="mt-2 text-[14px] text-muted-foreground">
-            Focused, goal-specific improvement — one goal, a set length, a progress report at the end.
+            One goal. Twenty-eight days. A progress report at the end.
           </p>
 
           <label className="eyebrow mt-5 block">Goal</label>
@@ -224,20 +206,14 @@ function Plans() {
             />
           )}
 
-          <label className="eyebrow mt-4 block">Length</label>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {PLAN_CONFIG.sprint.durations.map((x) => (
-              <button
-                key={x.id}
-                className="chip"
-                data-active={dur === x.id}
-                onClick={() => setDur(x.id)}
-              >
-                {x.label}
-              </button>
-            ))}
+          <div className="mt-5 flex items-baseline gap-2">
+            <span className="font-display text-[32px] font-bold">
+              {PLAN_CONFIG.sprint.price}
+            </span>
+            <span className="text-[14px] text-muted-foreground">
+              / {d.days} days
+            </span>
           </div>
-          <p className="mt-3 text-[13px] text-muted-foreground">{d.price}</p>
 
           {state !== "SPRINT_PAID" && (
             <Link
@@ -245,7 +221,7 @@ function Plans() {
               search={{ product: "sprint", d: dur, goal }}
               className="btn btn-primary mt-6 w-full"
             >
-              Choose Sprint
+              Start Sprint — {PLAN_CONFIG.sprint.price}
             </Link>
           )}
           {state === "SPRINT_PAID" && (
