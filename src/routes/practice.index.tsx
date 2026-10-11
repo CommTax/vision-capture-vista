@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AppShell, PageHead } from "@/components/app-shell";
+import { AppShell, Logo, PageHead } from "@/components/app-shell";
 import { FreeCounter } from "@/components/plan-gate";
 import { useEntitlement } from "@/lib/entitlements";
 import { cap } from "@/components/analysis-view";
@@ -59,7 +59,6 @@ function loadSlots(userEmail: string, mode: string): Scenario[] | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return null;
-    // Light shape check — each entry must have scenario_id & title
     if (
       !parsed.every(
         (s: any) =>
@@ -95,8 +94,67 @@ function saveSlots(
 export const Route = createFileRoute("/practice/")({
   validateSearch: (s: Record<string, unknown>): { mode?: ModeId } => (MODE_IDS as readonly string[]).includes(s.mode as string) ? { mode: s.mode as ModeId } : {},
   head: () => ({ meta: [{ title: "Practice — TheUnspoken" }, { name: "description", content: "Choose a real situation. Practice your response. See what gets lost." }, { property: "og:title", content: "Practice — TheUnspoken" }, { property: "og:description", content: "Practice what you need to say next." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  component: () => <AppShell allowGuest><Practice /></AppShell>,
+  component: PracticePage,
 });
+
+// ─────────────────────────────────────────────────────────────
+// Public header — used when the visitor has no session
+// ─────────────────────────────────────────────────────────────
+
+function PublicHeader() {
+  return (
+    <header className="sticky top-0 z-30 border-b border-border bg-glass backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8">
+        <Logo />
+        <Link
+          to="/"
+          className="text-[14px] font-semibold text-muted-foreground transition hover:text-foreground"
+        >
+          ← Back to home
+        </Link>
+      </div>
+    </header>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Route shell — public layout for guests, app layout for signed in
+// ─────────────────────────────────────────────────────────────
+
+function PracticePage() {
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const token =
+      typeof window !== "undefined" &&
+      !!localStorage.getItem("unspoken-session-token");
+    setHasToken(token);
+  }, []);
+
+  // Avoid a flash of the wrong shell
+  if (hasToken === null) return <div className="min-h-screen" />;
+
+  if (!hasToken) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <PublicHeader />
+        <main className="flex flex-1 items-center justify-center px-5 py-10">
+          <Practice />
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <AppShell allowGuest>
+      <Practice />
+    </AppShell>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Cards
+// ─────────────────────────────────────────────────────────────
 
 function ScenarioCard({
   s,
@@ -144,7 +202,6 @@ function ScenarioCard({
         </span>
       </div>
 
-      {/* Change-question affordance — paid users only. */}
       {canChange && onShuffle && (
         <button
           type="button"
@@ -181,9 +238,7 @@ function CustomCard({ onClick }: { onClick: () => void }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Custom situation modal — opens when the user clicks the
-// Custom card. Lets them describe their own moment before
-// navigating to the practice session.
+// Custom situation modal
 // ─────────────────────────────────────────────────────────────
 
 function CustomSituationModal({
@@ -197,15 +252,12 @@ function CustomSituationModal({
 }) {
   const [text, setText] = useState("");
 
-  // Reset the textarea whenever the modal opens so it doesn't
-  // remember the previous attempt.
   useEffect(() => {
     if (open) setText("");
   }, [open]);
 
   const ready = text.trim().length >= 8;
 
-  // Escape closes the modal
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -252,20 +304,14 @@ function CustomSituationModal({
         </div>
 
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={onClose}
-          >
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
             Cancel
           </button>
           <button
             type="button"
             className="btn btn-primary flex-1"
             disabled={!ready}
-            onClick={() => {
-              onStart(text.trim());
-            }}
+            onClick={() => onStart(text.trim())}
           >
             Start practising →
           </button>
@@ -312,19 +358,16 @@ function CategoryTile({
           : "0 12px 30px -22px rgba(0,0,0,0.6)",
       }}
     >
-      {/* Corner glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-14 -right-14 h-40 w-40 rounded-full transition-opacity duration-500"
         style={{
-          background:
-            "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
+          background: "radial-gradient(closest-side, rgba(139,127,255,0.5), transparent)",
           filter: "blur(12px)",
           opacity: active ? 0.9 : 0.35,
         }}
       />
 
-      {/* Icon + title on one row */}
       <div className="relative flex items-center gap-3">
         <span
           className="grid size-9 shrink-0 place-items-center rounded-lg transition-colors duration-300"
@@ -352,12 +395,10 @@ function CategoryTile({
         )}
       </div>
 
-      {/* Blurb */}
       <p className="relative mt-3 text-[12.5px] leading-5 text-muted-foreground">
         {blurb}
       </p>
 
-      {/* Bottom hint */}
       <div className="relative mt-5 flex items-center justify-between">
         <span
           className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-300"
@@ -376,6 +417,10 @@ function CategoryTile({
     </button>
   );
 }
+
+// ─────────────────────────────────────────────────────────────
+// Practice component
+// ─────────────────────────────────────────────────────────────
 
 function Practice() {
   const [hasToken, setHasToken] = useState<boolean | null>(null);
@@ -399,34 +444,25 @@ function Practice() {
   const [mode, setMode] = useState<ModeId | null>(initialMode ?? null);
   const [custom, setCustom] = useState("");
 
-  // ── Custom situation modal state ──
   const [customOpen, setCustomOpen] = useState(false);
 
-  // Role + swap state for interview practice
   const [selectedRole, setSelectedRole] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("unspoken-practice-role");
   });
 
-  // ── Role lock state ──
-  // Lock the role selector once a role has been chosen for plans that
-  // don't allow switching (free + sprint). Pass users can always switch.
-  // A user with no role yet can pick once, even on free/sprint.
   const hasRole = !!selectedRole && !selectedRole.startsWith("__");
 
   const [swapRemaining, setSwapRemaining] = useState<number | null>(null);
 
-  // Pool of scenarios for the selected mode (fetched from the backend).
   const [pool, setPool] = useState<Scenario[]>([]);
   const [librarySource, setLibrarySource] = useState<"backend" | "fallback">(
     "fallback",
   );
   const [libraryLoading, setLibraryLoading] = useState(false);
 
-  // Which scenario is currently shown in each visible slot.
   const [slots, setSlots] = useState<Scenario[]>([]);
 
-  // Persist selected role to localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (selectedRole && !selectedRole.startsWith("__")) {
@@ -434,9 +470,6 @@ function Practice() {
     }
   }, [selectedRole]);
 
-  // Fetch scenarios whenever mode / level / role changes.
-  // Persistence: if we've already shown this user this mode, restore
-  // their saved questions instead of re-picking randomly.
   useEffect(() => {
     if (!mode || mode === "custom") {
       setPool([]);
@@ -446,12 +479,10 @@ function Practice() {
 
     const userEmail = getState().profile?.email ?? null;
 
-    // Try to restore the user's saved slots first.
     if (userEmail) {
       const restored = loadSlots(userEmail, mode);
       if (restored && restored.length > 0) {
         setSlots(restored.slice(0, VISIBLE_COUNT));
-        // Still fetch the pool for shuffling, but don't reset slots.
         let cancelled = false;
         setLibraryLoading(true);
         void fetchScenarios({
@@ -476,7 +507,6 @@ function Practice() {
       }
     }
 
-    // Otherwise fetch fresh, and persist what we show.
     let cancelled = false;
     setLibraryLoading(true);
 
@@ -494,8 +524,6 @@ function Practice() {
         const next = scenarios.slice(0, VISIBLE_COUNT);
         setSlots(next);
         setLibrarySource(source);
-
-        // Save the initial slots for this user.
         if (userEmail) saveSlots(userEmail, mode, next);
       })
       .finally(() => {
@@ -507,7 +535,6 @@ function Practice() {
     };
   }, [mode, level, selectedRole]);
 
-  // Load swap-status whenever mode / role changes
   useEffect(() => {
     if (!mode || mode === "custom") {
       setSwapRemaining(null);
@@ -537,8 +564,6 @@ function Practice() {
       .catch(() => {});
   }, [mode, selectedRole]);
 
-  // Swap the scenario in one slot for a different one from the pool.
-  // Asks the backend for permission first (free swap cap).
   async function shuffleSlot(index: number) {
     const token =
       typeof window !== "undefined"
@@ -596,7 +621,6 @@ function Practice() {
     next[index] = pick;
     setSlots(next);
 
-    // Persist the new slot arrangement for this user.
     const userEmail = getState().profile?.email;
     if (userEmail && mode) saveSlots(userEmail, mode, next);
   }
@@ -609,7 +633,7 @@ function Practice() {
 
   if (!hasToken) {
     return (
-      <div className="grid min-h-screen place-items-center px-5 py-10">
+      <div className="w-full max-w-lg">
         <ContactDetails
           eyebrow="Try TheUnspoken"
           title="Let's set up your practice"
@@ -638,22 +662,14 @@ function Practice() {
               stage: p.level ?? undefined,
             })
               .then((res) => {
-                // Hard-fail if the backend didn't return a token. Silent
-                // success here is what caused the "signed up but no session"
-                // state the user hit.
                 if (!res?.session_token || typeof res.session_token !== "string") {
                   throw new Error(
                     "Signup succeeded but no session token was returned.",
                   );
                 }
 
-                // Pass the contact object through, so `setFreeSession` takes
-                // the "same user" branch and doesn't wipe the profile we just
-                // saved.
                 setFreeSession(res.session_token, contact);
 
-                // Mirror the profile into the store (this is what AppShell
-                // reads to decide whether the user is onboarded).
                 setState((s) => ({
                   ...s,
                   profile: {
@@ -676,27 +692,31 @@ function Practice() {
                 console.warn("[practice] signupFree failed:", err);
                 const message = err instanceof Error ? err.message : String(err);
 
-                // Paid users need the OTP flow, not the free signup.
                 if (/paid plan|sign in with OTP/i.test(message)) {
                   navigate({ to: "/signup", search: { mode: "signin" } });
                   return;
                 }
 
-                // Do NOT unlock the UI. Show the user a real error and let
-                // them retry. The old code let them through with no session,
-                // which then 403'd on the first upload.
                 alert(
                   "We couldn't finish setting up your practice. Please check your connection and try again.",
                 );
               });
           }}
         />
+        <p className="mt-6 text-center">
+          <Link
+            to="/"
+            className="text-[14px] font-semibold text-muted-foreground transition hover:text-foreground"
+          >
+            ← Back to home
+          </Link>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10">
+    <div className="w-full space-y-10">
       <div>
         <PageHead eyebrow="" title="Choose a real situation" />
         <div className="mt-2">
@@ -711,7 +731,6 @@ function Practice() {
         </p>
       )}
 
-      {/* 1. Next practice */}
       {rec && recScenario && (
         <section className="glass glass-float rise grid gap-8 border-primary/40 p-7 md:grid-cols-12 md:p-9">
           <div className="md:col-span-7">
@@ -761,7 +780,6 @@ function Practice() {
         </section>
       )}
 
-      {/* 3. Categories */}
       <section>
         <h2 className="text-[22px] font-bold flex items-baseline justify-between">
           Practice a situation
@@ -785,7 +803,6 @@ function Practice() {
           ))}
         </div>
 
-        {/* 4. Library for the chosen category */}
         {mode === "custom" && ent.free && (
           <div className="glass mt-5 p-6 text-[14px]">
             <div className="eyebrow mb-1">Custom practice</div>
@@ -925,7 +942,6 @@ function Practice() {
         )}
       </section>
 
-      {/* ── Custom situation modal ── */}
       <CustomSituationModal
         open={customOpen}
         onClose={() => setCustomOpen(false)}
