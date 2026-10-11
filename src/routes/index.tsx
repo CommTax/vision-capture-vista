@@ -48,7 +48,7 @@ const PLATFORM_ITEMS: NavItem[] = [
   {
     label: "Pass",
     href: "/plans",
-    description: "Build the long-term communication habit",
+    description: "Build the habit",
   },
 ];
 
