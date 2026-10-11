@@ -14,6 +14,7 @@ export type TrialCaptureResponse = {
   [k: string]: unknown;
 };
 
+
 export type AuthSessionResponse = {
   plan?: string;
   is_paid?: boolean;
