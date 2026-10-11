@@ -59,9 +59,9 @@ const RESOURCE_ITEMS: NavItem[] = [
 ];
 
 const ABOUT_ITEMS: NavItem[] = [
-  { label: "Why we exist", href: "#why" },
-  { label: "Mission",      href: "#mission" },
-  { label: "Vision",       href: "#vision" },
+  { label: "Why we exist", href: "/about#why" },
+  { label: "Our story",    href: "/about#story" },
+  { label: "Vision",       href: "/about#vision" },
   { label: "Contact",      href: "#contact" },
 ];
 
