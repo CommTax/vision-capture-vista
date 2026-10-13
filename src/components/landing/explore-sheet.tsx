@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { X, ArrowRight } from "lucide-react";
 import type { PracticeMoment, PracticeMomentChip } from "@/content/types";
@@ -7,6 +7,10 @@ import type { PracticeMoment, PracticeMomentChip } from "@/content/types";
  * Bottom sheet (mobile) / centered modal (desktop) showing
  * the roles and question types inside a practice moment.
  * Content is derived from `moment.chips` grouped by category.
+ *
+ * Chips are interactive: clicking a role or a question type
+ * highlights it, and the CTA carries the selection through to
+ * /practice as URL search params.
  */
 export function ExploreSheet({
   moment,
@@ -19,6 +23,17 @@ export function ExploreSheet({
   onClose: () => void;
   tint: string;
 }) {
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  // Reset selections each time the sheet opens for a new moment
+  useEffect(() => {
+    if (open) {
+      setSelectedRole(null);
+      setSelectedType(null);
+    }
+  }, [open, moment?.id]);
+
   // Lock body scroll while open
   useEffect(() => {
     if (!open) return;
@@ -53,6 +68,9 @@ export function ExploreSheet({
     custom: "Things you can try",
     other: "Also available",
   };
+
+  // Which categories are interactive (single-select).
+  const SELECTABLE = new Set(["role", "type"]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
@@ -99,28 +117,65 @@ export function ExploreSheet({
         {/* Body — scrollable */}
         <div className="flex-1 overflow-y-auto p-5 md:p-6">
           <div className="space-y-6">
-            {Object.entries(grouped).map(([cat, labels]) => (
-              <div key={cat}>
-                <div className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                  {CATEGORY_LABELS[cat] ?? cat}
+            {Object.entries(grouped).map(([cat, labels]) => {
+              const isSelectable = SELECTABLE.has(cat);
+              return (
+                <div key={cat}>
+                  <div className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground/70">
+                    {CATEGORY_LABELS[cat] ?? cat}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {labels.map((label) => {
+                      if (!isSelectable) {
+                        // Non-selectable chips — visible, but inert.
+                        return (
+                          <span
+                            key={label}
+                            className="rounded-full border border-border bg-card px-3 py-1.5 text-[12.5px] leading-5 text-foreground"
+                          >
+                            {label}
+                          </span>
+                        );
+                      }
+
+                      const isSelected =
+                        (cat === "role" && selectedRole === label) ||
+                        (cat === "type" && selectedType === label);
+
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => {
+                            if (cat === "role") {
+                              setSelectedRole((r) => (r === label ? null : label));
+                            } else if (cat === "type") {
+                              setSelectedType((t) => (t === label ? null : label));
+                            }
+                          }}
+                          className={`rounded-full border px-3 py-1.5 text-[12.5px] font-medium leading-5 transition ${
+                            isSelected
+                              ? "text-white"
+                              : "border-border bg-card text-foreground hover:border-primary/60 hover:bg-primary/5"
+                          }`}
+                          style={
+                            isSelected
+                              ? {
+                                  borderColor: tint,
+                                  background: tint,
+                                  color: "#0f0f14",
+                                }
+                              : undefined
+                          }
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {labels.map((label) => (
-                    <span
-                      key={label}
-                      className="rounded-full border px-3 py-1.5 text-[12.5px] leading-5"
-                      style={{
-                        borderColor: `${tint}40`,
-                        background: `${tint}10`,
-                        color: "rgb(230, 230, 235)",
-                      }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -128,7 +183,11 @@ export function ExploreSheet({
         <div className="border-t border-border bg-popover p-5 md:p-6">
           <Link
             to="/practice"
-            search={{ mode: moment.category }}
+            search={{
+              mode: moment.category,
+              role: selectedRole ?? undefined,
+              type: selectedType ?? undefined,
+            }}
             onClick={onClose}
             className="btn btn-primary w-full justify-center"
             style={{ background: tint, color: "rgb(15, 15, 20)" }}
